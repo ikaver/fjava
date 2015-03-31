@@ -1,0 +1,68 @@
+MICA: in-memory key-value store.
+
+Enable parallel access to partitioned data;
+
+Data structures:
+    circular logs.
+    lossy concurrent hash indexes.
+    bulk chaining.
+
+Goal:
+    Provide high performance when serving many small objects.
+
+Common problems:
+    Lock contention.
+    Expensive updates to data structures.
+    Complex memory management.
+    Handling skewed key popularity.
+
+Supports:
+    store-semantics (no key-value is removed without request from client)
+    cache-semantics (throw away existing items to save new ones)
+
+Modes of execution:
+    EREW mode (Exclusive Read Exclusive Write) minimizes costly inter-core communication 
+    CREW mode (Concurrent Read Exclusive Write) allows multiple cores to serve popular data.
+
+Handle small, variable-length key-value items:
+    Most key-value items are small [5]
+    Variable-length items require careful memory management to reduce fragmentation that can waste substantial space [5]
+
+
+Storage interface and semantics:
+    GET(key), PUT(key, value), DELETE(key)
+
+Some solutions rely on these assumptions for good performance:
+    - Support only small fixed-length keys [33]
+    - Client request batching [15,30,33,36] to amortize high network I/O overhead
+    - Use specialized hardware
+    - No support for item eviction
+    - Focus only on uniform or read-intensive workloads.
+    - Low throughput for write-intensive workloads.
+
+Handling concurrent sccess:
+    Integrity of data structure is mantained using
+        mutexes [36]
+        optimistic locking [15] [30]
+        lock-free data structures [34]
+    Concurrent writes scale poorly:
+        Frequent cache line transfer between cores.
+        Only one core can hold the cache line of the same memory location for writing at the same time.
+
+Exclusive access:
+    Only one core can access part of the data, by partitioning the data (sharding), each core exclusively accesses its own partition in parallel without inter-core communication. This can cause work imbalance.
+    MICA's parallel data access: MICA partitions data and mainly uses exclusive access to the partititons. MICA can fall back to concurrent read if the load is extremely skewed, but avoids concurrent writes, which are alwayd slower than exclusive writes.
+
+Flow-level core affinity:
+    *** Fuck this shit.
+
+Application-level core affinity:
+    Distribute requests to cores based on application partitioning.
+    Requests sharing the same key would all go to the core handling that key's partition.
+
+Challenges:
+    Mantaining integrity of hash data structure while allowing efficient access.
+    
+
+Zipf-distributed key popularity [5]: http://www.ece.eng.wayne.edu/~sjiang/pubs/papers/atikoglu12-memcached.pdf
+
