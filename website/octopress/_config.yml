@@ -3,7 +3,7 @@
 # ----------------------- #
 
 url: http://yoursite.com
-title: FJava: A minimalistic high level cilk implementation for Java
+title: FJava: Fork Join for Java
 subtitle: CMU 15618 Final Project. Spring 2015.
 author: Ankit Agarwal and Iosef Kaver
 simple_search: https://www.google.com/search
