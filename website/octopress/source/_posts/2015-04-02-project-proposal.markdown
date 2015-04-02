@@ -5,15 +5,52 @@ date: 2015-04-02 02:09:42 -0400
 comments: true
 categories: 
 ---
-Summary: We are going to implement a minimalistic high level cilk implementation for the Java programming language. Additionally, we will compare the performance of different scheduling and job stealing strategies for the framework.
 
-Background: 
+**Summary**: 
+
+We are going to implement a minimalistic high level cilk implementation for the Java programming language. Additionally, we will compare the performance of different scheduling and job stealing strategies for the framework.
+
+**Background**: 
 
 Fork join model is a natural way to express independent work inherent in divide and conquer algorithms. Many divide and conquer problems can gain almost a linear speedup with the number of processors when a lightweight, efficient fork join framework is used for parallelism.
 
 One such framework for expressing work in fork join model is Cilk in C and C++. We want to implement a framework which allows programmers similar level of functionality in Java. Additionally, we want to take a fresh look at the existing ForkJoinPool by experimenting with different scheduling and work distribution strategies. Also, we intend to enhance the existing implementation by providing a APIs for better error reporting, performance metrics and simplicity.
 
-Challenges: 
+Here is an example of our API:
+
+``` java
+
+public class Sorter<T> implements Runnable {
+
+  private T [] array;
+  private int left;
+  private int right;
+  private static final int LOCAL_SORT_DIFF = 10;
+  
+  public Sorter(T [] array, int left, int right) {
+    this.array = array;
+    this.left = left;
+    this.right = right;
+  }
+  
+  @Override
+  public void run() {
+    if(this.right-this.left <= LOCAL_SORT_DIFF) {
+      //sort locally
+      return;
+    }
+    int mid = (left+right) / 2;
+    FJava fj = FJava.getInstance();
+    JobToken token = fj.createJob();
+    fj.runAsync(new Sorter<T>(array, left, mid), token);
+    new Sorter<T>(array, mid+1, right).run();
+    fj.sync(token);
+  }
+}
+```
+
+**Challenges**: 
+
 The dependencies in the fork-join model are usually described explicitly by the user code. We would like to figure out the dependencies at either compile or run time; an alternative would be to force the user to use framework level constructs for specifying them explicitly.
 There usually exists high locality between the childs of a job and the creator of the child jobs. The scheduling and work stealing algorithms that we implement should exploit this characteristic of the jobs.
 Understand and design different scheduling and work stealing strategies for several types of fork-join tasks.
