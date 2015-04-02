@@ -36,7 +36,7 @@ public class Sorter<T> implements Runnable {
   @Override
   public void run() {
     if(this.right-this.left <= LOCAL_SORT_DIFF) {
-      //sort locally
+      Arrays.sort(array, left, right);
       return;
     }
     int mid = (left+right) / 2;
