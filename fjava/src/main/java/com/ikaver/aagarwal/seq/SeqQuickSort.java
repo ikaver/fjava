@@ -7,7 +7,7 @@ import com.ikaver.aagarwal.common.problems.QuickSort;
 
 public class SeqQuickSort implements QuickSort {
 
-  public void sort(double[] array, int left, int right) {
+  public void sort(long[] array, int left, int right) {
     if(right - left <= Definitions.QUICKSORT_SEQ_THRESHOLD) {
       Arrays.sort(array, left, right+1);
       return;
@@ -18,10 +18,10 @@ public class SeqQuickSort implements QuickSort {
   }
 
 
-  private int partition(double [] array, int left, int right) {
+  private int partition(long [] array, int left, int right) {
     int i = left, j = right+1;
-    double tmp;
-    double pivot = array[left];
+    long tmp;
+    long pivot = array[left];
 
     while (true) {
       while(array[++i] <= pivot) 

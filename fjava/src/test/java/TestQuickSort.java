@@ -14,11 +14,11 @@ import com.ikaver.aagarwal.seq.SeqQuickSort;
 
 public class TestQuickSort extends AbstractBenchmark {
 
-  double [] testArray;
+  long [] testArray;
   
   static int size;
-  static double [] original;
-  static double [] sorted;
+  static long [] original;
+  static long [] sorted;
   static boolean debug;
   
   @BeforeClass
@@ -27,8 +27,8 @@ public class TestQuickSort extends AbstractBenchmark {
     System.out.println("Debug " + debug);
     
     size = 10000000;
-    int min = -10000000;
-    int max =  10000000;
+    long min = - (1 << 60);
+    long max =   (1 << 60);
     original = ArrayHelper.createRandomArray(size, min, max);
     sorted = Arrays.copyOf(original, size);
     Arrays.sort(sorted);
@@ -43,7 +43,7 @@ public class TestQuickSort extends AbstractBenchmark {
   public void testForkJoinPoolQuickSort() {   
     ForkJoinPool pool = new ForkJoinPool();
     new QuickSortJavaForkJoin(pool).sort(testArray, 0, size-1);
-    if(debug) Assert.assertArrayEquals(sorted, original, 0.0);
+    if(debug) Assert.assertArrayEquals(sorted, original);
   }
   
   
@@ -51,7 +51,7 @@ public class TestQuickSort extends AbstractBenchmark {
   @Test
   public void testQuickSort() {
     new SeqQuickSort().sort(testArray, 0, size-1);
-    if(debug) Assert.assertArrayEquals(sorted, original, 0.0);
+    if(debug) Assert.assertArrayEquals(sorted, original);
   }
   
   

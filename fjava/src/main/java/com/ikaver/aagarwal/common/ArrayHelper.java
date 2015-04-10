@@ -10,4 +10,12 @@ public class ArrayHelper {
     return array;
   }
   
+  public static long [] createRandomArray(int size, long minValue, long maxValue) {
+    long [] array = new long[size];
+    for(int i = 0; i < size; ++i) {
+      array[i] = MathHelper.randomLongBetween(minValue, maxValue);
+    }
+    return array;
+  }
+  
 }

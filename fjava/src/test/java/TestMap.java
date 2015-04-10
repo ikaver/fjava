@@ -34,8 +34,8 @@ public class TestMap extends AbstractBenchmark {
     System.out.println("Debug " + debug);
     
     size = 1000000;
-    int min = 0;
-    int max = 2;
+    double min = 0;
+    double max = 2;
     original = ArrayHelper.createRandomArray(size, min, max);
     expected = new Double[size];
     mapFunction = new MapFunction<Double>() {
@@ -66,9 +66,7 @@ public class TestMap extends AbstractBenchmark {
       Assert.assertArrayEquals(expected, result);
     }
   }
-  
-  
-  
+    
   @Test
   public void testFilter() {
     new SeqMap<Double>().map(testArray, result, mapFunction);

@@ -10,7 +10,7 @@ import com.ikaver.aagarwal.common.problems.QuickSort;
 public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort {
 
   private static final long serialVersionUID = 7126254235720159895L;
-  private double [] array;
+  private long [] array;
   private int left;
   private int right;
   
@@ -20,7 +20,7 @@ public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort 
     this.pool = pool;
   }
   
-  public QuickSortJavaForkJoin(double [] array, int left, int right) {
+  public QuickSortJavaForkJoin(long [] array, int left, int right) {
     this.array = array;
     this.left = left;
     this.right = right;
@@ -43,8 +43,8 @@ public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort 
   
   private int partition() {
     int i = left, j = right+1;
-    double tmp;
-    double pivot = array[left];
+    long tmp;
+    long pivot = array[left];
    
     while (true) {
       while(array[++i] <= pivot) 
@@ -64,7 +64,7 @@ public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort 
     return j;
   }
 
-  public void sort(double[] array, int left, int right) {
+  public void sort(long[] array, int left, int right) {
     pool.invoke(new QuickSortJavaForkJoin(array, left, right));
   }
 
