@@ -1,5 +1,6 @@
 package com.ikaver.aagarwal.seq;
 
+import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.problems.MatrixMultiplication;
 
 public class SeqMatrixMultiplication implements MatrixMultiplication {
@@ -10,6 +11,27 @@ public class SeqMatrixMultiplication implements MatrixMultiplication {
   }
 
   private void multiply(float [][]A, float[][]B, float[][]C, int size,
+      int aRow, int aCol, int bRow, int bCol, int cRow, int cCol) {
+    if(size <= Definitions.MATRIX_MULT_SEQ_THRESHOLD) {
+      multiplySeq(A,B,C,size,
+          aRow,aCol,bRow,bCol,cRow,cCol);
+      return;
+    }
+    int mid = size/2;
+    multiply(A, B, C, mid, aRow, aCol,     bRow,     bCol, cRow, cCol);
+    multiply(A, B, C, mid, aRow, aCol+mid, bRow+mid, bCol, cRow, cCol);
+    
+    multiply(A, B, C, mid, aRow, aCol,     bRow,     bCol+mid, cRow, cCol+mid);
+    multiply(A, B, C, mid, aRow, aCol+mid, bRow+mid, bCol+mid, cRow, cCol+mid);
+    
+    multiply(A, B, C, mid, aRow+mid, aCol,     bRow,     bCol,     cRow+mid, cCol);
+    multiply(A, B, C, mid, aRow+mid, aCol+mid, bRow+mid, bCol, cRow+mid, cCol);
+    
+    multiply(A, B, C, mid, aRow+mid, aCol,     bRow,     bCol+mid, cRow+mid, cCol+mid);
+    multiply(A, B, C, mid, aRow+mid, aCol+mid, bRow+mid, bCol+mid, cRow+mid, cCol+mid);
+  }
+  
+  private void multiplySeq(float [][] A, float [][] B, float [][] C, int size,
       int aRow, int aCol, int bRow, int bCol, int cRow, int cCol) {
     for (int j = 0; j < size; j+=2) {
       for (int i = 0; i < size; i +=2) {
