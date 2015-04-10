@@ -9,4 +9,8 @@ public class MathHelper {
   public static double randomBetween(double min, double max) {
     return min + Math.random() * (max-min);
   }
+  
+  public static float randomBetween(float min, float max) {
+    return min + (float)Math.random() * (max-min);
+  }
 }

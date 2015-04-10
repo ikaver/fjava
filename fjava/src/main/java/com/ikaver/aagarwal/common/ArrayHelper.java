@@ -18,4 +18,12 @@ public class ArrayHelper {
     return array;
   }
   
+  public static float [][] createRandomMatrix(int rows, int cols, float minValue, float maxValue) {
+    float [][] m = new float[rows][cols];
+    for(int i = 0; i < rows; ++i) 
+      for(int j = 0; j < cols; ++j)
+        m[i][j] = MathHelper.randomBetween(minValue, maxValue);
+    return m;
+  }
+  
 }
