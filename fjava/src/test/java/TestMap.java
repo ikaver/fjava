@@ -9,7 +9,6 @@ import org.junit.Test;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.MapFunction;
-import com.ikaver.aagarwal.common.ThreadSafeList;
 import com.ikaver.aagarwal.javaforkjoin.Map;
 import com.ikaver.aagarwal.seq.SeqMap;
 
