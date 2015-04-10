@@ -1,4 +1,4 @@
-package com.ikaver.aagarwal.common;
+package com.ikaver.aagarwal.common.problems;
 
 public interface MapFunction<T> {
   

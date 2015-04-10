@@ -1,18 +1,26 @@
 package com.ikaver.aagarwal.javaforkjoin;
 
 import java.util.Arrays;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.problems.QuickSort;
 
-public class QuickSort extends RecursiveAction {
+public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort {
 
   private static final long serialVersionUID = 7126254235720159895L;
   private double [] array;
   private int left;
   private int right;
   
-  public QuickSort(double [] array, int left, int right) {
+  private ForkJoinPool pool;
+  
+  public QuickSortJavaForkJoin(ForkJoinPool pool) { 
+    this.pool = pool;
+  }
+  
+  public QuickSortJavaForkJoin(double [] array, int left, int right) {
     this.array = array;
     this.left = left;
     this.right = right;
@@ -28,8 +36,8 @@ public class QuickSort extends RecursiveAction {
     }
     int mid = partition();
     invokeAll(
-        new QuickSort(array, left, mid-1),
-        new QuickSort(array, mid+1, right)
+        new QuickSortJavaForkJoin(array, left, mid-1),
+        new QuickSortJavaForkJoin(array, mid+1, right)
     );
   }
   
@@ -54,6 +62,10 @@ public class QuickSort extends RecursiveAction {
     array[left] = tmp;
     
     return j;
+  }
+
+  public void sort(double[] array, int left, int right) {
+    pool.invoke(new QuickSortJavaForkJoin(array, left, right));
   }
 
 }

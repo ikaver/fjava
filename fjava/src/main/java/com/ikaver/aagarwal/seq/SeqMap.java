@@ -1,8 +1,9 @@
 package com.ikaver.aagarwal.seq;
 
-import com.ikaver.aagarwal.common.MapFunction;
+import com.ikaver.aagarwal.common.problems.Map;
+import com.ikaver.aagarwal.common.problems.MapFunction;
 
-public class SeqMap<T> {
+public class SeqMap<T> implements Map<T> {
   
   public void map(T [] input, T [] result, MapFunction<T> mapFunc) {
     int length = input.length;

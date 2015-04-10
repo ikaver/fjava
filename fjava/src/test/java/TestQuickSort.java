@@ -9,7 +9,7 @@ import org.junit.Test;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.TimeHelper;
-import com.ikaver.aagarwal.javaforkjoin.QuickSort;
+import com.ikaver.aagarwal.javaforkjoin.QuickSortJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqQuickSort;
 
 
@@ -42,7 +42,8 @@ public class TestQuickSort extends AbstractBenchmark {
 
   @Test
   public void testForkJoinPoolQuickSort() {   
-    new ForkJoinPool().invoke(new QuickSort(testArray, 0, size-1));    
+    ForkJoinPool pool = new ForkJoinPool();
+    new QuickSortJavaForkJoin(pool).sort(testArray, 0, size-1);
     if(debug) Assert.assertArrayEquals(sorted, original, 0.0);
   }
   
@@ -50,7 +51,7 @@ public class TestQuickSort extends AbstractBenchmark {
   
   @Test
   public void testQuickSort() {
-    new SeqQuickSort(testArray, 0, size-1).compute();
+    new SeqQuickSort().sort(testArray, 0, size-1);
     if(debug) Assert.assertArrayEquals(sorted, original, 0.0);
   }
   

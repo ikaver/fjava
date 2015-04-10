@@ -1,4 +1,3 @@
-import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import org.junit.Assert;
@@ -8,9 +7,8 @@ import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.ikaver.aagarwal.common.ArrayHelper;
-import com.ikaver.aagarwal.common.MapFunction;
-import com.ikaver.aagarwal.common.ThreadSafeList;
-import com.ikaver.aagarwal.javaforkjoin.Map;
+import com.ikaver.aagarwal.common.problems.MapFunction;
+import com.ikaver.aagarwal.javaforkjoin.MapJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqMap;
 
 
@@ -60,8 +58,9 @@ public class TestMap extends AbstractBenchmark {
   }
 
   @Test
-  public void testForkJoinPoolFilter() {   
-    new ForkJoinPool().invoke(new Map<Double>(testArray, result, mapFunction, 0, size-1)); 
+  public void testForkJoinPoolFilter() {  
+    ForkJoinPool pool = new ForkJoinPool();
+    new MapJavaForkJoin<Double>(pool).map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);
     }
