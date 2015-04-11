@@ -13,4 +13,14 @@ public class MathHelper {
   public static float randomBetween(float min, float max) {
     return min + (float)Math.random() * (max-min);
   }
+  
+  /**
+   * Generates a random number between max and min inclusive.
+   * @param min is the minimum value of the range.
+   * @param max is the maximum value of the range
+   * @return a random number between [min, max]
+   */
+  public static int randomBetween(int min, int max) {
+	  return min + (int)Math.random() * (max - min);
+  }
 }

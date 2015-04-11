@@ -59,7 +59,7 @@ public class TestMap extends AbstractBenchmark {
   }
 
   @Test
-  public void testForkJoinPoolFilter() {  
+  public void testForkJoinPoolMap() {  
     ForkJoinPool pool = new ForkJoinPool();
     new MapJavaForkJoin<Double>(pool).map(testArray, result, mapFunction);
     if(debug) {
@@ -68,12 +68,11 @@ public class TestMap extends AbstractBenchmark {
   }
     
   @Test
-  public void testFilter() {
+  public void testMap() {
     new SeqMap<Double>().map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);
     }
   }
-  
   
 }
