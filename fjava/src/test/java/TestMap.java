@@ -6,7 +6,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
+import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 import com.ikaver.aagarwal.javaforkjoin.MapJavaForkJoin;
 
@@ -58,6 +60,7 @@ public class TestMap extends AbstractBenchmark {
     }
   }
 
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testForkJoinPoolMap() {  
     ForkJoinPool pool = new ForkJoinPool();
@@ -67,6 +70,7 @@ public class TestMap extends AbstractBenchmark {
     }
   }
     
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testMap() {
     new SeqMap<Double>().map(testArray, result, mapFunction);

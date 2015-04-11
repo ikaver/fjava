@@ -8,6 +8,7 @@ import org.junit.Test;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
+import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.javaforkjoin.MatrixMultiplicationJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqMatrixMultiplication;
 
@@ -43,7 +44,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     result = new float[size][size];
   }
   
-  @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testJavaForkJoinMatrixMultiplication() {
     new MatrixMultiplicationJavaForkJoin(new ForkJoinPool()).multiply(testA, testB, result);
@@ -54,7 +55,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     }
   }
     
-  @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testSeqMatrixMultiplication() {
     new SeqMatrixMultiplication().multiply(testA, testB, result);

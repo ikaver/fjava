@@ -7,6 +7,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
+import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.javaforkjoin.KaratsubaMultiplyJavaForkJoin;
 
 public class TestKaratsubaMultiplyJavaForkJoin extends AbstractBenchmark {
@@ -38,6 +40,7 @@ public class TestKaratsubaMultiplyJavaForkJoin extends AbstractBenchmark {
 		return builder.toString();
 	}
 
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test
 	public void testKaratsubaMultiplyJavaForkJoin() {
 		ForkJoinPool pool = new ForkJoinPool();
