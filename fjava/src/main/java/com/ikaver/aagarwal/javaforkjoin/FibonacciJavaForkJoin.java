@@ -3,9 +3,10 @@ package com.ikaver.aagarwal.javaforkjoin;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
-import com.ikaver.aagarwal.common.problems.Fibonacci;
+import com.ikaver.aagarwal.common.FibonacciBase;
+import com.ikaver.aagarwal.common.utils.FibonacciUtils;
 
-public class FibonacciJavaForkJoin implements Fibonacci {
+public class FibonacciJavaForkJoin extends FibonacciBase {
 
 	private final ForkJoinPool pool;
 
@@ -32,7 +33,10 @@ public class FibonacciJavaForkJoin implements Fibonacci {
 				return 0L;
 			} else if (n <= 2) {
 				return 1L;
+			} else if (n <= THRESHOLD) {
+                return FibonacciUtils.fibnth(n);
 			}
+
 			FibonacciTask f1 = new FibonacciTask(n - 1);
 			FibonacciTask f2 = new FibonacciTask(n - 2);
 

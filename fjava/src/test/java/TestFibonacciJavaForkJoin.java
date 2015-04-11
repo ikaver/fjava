@@ -5,25 +5,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
+import com.ikaver.aagarwal.common.utils.FibonacciUtils;
 import com.ikaver.aagarwal.javaforkjoin.FibonacciJavaForkJoin;
+import com.ikaver.aagarwal.seq.FibonacciSequential;
 
 public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 
-	private static final int N = 40;
+	private static final int N = 49;
 
 	static long expected;
 	static boolean debug;
-
-	private static long fibnth(int n) {
-		long arr[] = new long[3];
-		arr[0] = 0;
-		arr[1] = 1;
-		for (int i = 2; i <= n; i++) {
-			arr[i % 3] = arr[(i + 2) % 3] + arr[(i + 1) % 3];
-		}
-
-		return arr[n % 3];
-	}
 
 	@BeforeClass
 	public static void setUp() {
@@ -31,7 +22,7 @@ public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 		System.out.println("Debug " + debug);
 
 		// sequentially compute the nth fibonacci number.
-		expected = fibnth(N);
+		expected = FibonacciUtils.fibnth(N);
 	}
 	
 	@Test
@@ -40,6 +31,15 @@ public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 		FibonacciJavaForkJoin fibonacciJavaForkJoin =
 				new FibonacciJavaForkJoin(pool);
 		long result = fibonacciJavaForkJoin.fibonacci(N);
+
+		Assert.assertEquals(result, expected);
+	}
+	
+	@Test
+	public void testFibonacciSequential() {
+		FibonacciSequential fibonacciSequential = new FibonacciSequential();
+		long result = fibonacciSequential.fibonacci(N);
+
 		Assert.assertEquals(result, expected);
 	}
 }
