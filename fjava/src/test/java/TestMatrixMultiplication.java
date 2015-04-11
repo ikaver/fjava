@@ -26,21 +26,15 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   public static void setup() {
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
-    debug = true;
-    size = 1024;
+    //debug = true;
+    size = 2048;
     float min = -160;
     float max = 160;
     testA = ArrayHelper.createRandomMatrix(size, size, min, max);
     testB = ArrayHelper.createRandomMatrix(size, size, min, max);
-    expected = new float[size][size];
     if(debug) {
-      for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++j) {
-          for(int k = 0; k < size; ++k) {
-            expected[i][j] += testA[i][k] * testB[k][j];
-          }
-        }
-      }
+      expected = new float[size][size];
+      new SeqMatrixMultiplication().multiply(testA, testB, expected);
     }
   }
   
@@ -49,7 +43,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     result = new float[size][size];
   }
   
-  @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 1)
+  @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
   @Test
   public void testJavaForkJoinMatrixMultiplication() {
     new MatrixMultiplicationJavaForkJoin(new ForkJoinPool()).multiply(testA, testB, result);
@@ -60,7 +54,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     }
   }
     
-  @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 1)
+  @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
   @Test
   public void testSeqMatrixMultiplication() {
     new SeqMatrixMultiplication().multiply(testA, testB, result);
