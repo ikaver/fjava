@@ -14,7 +14,6 @@ public class FibonacciJavaForkJoin extends FibonacciBase {
 		this.pool = pool;
 	}
 
-	@Override
 	public long fibonacci(int n) {
 		return pool.invoke(new FibonacciTask(n));
 	}

@@ -8,7 +8,7 @@ import com.ikaver.aagarwal.common.utils.FibonacciUtils;
  * 
  * @author ankit
  */
-public class FibonacciSequential extends FibonacciBase {
+public class SeqFibonacci extends FibonacciBase {
 
 	public long fibonacci(int n) {
 		if (n == 0) {

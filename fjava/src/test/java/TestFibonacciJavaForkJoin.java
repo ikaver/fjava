@@ -7,11 +7,11 @@ import org.junit.Test;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.ikaver.aagarwal.common.utils.FibonacciUtils;
 import com.ikaver.aagarwal.javaforkjoin.FibonacciJavaForkJoin;
-import com.ikaver.aagarwal.seq.FibonacciSequential;
+import com.ikaver.aagarwal.seq.SeqFibonacci;
 
 public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 
-	private static final int N = 49;
+	private static final int N = 47;
 
 	static long expected;
 	static boolean debug;
@@ -37,7 +37,7 @@ public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 	
 	@Test
 	public void testFibonacciSequential() {
-		FibonacciSequential fibonacciSequential = new FibonacciSequential();
+		SeqFibonacci fibonacciSequential = new SeqFibonacci();
 		long result = fibonacciSequential.fibonacci(N);
 
 		Assert.assertEquals(result, expected);

@@ -14,7 +14,6 @@ public class KaratsubaMultiplyJavaForkJoin implements Multiply {
 		this.pool = pool;
 	}
 
-	@Override
 	public BigInteger multiply(BigInteger x, BigInteger y) {
 		return pool.invoke(new KaratsubaTask(x, y));
 	}
