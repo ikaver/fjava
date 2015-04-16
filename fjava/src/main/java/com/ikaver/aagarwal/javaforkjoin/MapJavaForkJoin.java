@@ -9,12 +9,12 @@ import com.ikaver.aagarwal.common.problems.Map;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 
 
-public class MapJavaForkJoin<T> extends RecursiveAction implements Map<T> {
+public class MapJavaForkJoin<T, V> extends RecursiveAction implements Map<T, V> {
 
   private static final long serialVersionUID = -3740242580579985222L;
-  private MapFunction<T> mapFunc;
+  private MapFunction<T, V> mapFunc;
   private T [] array;
-  private T [] result;
+  private V [] result;
   private int left;
   private int right;
   
@@ -24,8 +24,8 @@ public class MapJavaForkJoin<T> extends RecursiveAction implements Map<T> {
     this.pool = pool;
   }
   
-  public MapJavaForkJoin(T [] array, T [] result, 
-      MapFunction<T> mapFunc, int left, int right) {
+  public MapJavaForkJoin(T [] array, V [] result, 
+      MapFunction<T, V> mapFunc, int left, int right) {
     this.array = array;
     this.result = result;
     this.mapFunc = mapFunc;
@@ -33,8 +33,8 @@ public class MapJavaForkJoin<T> extends RecursiveAction implements Map<T> {
     this.right = right;
   }
   
-  public void map(T [] array, T [] result, MapFunction<T> mapFunc) {
-    this.pool.invoke(new MapJavaForkJoin<T>(array, result, mapFunc, 0, array.length-1));
+  public void map(T [] array, V [] result, MapFunction<T, V> mapFunc) {
+    this.pool.invoke(new MapJavaForkJoin<T, V>(array, result, mapFunc, 0, array.length-1));
   }
   
   @Override
@@ -46,14 +46,14 @@ public class MapJavaForkJoin<T> extends RecursiveAction implements Map<T> {
       return;
     }
     else {
-      ArrayList<MapJavaForkJoin<T>> tasks = new ArrayList<MapJavaForkJoin<T>>();
+      ArrayList<MapJavaForkJoin<T, V>> tasks = new ArrayList<MapJavaForkJoin<T, V>>();
       while(left <= right - Definitions.FILTER_SEQ_THRESHOLD) {
         int mid = (right+left)/2;
-        tasks.add(new MapJavaForkJoin<T>(array, result, mapFunc, left, mid));
+        tasks.add(new MapJavaForkJoin<T, V>(array, result, mapFunc, left, mid));
         left = mid+1;
       }
 
-      tasks.add(new MapJavaForkJoin<T>(array, result, mapFunc, left, right));
+      tasks.add(new MapJavaForkJoin<T, V>(array, result, mapFunc, left, right));
       invokeAll(tasks);
     }
   }

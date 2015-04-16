@@ -20,7 +20,7 @@ public class TestMap extends AbstractBenchmark {
   Double [] testArray;
   Double [] result;
 
-  static MapFunction<Double> mapFunction;
+  static MapFunction<Double, Double> mapFunction;
   static int size;
   static double [] original;
   static Double [] expected;
@@ -40,7 +40,7 @@ public class TestMap extends AbstractBenchmark {
     double max = 2;
     original = ArrayHelper.createRandomArray(size, min, max);
     expected = new Double[size];
-    mapFunction = new MapFunction<Double>() {
+    mapFunction = new MapFunction<Double, Double>() {
       public Double map(Double obj) {
         double num = obj.doubleValue();
         return testMapFunc(num);
@@ -64,7 +64,7 @@ public class TestMap extends AbstractBenchmark {
   @Test
   public void testForkJoinPoolMap() {  
     ForkJoinPool pool = new ForkJoinPool();
-    new MapJavaForkJoin<Double>(pool).map(testArray, result, mapFunction);
+    new MapJavaForkJoin<Double, Double>(pool).map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);
     }
@@ -73,7 +73,7 @@ public class TestMap extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testMap() {
-    new SeqMap<Double>().map(testArray, result, mapFunction);
+    new SeqMap<Double, Double>().map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);
     }

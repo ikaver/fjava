@@ -1,5 +1,5 @@
 package com.ikaver.aagarwal.common.problems;
 
-public interface Map<T> {
-  public void map(T [] array, T [] result, MapFunction<T> func);
+public interface Map<T, V> {
+  public void map(T [] array, V [] result, MapFunction<T, V> func);
 }

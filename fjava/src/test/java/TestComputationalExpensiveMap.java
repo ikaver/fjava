@@ -24,7 +24,7 @@ public class TestComputationalExpensiveMap extends AbstractBenchmark {
   Integer[] testArray;
   Integer[] result;
 
-  static MapFunction<Integer> mapFunction;
+  static MapFunction<Integer, Integer> mapFunction;
   static int size;
   static int[] original;
   static Integer[] expected;
@@ -41,7 +41,7 @@ public class TestComputationalExpensiveMap extends AbstractBenchmark {
     original = ArrayHelper.createRandomAray(size, min, max);
     expected = new Integer[size];
 
-    mapFunction = new MapFunction<Integer>() {
+    mapFunction = new MapFunction<Integer, Integer>() {
       public Integer map(Integer obj) {
         Random random = new Random();
         random.setSeed(obj);
@@ -71,7 +71,7 @@ public class TestComputationalExpensiveMap extends AbstractBenchmark {
   @Test
   public void testForkJoinPoolComputationalExpensiveMap() {
     ForkJoinPool pool = new ForkJoinPool();
-    new MapJavaForkJoin<Integer>(pool).map(testArray, result, mapFunction);
+    new MapJavaForkJoin<Integer, Integer>(pool).map(testArray, result, mapFunction);
     if (debug) {
       Assert.assertArrayEquals(expected, result);
     }
@@ -80,7 +80,7 @@ public class TestComputationalExpensiveMap extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testComputationalExpensiveMap() {
-    new SeqMap<Integer>().map(testArray, result, mapFunction);
+    new SeqMap<Integer, Integer>().map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);
     }

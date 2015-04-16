@@ -1,7 +1,7 @@
 package com.ikaver.aagarwal.common.problems;
 
-public interface MapFunction<T> {
+public interface MapFunction<T, V> {
   
-  public T map(T obj);
+  public V map(T obj);
 
 }
