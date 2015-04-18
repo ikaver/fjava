@@ -14,6 +14,7 @@ public class FJavaPool {
   
   public FJavaPool(int poolSize) {
     this.setup(poolSize);
+    PerformanceStats.totalSteals.set(0);
   }
 
   public synchronized void run(FJavaTask task) {
@@ -27,8 +28,10 @@ public class FJavaPool {
     while(!task.isDone()) {
       //TODO: remove busy waiting
     }
+    for(int i = 0; i < this.poolSize; ++i) {
+      this.taskRunners[i].setShouldShutdown(true);
+    }
     System.out.println(PerformanceStats.totalSteals.getName() + " " +PerformanceStats.totalSteals.get());
-
   }
   
   private void setup(int poolSize) {
