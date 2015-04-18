@@ -17,7 +17,7 @@ import com.ikaver.aagarwal.seq.SeqMap;
 /**
  * Tests a map function which is expensoive to compute.
  */
-public class TestComputationalExpensiveMap extends AbstractBenchmark {
+public class TestExpensiveMap extends AbstractBenchmark {
 
   private static final int NUM_ITERATIONS = 1000;
 

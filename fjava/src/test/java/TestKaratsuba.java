@@ -11,7 +11,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.javaforkjoin.KaratsubaMultiplyJavaForkJoin;
 
-public class TestKaratsubaMultiplyJavaForkJoin extends AbstractBenchmark {
+public class TestKaratsuba extends AbstractBenchmark {
 	
 	private static final int BASE = 2;
 	private static final int NUM_DIGITS = 10000;

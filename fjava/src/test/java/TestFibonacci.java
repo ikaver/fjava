@@ -13,9 +13,9 @@ import com.ikaver.aagarwal.fjavaexamples.FJavaFibonacci;
 import com.ikaver.aagarwal.javaforkjoin.FibonacciJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqFibonacci;
 
-public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
+public class TestFibonacci extends AbstractBenchmark {
 
-	private static final int N = 20;
+	private static final int N = 24;
 
 	static long expected;
 	static boolean debug;
@@ -39,7 +39,6 @@ public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 
 		Assert.assertEquals(result, expected);
 	}
-  
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
