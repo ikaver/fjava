@@ -29,8 +29,13 @@ public class TaskRunner implements Runnable {
         return;
       }
       else {
+        System.out.println("TR " + this.taskRunnerID + " running SYNC " + parentTask + " LOOKING FOR TASK");
         FJavaTask task = deque.getTask();
-        if(task == null) throw new NullPointerException("Task from deque is null");
+        if(task == null) {
+          //System.out.println("TR " + this.taskRunnerID + " running SYNC " + parentTask + " GOT NULL ");
+          continue;
+        }
+        System.out.println("TR " + this.taskRunnerID + " running SYNC " + parentTask + " GOT TASK " + task );
         task.run(this);
         this.notifyTaskDone(task);
       }
@@ -40,12 +45,15 @@ public class TaskRunner implements Runnable {
   public void run() {
     while(true) { //TODO: while not finished running all tasks, according to the pool?
       //TODO: measure time waiting for task?
+      System.out.println("TR " + this.taskRunnerID + " IN RUN LOOKING FOR TASK");
       FJavaTask task = deque.getTask();
-      if(task == null) throw new NullPointerException("Task from deque is null");
+      if(task == null) {
+        //System.out.println("TR " + this.taskRunnerID + " running RUN GOT NULL ");
+        continue;
+      }
       System.out.println("TR " + this.taskRunnerID + " running task " + task);
       task.run(this);
       this.notifyTaskDone(task);
-      
       
     }
   }
