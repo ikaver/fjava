@@ -26,13 +26,9 @@ public class FJavaPool {
     }
     while(!task.isDone()) {
       //TODO: remove busy waiting
-      try {
-        Thread.sleep(500);
-      } catch (InterruptedException e) {
-
-      }
-      System.out.println(PerformanceStats.totalSteals.getName() + " " +PerformanceStats.totalSteals.get());
     }
+    System.out.println(PerformanceStats.totalSteals.getName() + " " +PerformanceStats.totalSteals.get());
+
   }
   
   private void setup(int poolSize) {
