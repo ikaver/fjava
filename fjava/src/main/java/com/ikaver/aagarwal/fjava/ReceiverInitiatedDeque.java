@@ -76,7 +76,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   public FJavaTask getTask() {
     if(this.tasks.isEmpty()) {
       //TODO: add counter (worker found queue empty)
-      return acquire();
+      acquire();
+      return null;
     }
     else {
       FJavaTask task = this.tasks.removeLast();
@@ -90,10 +91,11 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * Called whenever there are no tasks in this deque
    * @return
    */
-  private FJavaTask acquire() {
+  private void acquire() {
     //TODO: measure time acquiring a task
+    int counter = 0;
     while(true) {
-      responseCells[myIdx] = null;
+      responseCells[myIdx] = emptyTask;
       int stealIdx = this.random.nextInt(this.numWorkers);
       if(status[stealIdx].get() == VALID_STATUS 
           && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.myIdx)) {
@@ -105,12 +107,19 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           
           if(this.responseCells[this.myIdx] != null) {
             FJavaTask newTask = this.responseCells[this.myIdx];
-            this.responseCells[this.myIdx] = emptyTask;
+            this.requestCells[this.myIdx].set(EMPTY_REQUEST);
+            this.addTask(newTask);
             PerformanceStats.totalSteals.inc();
-            return newTask;
+          }
+          else {
+            requestCells[stealIdx].set(EMPTY_REQUEST);
           }
           this.communicate(); //TODO: why is this here?
+          return;
       }
+      ++counter;
+      if(counter == 8) return;
+      this.communicate();
     }
   }
   
