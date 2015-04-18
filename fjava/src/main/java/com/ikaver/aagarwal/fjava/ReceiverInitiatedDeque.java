@@ -107,7 +107,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           
           if(this.responseCells[this.myIdx] != null) {
             FJavaTask newTask = this.responseCells[this.myIdx];
-            this.requestCells[this.myIdx].set(EMPTY_REQUEST);
+            this.requestCells[stealIdx].set(EMPTY_REQUEST);
             this.addTask(newTask);
             PerformanceStats.totalSteals.inc();
           }
