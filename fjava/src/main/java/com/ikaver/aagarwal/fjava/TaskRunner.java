@@ -20,17 +20,27 @@ public class TaskRunner implements Runnable {
   public void startRunning() {
     this.thread.start();
   }
+  
+  public void syncTask(FJavaTask parentTask) {
+    while(true) {
+      if(parentTask.areAllChildsDone()) {
+        return;
+      }
+      else {
+        FJavaTask task = deque.getTask();
+        if(task == null) throw new NullPointerException("Task from deque is null");
+        task.run(this);
+      }
+    }
+  }
 
   public void run() {
     while(true) { //TODO: while not finished running all tasks, according to the pool?
-      
       //TODO: measure time waiting for task?
       FJavaTask task = deque.getTask();
       if(task == null) throw new NullPointerException("Task from deque is null");
       task.run(this);
     }
   }
-
-  
     
 }

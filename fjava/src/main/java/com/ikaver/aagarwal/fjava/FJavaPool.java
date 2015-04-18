@@ -8,16 +8,26 @@ public class FJavaPool {
   private int poolSize;
   private boolean isRunning;
   
+  public FJavaPool() {
+    this(Runtime.getRuntime().availableProcessors());
+  }
+  
   public FJavaPool(int poolSize) {
     this.setup(poolSize);
   }
 
   public synchronized void run(FJavaTask task) {
+    //TODO: record total running time
     if(this.isRunning) throw new IllegalStateException("This pool is already running a task!");
     this.isRunning = true;
     this.taskRunners[0].addTask(task);
     for(int i = 0; i < this.poolSize; ++i) {
       this.taskRunners[i].startRunning();
+    }
+    while(!task.isDone()) {
+      try {
+        wait();
+      } catch (InterruptedException e) { }
     }
   }
   
@@ -41,12 +51,15 @@ public class FJavaPool {
     AtomicInteger [] status = new AtomicInteger[size];
     AtomicInteger [] requestCells = new AtomicInteger[size];
     FJavaTask [] responseCells = new FJavaTask[size];
-    FJavaTask emptyTask = new EmptyFJavaTask();
+    FJavaTask emptyTask = new EmptyFJavaTask(null);
     
     for(int i = 0; i < size; ++i) {
-      status[i].set(ReceiverInitiatedDeque.INVALID_STATUS);
-      requestCells[i].set(ReceiverInitiatedDeque.EMPTY_REQUEST);
+      status[i] = new AtomicInteger(ReceiverInitiatedDeque.INVALID_STATUS);
+      requestCells[i] = new AtomicInteger(ReceiverInitiatedDeque.EMPTY_REQUEST);
       responseCells[i] = emptyTask;
+    }
+    
+    for(int i = 0; i < size; ++i) {
       deques[i] = new ReceiverInitiatedDeque(status, requestCells, responseCells, i, emptyTask);
     }
   

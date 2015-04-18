@@ -1,21 +1,63 @@
 package com.ikaver.aagarwal.fjava;
 
-public abstract class FJavaTask implements Runnable {
+import java.util.ArrayList;
+
+public abstract class FJavaTask {
   
   private TaskRunner runner;
-
-  public void run(TaskRunner runner) {
-    if(runner != null) throw new IllegalStateException("Task runner of this task was already set!");
-    this.runner = runner;
-    //TODO: actually run here
+  private ArrayList<FJavaTask> childTasks;
+  private volatile boolean isDone; //TODO: is it necessary to be volatile?
+  
+  public FJavaTask() {
+    this(null);
   }
   
+  public FJavaTask(FJavaTask parent) {
+    if(parent != null) {
+      parent.addChild(this);
+      this.runner = parent.runner;
+    }
+    else {
+      this.runner = null;
+    }
+    this.childTasks = new ArrayList<FJavaTask>();
+    this.isDone = false;
+  }
+  
+  public abstract void compute();
+  
+  void run(TaskRunner runner) {
+    this.runner = runner;
+    this.compute();
+    this.isDone = true;
+  }
+  
+  boolean isDone() {
+    return this.isDone;
+  }
+  
+  void setIsDone(boolean done) {
+    if(this.isDone && done == false) 
+      throw new IllegalStateException("Cannot 'undo' a done task");
+    this.isDone = done;
+  }
+  
+  public void fork() {
+    this.runner.addTask(this);
+  }
+  
+  public boolean areAllChildsDone() {
+    for(int i = 0; i < childTasks.size(); ++i) {
+      if(!childTasks.get(i).isDone()) return false;
+    }
+    return true;
+  }
   
   public void sync() {
-    //TODO: Wait for onChildCompleted? Recursive?
+    this.runner.syncTask(this);
   }
-  
-  public void onChildCompleted(FJavaTask task) {
-    //TODO: increment child completed count here
+    
+  private void addChild(FJavaTask task) {
+    this.childTasks.add(task);
   }
 }

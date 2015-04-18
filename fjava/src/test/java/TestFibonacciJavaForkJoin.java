@@ -8,12 +8,14 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.utils.FibonacciUtils;
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjavaexamples.FJavaFibonacci;
 import com.ikaver.aagarwal.javaforkjoin.FibonacciJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqFibonacci;
 
 public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 
-	private static final int N = 40;
+	private static final int N = 25;
 
 	static long expected;
 	static boolean debug;
@@ -37,6 +39,17 @@ public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 
 		Assert.assertEquals(result, expected);
 	}
+  
+  
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
+  @Test
+  public void testFibonacciFJava() {
+    FJavaPool pool = new FJavaPool();
+    FJavaFibonacci fibonacci =
+        new FJavaFibonacci(pool);
+    long result = fibonacci.fibonacci(N);
+    Assert.assertEquals(result, expected);
+  }
 	
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test

@@ -45,8 +45,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     for(int i = 0; i < requestCells.length; ++i) {
       if(requestCells[i].get() != EMPTY_REQUEST) 
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
-      if(responseCells[i] != null)
-        throw new IllegalArgumentException("All response cells should be null");
+      if(responseCells[i] != emptyTask)
+        throw new IllegalArgumentException("All response cells should be empty");
       if(status[i].get() != INVALID_STATUS)
         throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
     }
