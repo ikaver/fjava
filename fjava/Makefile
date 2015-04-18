@@ -12,7 +12,7 @@ testExpensiveMap: clean
 testFib: clean
 	mvn -Dtest=TestFibonacci test	
 	echo 'Creating graphs...'
-	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/graph.py
+	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/graph.py fib .\*
 
 testKaratsuba: clean
 	mvn -Dtest=testKaratsuba test
