@@ -15,7 +15,7 @@ import com.ikaver.aagarwal.seq.SeqFibonacci;
 
 public class TestFibonacciJavaForkJoin extends AbstractBenchmark {
 
-	private static final int N = 25;
+	private static final int N = 20;
 
 	static long expected;
 	static boolean debug;

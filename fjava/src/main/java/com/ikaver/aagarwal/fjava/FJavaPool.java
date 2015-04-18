@@ -25,9 +25,13 @@ public class FJavaPool {
       this.taskRunners[i].startRunning();
     }
     while(!task.isDone()) {
+      //TODO: remove busy waiting
       try {
-        wait();
-      } catch (InterruptedException e) { }
+        Thread.sleep(500);
+      } catch (InterruptedException e) {
+
+      }
+      System.out.println(PerformanceStats.totalSteals.getName() + " " +PerformanceStats.totalSteals.get());
     }
   }
   

@@ -7,6 +7,8 @@ public class TaskRunner implements Runnable {
   private TaskRunnerDeque deque;
   private int taskRunnerID;
   
+  /* Statistics */
+  
   public TaskRunner(TaskRunnerDeque deque, int taskRunnerID) {
     this.deque = deque;
     this.taskRunnerID = taskRunnerID;
@@ -30,6 +32,7 @@ public class TaskRunner implements Runnable {
         FJavaTask task = deque.getTask();
         if(task == null) throw new NullPointerException("Task from deque is null");
         task.run(this);
+        this.notifyTaskDone(task);
       }
     }
   }
@@ -39,8 +42,16 @@ public class TaskRunner implements Runnable {
       //TODO: measure time waiting for task?
       FJavaTask task = deque.getTask();
       if(task == null) throw new NullPointerException("Task from deque is null");
+      System.out.println("TR " + this.taskRunnerID + " running task " + task);
       task.run(this);
+      this.notifyTaskDone(task);
+      
+      
     }
   }
     
+  
+  private void notifyTaskDone(FJavaTask task) {
+    //TODO: implement
+  }
 }

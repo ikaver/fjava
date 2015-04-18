@@ -24,6 +24,11 @@
 			<version>0.7.2</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+      <groupId>com.custardsource.parfait</groupId>
+      <artifactId>parfait-core</artifactId>
+      <version>0.3.0.RC1</version>
+    </dependency>
 	</dependencies>
 	<build>
 		<pluginManagement>
