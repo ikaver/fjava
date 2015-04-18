@@ -34,7 +34,7 @@ public class StatsTracker {
   public void printStats() {
     if(!Definitions.TRACK_STATS) return;
     for(Monitorable<?> c : MonitorableRegistry.DEFAULT_REGISTRY.getMonitorables()) {
-      LogManager.getLogger().error("{} : {}", c.getName(), c.get());
+      LogManager.getLogger().warn("{} : {}", c.getName(), c.get());
     }
   }
   
