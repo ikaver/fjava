@@ -1,6 +1,7 @@
 package com.ikaver.aagarwal.fjava.stats;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.custardsource.parfait.Monitorable;
 import com.custardsource.parfait.MonitorableRegistry;
@@ -11,6 +12,8 @@ public class StatsTracker {
   private TaskRunnerStats [] taskRunnerStats;
   private DequeStats [] dequeStats;
   private int runNumber;
+  
+  private Logger log;
   
   private static StatsTracker instance;
   
@@ -31,13 +34,14 @@ public class StatsTracker {
       this.taskRunnerStats[i] = new TaskRunnerStats(i);
       this.dequeStats[i] = new DequeStats(i);
     }
+    this.log = LogManager.getLogger();
   }
   
   public void printStats() {
     if(!Definitions.TRACK_STATS) return;
-    LogManager.getLogger().warn("Stats for run #{}", this.runNumber);
+    log.warn("Stats for run #{}", this.runNumber);
     for(Monitorable<?> c : MonitorableRegistry.DEFAULT_REGISTRY.getMonitorables()) {
-      LogManager.getLogger().warn("{} : {}", c.getName(), c.get());
+      log.warn("{} : {}", c.getName(), c.get());
     }
   }
   
