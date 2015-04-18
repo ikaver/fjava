@@ -54,6 +54,11 @@ public class FJavaFibonacci extends FibonacciBase {
       answer = childTask1.answer + childTask2.answer;
     }
     
+    @Override
+    public String toString() {
+      return String.format("Fibonacci %d", n);
+    }
+    
     public long getFibonacci() {
       return this.answer;
     }
