@@ -5,6 +5,8 @@ import java.util.Deque;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.ikaver.aagarwal.common.Definitions;
+
 /**
  * Represents a Sender Initiated Deque. This means that task runners that need
  * tasks to run (receivers) are the ones who ask others for tasks.
@@ -110,7 +112,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
             FJavaTask newTask = this.responseCells[this.myIdx];
             this.requestCells[this.myIdx].set(EMPTY_REQUEST);
             this.addTask(newTask);
-            PerformanceStats.totalSteals.inc();
+            if(Definitions.TRACK_STATS) PerformanceStats.totalSteals.inc();
           }
           this.responseCells[this.myIdx] = emptyTask;
           this.communicate(); //TODO: why is this here?
