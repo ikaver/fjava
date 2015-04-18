@@ -10,6 +10,7 @@ public class StatsTracker {
   
   private TaskRunnerStats [] taskRunnerStats;
   private DequeStats [] dequeStats;
+  private int runNumber;
   
   private static StatsTracker instance;
   
@@ -21,6 +22,7 @@ public class StatsTracker {
   }
   
   public void setup(int poolSize) {
+    ++runNumber;
     MonitorableRegistry.clearDefaultRegistry();
     
     this.taskRunnerStats = new TaskRunnerStats[poolSize];
@@ -33,6 +35,7 @@ public class StatsTracker {
   
   public void printStats() {
     if(!Definitions.TRACK_STATS) return;
+    LogManager.getLogger().warn("Stats for run #{}", this.runNumber);
     for(Monitorable<?> c : MonitorableRegistry.DEFAULT_REGISTRY.getMonitorables()) {
       LogManager.getLogger().warn("{} : {}", c.getName(), c.get());
     }

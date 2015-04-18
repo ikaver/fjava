@@ -8,8 +8,10 @@ public class TaskRunnerStats {
   public final MonitoredCounter totalTasksCreated; 
   
   public TaskRunnerStats(int idx) {
-    this.totalTasksCompleted = new MonitoredCounter("TR.tasks-completed-" + idx, "# of tasks completed by TR");
-    this.totalTasksCreated = new MonitoredCounter("TR.tasks-created-" + idx, "# of tasks created by TR");
+    this.totalTasksCompleted = new MonitoredCounter("TR.tasks_completed#" + idx, 
+        "# of tasks completed by TR");
+    this.totalTasksCreated = new MonitoredCounter("TR.tasks_created#" + idx, 
+        "# of tasks created by TR");
   }
   
 }
