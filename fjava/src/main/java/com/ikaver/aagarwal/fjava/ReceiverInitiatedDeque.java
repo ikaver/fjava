@@ -22,7 +22,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   //TODO: make cache efficient? (False sharing) 
   //BTW, We don't need atomic here. 
   //Only need to make sure that writes are propagates to all threads.
-  private AtomicInteger [] status; 
+  private RefInt [] status; 
   
   //TODO: make cache efficient? (False sharing)
   //requestCells[i] = j if task runner j is waiting for task runner i to give
@@ -42,7 +42,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   private int myIdx;
   private int numWorkers;
   
-  public ReceiverInitiatedDeque(AtomicInteger [] status, 
+  public ReceiverInitiatedDeque(RefInt [] status, 
       AtomicInteger [] requestCells, FJavaTask [] responseCells, int myIdx, 
       FJavaTask emptyTask) {
     for(int i = 0; i < requestCells.length; ++i) {
@@ -50,7 +50,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
       if(responseCells[i] != emptyTask)
         throw new IllegalArgumentException("All response cells should be empty");
-      if(status[i].get() != INVALID_STATUS)
+      if(status[i].value != INVALID_STATUS)
         throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
     }
     if(emptyTask == null) {
@@ -73,7 +73,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     //Idea: Can only be called by task runner
     if(task == null) 
         throw new IllegalArgumentException("Task cannot be null");
-    this.tasks.push(task);
+    this.tasks.addLast(task);
     this.updateStatus();
   }
   
@@ -108,7 +108,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     while(true) {
       responseCells[myIdx] = emptyTask;
       int stealIdx = this.random.nextInt(this.numWorkers);
-      if(status[stealIdx].get() == VALID_STATUS 
+      if(status[stealIdx].value == VALID_STATUS 
           && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.myIdx)) {
           
           //TODO: measure time waiting?
@@ -153,7 +153,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   
   private void updateStatus() {
     int available = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
-    if(this.status[this.myIdx].get() != available) 
-      this.status[this.myIdx].set(available);
+    if(this.status[this.myIdx].value != available) 
+      this.status[this.myIdx].value = available;
   }
 }
