@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
 /**
  * Represents a Sender Initiated Deque. This means that task runners that need
@@ -77,12 +78,19 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   }
   
   public FJavaTask getTask() {
+    if(Definitions.TRACK_STATS)
+      StatsTracker.getInstance().onDequeGetTask(this.myIdx);
+    
     if(this.tasks.isEmpty()) {
-      //TODO: add counter (worker found queue empty)
+      if(Definitions.TRACK_STATS)
+        StatsTracker.getInstance().onDequeEmpty(this.myIdx);
       acquire();
       return null;
     }
     else {
+      if(Definitions.TRACK_STATS) {
+        StatsTracker.getInstance().onDequeNotEmpty(this.myIdx);
+      }
       FJavaTask task = this.tasks.removeLast();
       updateStatus();
       communicate();
@@ -112,7 +120,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
             FJavaTask newTask = this.responseCells[this.myIdx];
             this.requestCells[this.myIdx].set(EMPTY_REQUEST);
             this.addTask(newTask);
-            if(Definitions.TRACK_STATS) PerformanceStats.totalSteals.inc();
+            if(Definitions.TRACK_STATS) 
+              StatsTracker.getInstance().onDequeSteal(this.myIdx);
           }
           this.responseCells[this.myIdx] = emptyTask;
           this.communicate(); //TODO: why is this here?

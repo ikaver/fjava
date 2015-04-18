@@ -2,11 +2,16 @@ package com.ikaver.aagarwal.fjava;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.fjava.stats.StatsTracker;
+
 public class FJavaPool {
   
   private TaskRunner [] taskRunners;
   private int poolSize;
   private boolean isRunning;
+  
+  private StatsTracker statsTracker;
   
   public FJavaPool() {
     this(Runtime.getRuntime().availableProcessors());
@@ -14,7 +19,6 @@ public class FJavaPool {
   
   public FJavaPool(int poolSize) {
     this.setup(poolSize);
-    PerformanceStats.totalSteals.set(0);
   }
 
   public synchronized void run(FJavaTask task) {
@@ -31,11 +35,17 @@ public class FJavaPool {
     for(int i = 0; i < this.poolSize; ++i) {
       this.taskRunners[i].setShouldShutdown(true);
     }
-    System.out.println(PerformanceStats.totalSteals.getName() + " " +PerformanceStats.totalSteals.get());
+    if(Definitions.TRACK_STATS) 
+      StatsTracker.getInstance().printStats();
   }
   
-  private void setup(int poolSize) {
-    if(poolSize <= 0) throw new IllegalArgumentException("Pool size should be > 0");
+  private void setup(int poolSize) {    
+    if(poolSize <= 0) 
+      throw new IllegalArgumentException("Pool size should be > 0");
+
+    if(Definitions.TRACK_STATS) StatsTracker.getInstance().setup(poolSize);
+
+    
     this.poolSize = poolSize;
     this.taskRunners = new TaskRunner[this.poolSize];
     this.isRunning = false;

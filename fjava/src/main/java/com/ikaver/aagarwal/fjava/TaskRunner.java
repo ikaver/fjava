@@ -1,6 +1,8 @@
 package com.ikaver.aagarwal.fjava;
 
-import org.apache.logging.log4j.LogManager;
+import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.fjava.stats.StatsTracker;
+
 
 
 public class TaskRunner implements Runnable {
@@ -9,7 +11,7 @@ public class TaskRunner implements Runnable {
   private TaskRunnerDeque deque;
   private int taskRunnerID;
   private volatile boolean shouldShutdown;
-  
+    
   /* Statistics */
   
   public TaskRunner(TaskRunnerDeque deque, int taskRunnerID) {
@@ -19,6 +21,8 @@ public class TaskRunner implements Runnable {
   }
   
   public void addTask(FJavaTask task) {
+    if(Definitions.TRACK_STATS) 
+      StatsTracker.getInstance().onTaskCreated(this.taskRunnerID);
     this.deque.addTask(task);
   }
   
@@ -66,6 +70,7 @@ public class TaskRunner implements Runnable {
     
   
   private void notifyTaskDone(FJavaTask task) {
-    //TODO: implement
+    if(Definitions.TRACK_STATS) 
+      StatsTracker.getInstance().onTaskCompleted(this.taskRunnerID);
   }
 }
