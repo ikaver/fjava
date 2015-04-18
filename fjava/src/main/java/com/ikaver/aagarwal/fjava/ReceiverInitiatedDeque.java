@@ -61,6 +61,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.myIdx = myIdx;
     this.numWorkers = this.status.length;
     this.tasks = new ArrayDeque<FJavaTask>();
+    this.emptyTask = emptyTask;
   } 
   
   
@@ -103,10 +104,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           //TODO: measure time waiting?
           while(this.responseCells[this.myIdx] == emptyTask) {
             this.communicate(); //TODO: remove busy waiting
-            if(status[stealIdx].get() == INVALID_STATUS) {
-              this.requestCells[stealIdx].set(EMPTY_REQUEST);
-              return;
-            }
           }
           
           if(this.responseCells[this.myIdx] != null) {
@@ -115,6 +112,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
             this.addTask(newTask);
             PerformanceStats.totalSteals.inc();
           }
+          this.responseCells[this.myIdx] = emptyTask;
           this.communicate(); //TODO: why is this here?
           return;
       }
