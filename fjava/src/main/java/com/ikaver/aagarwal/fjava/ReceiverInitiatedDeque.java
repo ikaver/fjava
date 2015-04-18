@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Represents a Sender Initiated Deque. This means that task runners that need
  * tasks to run (receivers) are the ones who ask others for tasks.
  */
-public class ReceiverInitiatedDeque {
+public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   //TODO: what is the run loop of this? Simple approach: Same thread as runner.
 
   public static final int VALID_STATUS = 1;

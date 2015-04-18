@@ -10,9 +10,6 @@ public abstract class FJavaTask implements Runnable {
     //TODO: actually run here
   }
   
-  public void onNewTask(FJavaTask task) {
-    this.runner.onNewTask(task, this);
-  }
   
   public void sync() {
     //TODO: Wait for onChildCompleted? Recursive?
