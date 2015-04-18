@@ -30,6 +30,7 @@ public abstract class FJavaTask {
     this.runner = runner;
     this.compute();
     this.isDone = true;
+    System.out.println(this + " IS DONE " );
   }
   
   boolean isDone() {
@@ -48,7 +49,9 @@ public abstract class FJavaTask {
   
   public boolean areAllChildsDone() {
     for(int i = 0; i < childTasks.size(); ++i) {
-      if(!childTasks.get(i).isDone()) return false;
+      if(!childTasks.get(i).isDone()) {
+        return false;
+      }
     }
     return true;
   }
