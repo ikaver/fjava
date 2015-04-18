@@ -2,6 +2,8 @@ package com.ikaver.aagarwal.fjava;
 
 import java.util.ArrayList;
 
+import org.apache.logging.log4j.LogManager;
+
 public abstract class FJavaTask {
   
   private TaskRunner runner;
@@ -30,7 +32,7 @@ public abstract class FJavaTask {
     this.runner = runner;
     this.compute();
     this.isDone = true;
-    System.out.println(this + " IS DONE " );
+    LogManager.getLogger().info("Task {} is done", this);
   }
   
   boolean isDone() {

@@ -1,5 +1,8 @@
 package com.ikaver.aagarwal.fjava;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 
 public class TaskRunner implements Runnable {
 
@@ -29,29 +32,29 @@ public class TaskRunner implements Runnable {
         return;
       }
       else {
-        System.out.println("TR " + this.taskRunnerID + " running SYNC " + parentTask + " LOOKING FOR TASK");
+        LogManager.getLogger().info("TR {} on SYNC {} looking for task", this.taskRunnerID, parentTask);
         FJavaTask task = deque.getTask();
         if(task == null) {
           //System.out.println("TR " + this.taskRunnerID + " running SYNC " + parentTask + " GOT NULL ");
           continue;
         }
-        System.out.println("TR " + this.taskRunnerID + " running SYNC " + parentTask + " GOT TASK " + task );
+        LogManager.getLogger().info("TR {} on SYNC {} got task {}", this.taskRunnerID, parentTask, task);
         task.run(this);
         this.notifyTaskDone(task);
       }
     }
   }
+  
+
 
   public void run() {
     while(true) { //TODO: while not finished running all tasks, according to the pool?
       //TODO: measure time waiting for task?
-      System.out.println("TR " + this.taskRunnerID + " IN RUN LOOKING FOR TASK");
       FJavaTask task = deque.getTask();
       if(task == null) {
-        //System.out.println("TR " + this.taskRunnerID + " running RUN GOT NULL ");
         continue;
       }
-      System.out.println("TR " + this.taskRunnerID + " running task " + task);
+      LogManager.getLogger().info("TR {} got task {}", this.taskRunnerID, task);
       task.run(this);
       this.notifyTaskDone(task);
       
