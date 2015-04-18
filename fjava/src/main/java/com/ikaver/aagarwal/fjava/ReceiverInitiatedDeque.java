@@ -4,6 +4,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
 
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
@@ -31,7 +34,10 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   
   //TODO: make cache efficient? (False sharing)
   //responseCells[j] holds the task that task runner j stole from other task runner.
-  private FJavaTask [] responseCells;
+  private FJavaTaskRef [] responseCells;
+  
+  //Index that we have reserved in the requestCells array
+  private int myReserve = EMPTY_REQUEST;
   
   private FJavaTask emptyTask;
   
@@ -43,12 +49,12 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   private int numWorkers;
   
   public ReceiverInitiatedDeque(RefInt [] status, 
-      AtomicInteger [] requestCells, FJavaTask [] responseCells, int myIdx, 
+      AtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int myIdx, 
       FJavaTask emptyTask) {
     for(int i = 0; i < requestCells.length; ++i) {
       if(requestCells[i].get() != EMPTY_REQUEST) 
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
-      if(responseCells[i] != emptyTask)
+      if(responseCells[i].task != emptyTask)
         throw new IllegalArgumentException("All response cells should be empty");
       if(status[i].value != INVALID_STATUS)
         throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
@@ -73,18 +79,19 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     //Idea: Can only be called by task runner
     if(task == null) 
         throw new IllegalArgumentException("Task cannot be null");
+
     this.tasks.addLast(task);
     this.updateStatus();
   }
   
-  public FJavaTask getTask() {
+  public FJavaTask getTask(FJavaTask parentTask) {
     if(Definitions.TRACK_STATS)
       StatsTracker.getInstance().onDequeGetTask(this.myIdx);
     
     if(this.tasks.isEmpty()) {
       if(Definitions.TRACK_STATS)
         StatsTracker.getInstance().onDequeEmpty(this.myIdx);
-      acquire();
+      acquire(parentTask);
       return null;
     }
     else {
@@ -97,41 +104,44 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       return task;
     }
   }
-  
+    
   /**
    * Called whenever there are no tasks in this deque
    * @return
    */
-  private void acquire() {
+  private void acquire(FJavaTask parentTask) {
     //TODO: measure time acquiring a task
     int counter = 0;
-    while(true) {
-      responseCells[myIdx] = emptyTask;
+    while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = this.random.nextInt(this.numWorkers);
-      if(status[stealIdx].value == VALID_STATUS 
-          && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.myIdx)) {
+      if(myReserve != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
+          && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.myIdx))) {
+          
+          if(myReserve != EMPTY_REQUEST) stealIdx = myReserve;
           
           //TODO: measure time waiting?
-          while(this.responseCells[this.myIdx] == emptyTask) {
+          while(this.responseCells[this.myIdx].task == emptyTask) {
             this.communicate(); //TODO: remove busy waiting
+            if(parentTask != null && parentTask.areAllChildsDone()) {
+              myReserve = stealIdx;
+              return;
+            }
           }
-          
-          if(this.responseCells[this.myIdx] != null) {
-            FJavaTask newTask = this.responseCells[this.myIdx];
-            this.requestCells[this.myIdx].set(EMPTY_REQUEST);
+          myReserve = EMPTY_REQUEST;
+          if(this.responseCells[this.myIdx].task != null && this.responseCells[this.myIdx].task != emptyTask) {
+            FJavaTask newTask = this.responseCells[this.myIdx].task;
             this.addTask(newTask);
             if(Definitions.TRACK_STATS) 
               StatsTracker.getInstance().onDequeSteal(this.myIdx);
           }
-          this.responseCells[this.myIdx] = emptyTask;
-          this.communicate(); //TODO: why is this here?
+          this.responseCells[this.myIdx].task = emptyTask;
           return;
       }
+      this.communicate();
       ++counter;
       if(counter == 8) {
         return;
       }
-      this.communicate();
     }
   }
   
@@ -142,11 +152,12 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     int requestIdx = this.requestCells[this.myIdx].get();
     if(requestIdx == EMPTY_REQUEST) return;
     
-    if(this.tasks.isEmpty()) {
-      this.responseCells[requestIdx] = null;
+    if(this.tasks.isEmpty() || this.status[this.myIdx].value == INVALID_STATUS) {
+      this.responseCells[requestIdx].task = null;
     }
     else {
-      this.responseCells[requestIdx] = this.tasks.removeFirst();
+      FJavaTask task =  this.tasks.removeFirst();
+      this.responseCells[requestIdx].task = task;
     }
     this.requestCells[this.myIdx].set(EMPTY_REQUEST);
   }

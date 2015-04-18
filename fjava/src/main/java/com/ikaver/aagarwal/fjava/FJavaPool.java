@@ -2,6 +2,8 @@ package com.ikaver.aagarwal.fjava;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
+
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -31,6 +33,7 @@ public class FJavaPool {
     while(!task.isDone()) {
       //TODO: remove busy waiting
     }
+    LogManager.getLogger().warn("SHUTTING DOWN WORKERS");
     for(int i = 0; i < this.poolSize; ++i) {
       this.taskRunners[i].setShouldShutdown(true);
     }
@@ -62,13 +65,13 @@ public class FJavaPool {
     TaskRunnerDeque [] deques = new TaskRunnerDeque[size];
     RefInt [] status = new RefInt[size];
     AtomicInteger [] requestCells = new AtomicInteger[size];
-    FJavaTask [] responseCells = new FJavaTask[size];
+    FJavaTaskRef [] responseCells = new FJavaTaskRef[size];
     FJavaTask emptyTask = new EmptyFJavaTask(null);
     
     for(int i = 0; i < size; ++i) {
       status[i] = new RefInt(ReceiverInitiatedDeque.INVALID_STATUS);
       requestCells[i] = new AtomicInteger(ReceiverInitiatedDeque.EMPTY_REQUEST);
-      responseCells[i] = emptyTask;
+      responseCells[i] = new FJavaTaskRef(emptyTask);
     }
     
     for(int i = 0; i < size; ++i) {

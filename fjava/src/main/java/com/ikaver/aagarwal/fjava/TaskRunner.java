@@ -1,5 +1,8 @@
 package com.ikaver.aagarwal.fjava;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -12,12 +15,15 @@ public class TaskRunner implements Runnable {
   private int taskRunnerID;
   private volatile boolean shouldShutdown;
     
+  private Logger log;
+  
   /* Statistics */
   
   public TaskRunner(TaskRunnerDeque deque, int taskRunnerID) {
     this.deque = deque;
     this.taskRunnerID = taskRunnerID;
     this.thread = new Thread(this, "Task Runner " + this.taskRunnerID);
+    log = LogManager.getLogger();
   }
   
   public void addTask(FJavaTask task) {
@@ -34,38 +40,36 @@ public class TaskRunner implements Runnable {
     this.shouldShutdown = shouldShutdown;
   }
   
+  
+  
   public void syncTask(FJavaTask parentTask) {
     while(true) {
       if(parentTask.areAllChildsDone()) {
         return;
       }
       else {
-        //LogManager.getLogger().info("TR {} on SYNC {} looking for task", this.taskRunnerID, parentTask);
-        FJavaTask task = deque.getTask();
+        FJavaTask task = deque.getTask(parentTask);
         if(task == null) {
-          //System.out.println("TR " + this.taskRunnerID + " running SYNC " + parentTask + " GOT NULL ");
           continue;
         }
-        //LogManager.getLogger().info("TR {} on SYNC {} got task {}", this.taskRunnerID, parentTask, task);
         task.run(this);
         this.notifyTaskDone(task);
       }
     }
   }
   
-
-
   public void run() {
     while(!this.shouldShutdown) { //TODO: while not finished running all tasks, according to the pool?
       //TODO: measure time waiting for task?
-      FJavaTask task = deque.getTask();
+      
+      FJavaTask task = deque.getTask(null);
       if(task == null) {
         continue;
       }
-      //LogManager.getLogger().info("TR {} got task {}", this.taskRunnerID, task);
       task.run(this);
       this.notifyTaskDone(task);
     }
+    log.warn("TR {} shutting down", this.taskRunnerID);
   }
     
   
