@@ -10,9 +10,7 @@ public class FJavaPool {
   private TaskRunner [] taskRunners;
   private int poolSize;
   private boolean isRunning;
-  
-  private StatsTracker statsTracker;
-  
+    
   public FJavaPool() {
     this(Runtime.getRuntime().availableProcessors());
   }
@@ -23,7 +21,8 @@ public class FJavaPool {
 
   public synchronized void run(FJavaTask task) {
     //TODO: record total running time
-    if(this.isRunning) throw new IllegalStateException("This pool is already running a task!");
+    if(this.isRunning) 
+      throw new IllegalStateException("This pool is already running a task!");
     this.isRunning = true;
     this.taskRunners[0].addTask(task);
     for(int i = 0; i < this.poolSize; ++i) {
