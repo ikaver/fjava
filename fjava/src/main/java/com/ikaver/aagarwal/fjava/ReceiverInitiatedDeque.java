@@ -30,7 +30,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * status[i] == VALID_STATUS iff deque i has some work to offer to idle threads
    * else, status[i] = INVALID_STATUS
    */
-  private RefInt [] status; //TODO: make cache efficient? (False sharing)   
+  private IntRef [] status; //TODO: make cache efficient? (False sharing)   
 
   /**
    * requestCells[i] = j iff task runner j is waiting for task runner i to 
@@ -79,7 +79,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   
   private FastStopwatch acquireStopwatch;
   
-  public ReceiverInitiatedDeque(RefInt [] status, 
+  public ReceiverInitiatedDeque(IntRef [] status, 
       AtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID, 
       FJavaTask emptyTask) {
     for(int i = 0; i < requestCells.length; ++i) {

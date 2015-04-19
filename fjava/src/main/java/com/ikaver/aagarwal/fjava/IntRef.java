@@ -1,14 +1,14 @@
 package com.ikaver.aagarwal.fjava;
 
-public class RefInt {
+public class IntRef {
   
   public volatile int value;
   
-  public RefInt() {
+  public IntRef() {
     this.value = 0;
   }
   
-  public RefInt(int value) {
+  public IntRef(int value) {
     this.value = value;
   }
 
