@@ -90,6 +90,10 @@ public class StatsTracker {
   public void onAcquireTime(int dequeIdx, long time) {
     this.dequeStats[dequeIdx].acquiredTime.inc(time);
   }
+  
+  public void onSuccessfulTaskDelegation(int dequeIdx) {
+  	this.dequeStats[dequeIdx].dequeTaskDelegationSuccess.inc();
+  }
 
   public static String getStatisticName(String id, String category, int number) {
     return String.format("%s#%s#%d", id, category, number);

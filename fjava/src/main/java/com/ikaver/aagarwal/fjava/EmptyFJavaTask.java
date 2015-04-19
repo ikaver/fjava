@@ -10,5 +10,10 @@ public class EmptyFJavaTask extends FJavaTask {
   public void compute() {
     
   }
+  
+  @Override
+  public String toString() {
+  	return "empty task()";
+  }
 
 }

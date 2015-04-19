@@ -2,8 +2,6 @@ package com.ikaver.aagarwal.fjava;
 
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.LogManager;
-
 public abstract class FJavaTask {
   
   private TaskRunner runner;
@@ -28,7 +26,7 @@ public abstract class FJavaTask {
   
   public abstract void compute();
   
-  void run(TaskRunner runner) {
+  void execute(TaskRunner runner) {
     this.runner = runner;
     this.compute();
     this.setIsDone(true);
@@ -56,6 +54,8 @@ public abstract class FJavaTask {
   }
   
   public boolean areAllChildsDone() {
+//  	System.out.println("Called by " + toString() + "from id: " +
+//        this.runner.getTaskRunnerID());
     for(int i = 0; i < childTasks.size(); ++i) {
       if(!childTasks.get(i).isDone()) {
         return false;

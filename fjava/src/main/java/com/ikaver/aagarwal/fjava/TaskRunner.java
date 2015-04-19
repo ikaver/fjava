@@ -26,10 +26,11 @@ public class TaskRunner implements Runnable {
     this.deque = deque;
     this.taskRunnerID = taskRunnerID;
     this.thread = new Thread(this, "Task Runner " + this.taskRunnerID);
-    
     this.log = LogManager.getLogger();
     this.getTaskStopwatch = new FastStopwatch();
     this.runTaskStopwatch = new FastStopwatch();
+    log = LogManager.getLogger(TaskRunner.class.getCanonicalName());
+
   }
   
   public void addTask(FJavaTask task) {
@@ -65,14 +66,14 @@ public class TaskRunner implements Runnable {
           StatsTracker.getInstance().onTaskAcquired(this.taskRunnerID, triesBeforeSteal);
         triesBeforeSteal = 0;
         this.runTaskStopwatch.start();
-        task.run(this);
-        if(Definitions.TRACK_STATS)
-          StatsTracker.getInstance().onRunTaskTime(this.taskRunnerID, this.runTaskStopwatch.end());
+        task.execute(this);
         this.notifyTaskDone(task);
       }
+      log.info(String.format("Stuck in sync %s on id: %d", parentTask, taskRunnerID));
     }
   }
   
+  @Override
   public void run() {
     int triesBeforeSteal = 1;
     while(!this.shouldShutdown) {    
@@ -84,21 +85,26 @@ public class TaskRunner implements Runnable {
         ++triesBeforeSteal;
         continue;
       }
-      if(Definitions.TRACK_STATS)
+      if(Definitions.TRACK_STATS) {
         StatsTracker.getInstance().onTaskAcquired(this.taskRunnerID, triesBeforeSteal);
+      }
       triesBeforeSteal = 1;
       this.runTaskStopwatch.start();
-      task.run(this);
-      if(Definitions.TRACK_STATS)
-        StatsTracker.getInstance().onRunTaskTime(this.taskRunnerID, this.runTaskStopwatch.end());
+      task.execute(this);
       this.notifyTaskDone(task);
+      log.info(String.format("Stuck in run() for id: %d", taskRunnerID));
     }
     log.warn("TR {} shutting down", this.taskRunnerID);
   }
     
   
   private void notifyTaskDone(FJavaTask task) {
-    if(Definitions.TRACK_STATS) 
+    if(Definitions.TRACK_STATS) {
       StatsTracker.getInstance().onTaskCompleted(this.taskRunnerID);
-  }
+    }
+   }
+  
+   public int getTaskRunnerID() {
+  	 return this.taskRunnerID;
+   }
 }

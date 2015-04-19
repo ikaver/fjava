@@ -8,6 +8,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.utils.FibonacciUtils;
+import com.ikaver.aagarwal.fjava.EmptyFJavaTask;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjavaexamples.FJavaFibonacci;
 import com.ikaver.aagarwal.javaforkjoin.FibonacciJavaForkJoin;
@@ -15,7 +16,7 @@ import com.ikaver.aagarwal.seq.SeqFibonacci;
 
 public class TestFibonacci extends AbstractBenchmark {
 
-	private static final int N = 24;
+	private static final int N = 40;
 
 	static long expected;
 	static boolean debug;
