@@ -67,9 +67,10 @@ public class TaskRunner implements Runnable {
         triesBeforeSteal = 0;
         this.runTaskStopwatch.start();
         task.execute(this);
+        if(Definitions.TRACK_STATS)
+          StatsTracker.getInstance().onRunTaskTime(this.taskRunnerID, this.runTaskStopwatch.end());
         this.notifyTaskDone(task);
       }
-      log.info(String.format("Stuck in sync %s on id: %d", parentTask, taskRunnerID));
     }
   }
   
