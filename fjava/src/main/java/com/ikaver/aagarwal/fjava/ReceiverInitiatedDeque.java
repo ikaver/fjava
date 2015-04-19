@@ -152,7 +152,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     int requestIdx = this.requestCells[this.myIdx].get();
     if(requestIdx == EMPTY_REQUEST) return;
     
-    if(this.tasks.isEmpty() || this.status[this.myIdx].value == INVALID_STATUS) {
+    if(this.tasks.isEmpty()) {
       this.responseCells[requestIdx].task = null;
     }
     else {
