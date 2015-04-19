@@ -17,7 +17,7 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
  */
 public class SenderInitiatedDeque implements TaskRunnerDeque {
 
-	private static final double DELTA = 10;
+	private static final double DELTA = 0.001;
 	
 	private static final FJavaTask DUMMY_TASK = new EmptyFJavaTask(null);
 	private static final FJavaTask INIT_TASK = new EmptyFJavaTask(null);
