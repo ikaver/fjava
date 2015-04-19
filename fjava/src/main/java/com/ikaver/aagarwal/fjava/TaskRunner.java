@@ -93,7 +93,6 @@ public class TaskRunner implements Runnable {
       this.runTaskStopwatch.start();
       task.execute(this);
       this.notifyTaskDone(task);
-      log.info(String.format("Stuck in run() for id: %d", taskRunnerID));
     }
     log.warn("TR {} shutting down", this.taskRunnerID);
   }
