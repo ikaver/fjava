@@ -25,6 +25,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 	private final AtomicReference<FJavaTask> communicationCells[];
 	private final double nextDealTime[];
 	private final Deque<FJavaTask> deque;
+	private FJavaPool pool;
 
 	private final int myIdx;
 	private final int numWorkers;
@@ -54,6 +55,10 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 		this.random = new Random();
 
 		communicationCells[myIdx].set(INIT_TASK);
+	}
+	
+	public void setupWithPool(FJavaPool pool) {
+	  this.pool = pool;
 	}
 
 	@Override
@@ -95,6 +100,9 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 				return;
 			}
+			else if(pool.isShuttingDown()) {
+			  return;
+			}
 		}
 
 		deque.addLast(communicationCells[myIdx].get());
@@ -135,7 +143,6 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 	protected void communicate() {
 		long now = System.currentTimeMillis();
-		dealAttempt();
 		if (now > nextDealTime[myIdx]) {
 			dealAttempt();
 			nextDealTime[myIdx] = now - DELTA * Math.log(

@@ -4,5 +4,6 @@ public interface TaskRunnerDeque {
   
   public void addTask(FJavaTask task);
   public FJavaTask getTask(FJavaTask task);
+  public void setupWithPool(FJavaPool pool);
 
 }

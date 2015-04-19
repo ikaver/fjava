@@ -104,6 +104,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.acquireStopwatch = new FastStopwatch();
   } 
   
+  public void setupWithPool(FJavaPool pool) { /* NOOP */ }
+  
   /**
    * Adds a task to this deque. Should be only called by the associated
    * task runners thread, once the thread has started running.

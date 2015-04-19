@@ -1,10 +1,5 @@
 package com.ikaver.aagarwal.fjava;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.apache.logging.log4j.LogManager;
-
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -13,6 +8,7 @@ public class FJavaPool {
 	private TaskRunner[] taskRunners;
 	private int poolSize;
 	private boolean isRunning;
+	private boolean shuttingDown;
 
 
 	FJavaPool(int poolSize, TaskRunnerDeque [] deques) {
@@ -31,6 +27,7 @@ public class FJavaPool {
 		while (!task.isDone()) {
 			// TODO: remove busy waiting
 		}
+		this.shuttingDown = true;
 		for (int i = 0; i < this.poolSize; ++i) {
 			this.taskRunners[i].setShouldShutdown(true);
 		}
@@ -50,11 +47,15 @@ public class FJavaPool {
 		this.isRunning = false;
 
 		for (int i = 0; i < this.poolSize; ++i) {
+		  deques[i].setupWithPool(this);
 			this.taskRunners[i] = new TaskRunner(deques[i], i);
 		}
 
 	}
 
+	public boolean isShuttingDown() {
+	  return this.shuttingDown;
+	}
 
 
 }
