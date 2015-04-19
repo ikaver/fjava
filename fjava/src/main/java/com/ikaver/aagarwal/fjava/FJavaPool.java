@@ -9,7 +9,6 @@ public class FJavaPool {
 	private TaskRunner[] taskRunners;
 	private int poolSize;
 	private boolean isRunning;
-	private boolean shuttingDown;
 	
 	private FJavaTask rootTask;
 
@@ -37,8 +36,6 @@ public class FJavaPool {
 		catch (InterruptedException e) {
       e.printStackTrace();
     }
-
-		this.shuttingDown = true;
 
 		if (Definitions.TRACK_STATS)
 			StatsTracker.getInstance().printStats();

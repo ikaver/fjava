@@ -40,6 +40,14 @@ public class TaskRunner implements Runnable {
     this.deque.addTask(task);
   }
   
+  /**
+   * This method can be invoked only by {@code FJavaTask#sync()}. We continue to 
+   * fetch a new piece of work to execute until all the children of the task 
+   * finish execution; the control then passes over to the parent task which had invoked 
+   * sync.
+   * 
+   * @param parentTask is the task which we want to sync on. 
+   */
   public void syncTask(FJavaTask parentTask) {
     int triesBeforeSteal = 1;
     while(true) {
@@ -48,6 +56,7 @@ public class TaskRunner implements Runnable {
       }
       else {
         this.getTaskStopwatch.start();
+
         FJavaTask task = deque.getTask(parentTask);
         if(Definitions.TRACK_STATS)
           StatsTracker.getInstance().onGetTaskTime(this.taskRunnerID, this.getTaskStopwatch.end());
@@ -55,13 +64,15 @@ public class TaskRunner implements Runnable {
           ++triesBeforeSteal;
           continue;
         }
-        if(Definitions.TRACK_STATS)
+        if(Definitions.TRACK_STATS) {
           StatsTracker.getInstance().onTaskAcquired(this.taskRunnerID, triesBeforeSteal);
+        }
         triesBeforeSteal = 0;
         this.runTaskStopwatch.start();
         task.execute(this);
-        if(Definitions.TRACK_STATS)
+        if(Definitions.TRACK_STATS) {
           StatsTracker.getInstance().onRunTaskTime(this.taskRunnerID, this.runTaskStopwatch.end());
+        }
         this.notifyTaskDone(task);
       }
     }
