@@ -10,8 +10,11 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.problems.MapFunction;
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory.StealingAlgorithm;
+import com.ikaver.aagarwal.fjavaexamples.FJavaMap;
 import com.ikaver.aagarwal.javaforkjoin.MapJavaForkJoin;
-
 import com.ikaver.aagarwal.seq.SeqMap;
 
 
@@ -34,7 +37,6 @@ public class TestMap extends AbstractBenchmark {
   public static void setup() {
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
-    
     size = 1000000;
     double min = 0;
     double max = 2;
@@ -65,6 +67,16 @@ public class TestMap extends AbstractBenchmark {
   public void testForkJoinPoolMap() {  
     ForkJoinPool pool = new ForkJoinPool();
     new MapJavaForkJoin<Double, Double>(pool).map(testArray, result, mapFunction);
+    if(debug) {
+      Assert.assertArrayEquals(expected, result);
+    }
+  }
+  
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
+  @Test
+  public void testFJavaMap() {  
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(StealingAlgorithm.RECEIVER_INITIATED);
+    new FJavaMap<Double, Double>(pool).map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);
     }
