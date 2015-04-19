@@ -4,11 +4,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
-
-import org.apache.logging.log4j.LogManager;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
 /**
@@ -16,40 +14,71 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
  * tasks to run (receivers) are the ones who ask others for tasks.
  */
 public class ReceiverInitiatedDeque implements TaskRunnerDeque {
-  //TODO: what is the run loop of this? Simple approach: Same thread as runner.
 
   public static final int VALID_STATUS = 1;
   public static final int INVALID_STATUS = 0;
   public static final int EMPTY_REQUEST = -1;
+  private static final int TRIES_BEFORE_QUIT = 16;
+
+  /**
+   * Our deque of tasks.
+   */
+  private Deque<FJavaTask> tasks;
   
-  //TODO: make cache efficient? (False sharing) 
-  //BTW, We don't need atomic here. 
-  //Only need to make sure that writes are propagates to all threads.
-  private RefInt [] status; 
-  
-  //TODO: make cache efficient? (False sharing)
-  //requestCells[i] = j if task runner j is waiting for task runner i to give
-  //him work.
-  private AtomicInteger [] requestCells;
+  /**
+   * Indicates the status of the current deque.
+   * status[i] == VALID_STATUS iff deque i has some work to offer to idle threads
+   * else, status[i] = INVALID_STATUS
+   */
+  private RefInt [] status; //TODO: make cache efficient? (False sharing)   
+
+  /**
+   * requestCells[i] = j iff task runner j is waiting for task runner i to 
+   * give him work
+   */
+  private AtomicInteger [] requestCells;   //TODO: make cache efficient? (False sharing)
   
   //TODO: make cache efficient? (False sharing)
   //responseCells[j] holds the task that task runner j stole from other task runner.
+  
+  /**
+   * responseCells[j] holds the task that task runner j stole from other
+   * task runner (specifically, where j put his id in requestCells array).
+   */
   private FJavaTaskRef [] responseCells;
   
-  //Index that we have reserved in the requestCells array
-  private int myReserve = EMPTY_REQUEST;
+  /**
+   * Index that we have reserved in the requestCells array. We are
+   * still waiting for a response from the other task runner, but we had
+   * to quit temporarily to handle a join request.
+   */
+  private int reservedRequestCell = EMPTY_REQUEST;
   
+  /**
+   * An empty task, used to differentiate "not responded yet" from "sorry, 
+   * I have no tasks for you" responses in the responseCells array.
+   */
   private FJavaTask emptyTask;
   
-  private Deque<FJavaTask> tasks;
-  
+  /**
+   * A random number generator to find victim task runners.
+   */
   private Random random;
 
-  private int myIdx;
+  /**
+   * The ID of this deque.
+   */
+  private int dequeID;
+  
+  /**
+   * The total number of other workers in the fork join system.
+   */
   private int numWorkers;
   
+  private FastStopwatch acquireStopwatch;
+  
   public ReceiverInitiatedDeque(RefInt [] status, 
-      AtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int myIdx, 
+      AtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID, 
       FJavaTask emptyTask) {
     for(int i = 0; i < requestCells.length; ++i) {
       if(requestCells[i].get() != EMPTY_REQUEST) 
@@ -67,16 +96,19 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.requestCells = requestCells;
     this.responseCells = responseCells;
     this.random = new Random();    
-    this.myIdx = myIdx;
+    this.dequeID = dequeID;
     this.numWorkers = this.status.length;
     this.tasks = new ArrayDeque<FJavaTask>();
     this.emptyTask = emptyTask;
+    
+    this.acquireStopwatch = new FastStopwatch();
   } 
   
-  
+  /**
+   * Adds a task to this deque. Should be only called by the associated
+   * task runners thread, once the thread has started running.
+   */
   public void addTask(FJavaTask task) {
-    //TODO: how to ensure that this is called on the correct thread?
-    //Idea: Can only be called by task runner
     if(task == null) 
         throw new IllegalArgumentException("Task cannot be null");
 
@@ -84,19 +116,27 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.updateStatus();
   }
   
+  /**
+   * Returns a task from this deque, or a stolen task, possibly.
+   * May return null if it failed to steal any tasks.
+   * Caller should try again if necessary.
+   */
   public FJavaTask getTask(FJavaTask parentTask) {
     if(Definitions.TRACK_STATS)
-      StatsTracker.getInstance().onDequeGetTask(this.myIdx);
+      StatsTracker.getInstance().onDequeGetTask(this.dequeID);
     
     if(this.tasks.isEmpty()) {
       if(Definitions.TRACK_STATS)
-        StatsTracker.getInstance().onDequeEmpty(this.myIdx);
+        StatsTracker.getInstance().onDequeEmpty(this.dequeID);
+      acquireStopwatch.start();
       acquire(parentTask);
+      if(Definitions.TRACK_STATS)
+        StatsTracker.getInstance().onAcquireTime(this.dequeID, acquireStopwatch.end());
       return null;
     }
     else {
       if(Definitions.TRACK_STATS) {
-        StatsTracker.getInstance().onDequeNotEmpty(this.myIdx);
+        StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
       }
       FJavaTask task = this.tasks.removeLast();
       updateStatus();
@@ -114,32 +154,32 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     int counter = 0;
     while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = this.random.nextInt(this.numWorkers);
-      if(myReserve != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
-          && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.myIdx))) {
+      if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
+          && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.dequeID))) {
           
-          if(myReserve != EMPTY_REQUEST) stealIdx = myReserve;
+          if(reservedRequestCell != EMPTY_REQUEST) stealIdx = reservedRequestCell;
           
           //TODO: measure time waiting?
-          while(this.responseCells[this.myIdx].task == emptyTask) {
+          while(this.responseCells[this.dequeID].task == emptyTask) {
             this.communicate(); //TODO: remove busy waiting
             if(parentTask != null && parentTask.areAllChildsDone()) {
-              myReserve = stealIdx;
+              reservedRequestCell = stealIdx;
               return;
             }
           }
-          myReserve = EMPTY_REQUEST;
-          if(this.responseCells[this.myIdx].task != null && this.responseCells[this.myIdx].task != emptyTask) {
-            FJavaTask newTask = this.responseCells[this.myIdx].task;
+          reservedRequestCell = EMPTY_REQUEST;
+          if(this.responseCells[this.dequeID].task != null && this.responseCells[this.dequeID].task != emptyTask) {
+            FJavaTask newTask = this.responseCells[this.dequeID].task;
             this.addTask(newTask);
             if(Definitions.TRACK_STATS) 
-              StatsTracker.getInstance().onDequeSteal(this.myIdx);
+              StatsTracker.getInstance().onDequeSteal(this.dequeID);
           }
-          this.responseCells[this.myIdx].task = emptyTask;
+          this.responseCells[this.dequeID].task = emptyTask;
           return;
       }
       this.communicate();
       ++counter;
-      if(counter == 8) {
+      if(counter == TRIES_BEFORE_QUIT) {
         return;
       }
     }
@@ -149,7 +189,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * Respond to requests, if any.
    */
   private void communicate() {
-    int requestIdx = this.requestCells[this.myIdx].get();
+    int requestIdx = this.requestCells[this.dequeID].get();
     if(requestIdx == EMPTY_REQUEST) return;
     
     if(this.tasks.isEmpty()) {
@@ -159,12 +199,12 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       FJavaTask task =  this.tasks.removeFirst();
       this.responseCells[requestIdx].task = task;
     }
-    this.requestCells[this.myIdx].set(EMPTY_REQUEST);
+    this.requestCells[this.dequeID].set(EMPTY_REQUEST);
   }
   
   private void updateStatus() {
     int available = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
-    if(this.status[this.myIdx].value != available) 
-      this.status[this.myIdx].value = available;
+    if(this.status[this.dequeID].value != available) 
+      this.status[this.dequeID].value = available;
   }
 }
