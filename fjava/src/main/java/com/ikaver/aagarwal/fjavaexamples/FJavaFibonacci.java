@@ -49,7 +49,7 @@ public class FJavaFibonacci extends FibonacciBase {
       FibonacciTask childTask1 = new FibonacciTask(n-1, this);
       FibonacciTask childTask2 = new FibonacciTask(n-2, this);
       childTask1.fork(true);
-      childTask2.fork(true);
+      childTask2.fork(false);
       sync();
       answer = childTask1.answer + childTask2.answer;
     }
