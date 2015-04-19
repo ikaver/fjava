@@ -60,6 +60,10 @@ public abstract class FJavaTask {
       if(!childTasks.get(i).isDone()) {
         return false;
       }
+      else {
+        childTasks.remove(i);
+        i = 0;
+      }
     }
     return true;
   }
