@@ -31,8 +31,7 @@ public abstract class FJavaTask {
   void run(TaskRunner runner) {
     this.runner = runner;
     this.compute();
-    this.isDone = true;
-    LogManager.getLogger().info("Task {} is done", this);
+    this.setIsDone(true);
   }
   
   boolean isDone() {
@@ -43,10 +42,17 @@ public abstract class FJavaTask {
     if(this.isDone && done == false) 
       throw new IllegalStateException("Cannot 'undo' a done task");
     this.isDone = done;
+    this.childTasks.clear();
   }
   
-  public void fork() {
-    this.runner.addTask(this);
+  public void fork(boolean async) {
+    if(async) {
+      this.runner.addTask(this);
+    }
+    else {
+      this.compute();
+      this.setIsDone(true);
+    }
   }
   
   public boolean areAllChildsDone() {
