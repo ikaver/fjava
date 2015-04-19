@@ -54,6 +54,18 @@ public class StatsTracker {
     this.taskRunnerStats[trIdx].totalTasksCompleted.inc();
   }
   
+  public void onTaskAcquired(int trIdx, int numFailures) {
+    this.taskRunnerStats[trIdx].totalTriesBeforeAcquireTask.inc(numFailures);
+  }
+  
+  public void onGetTaskTime(int trIdx, long time) {
+    this.taskRunnerStats[trIdx].getTaskTime.inc(time);
+  }
+  
+  public void onRunTaskTime(int trIdx, long time) {
+    this.taskRunnerStats[trIdx].runTaskTime.inc(time);
+  }
+  
   /* Deque stats */
   public void onSuccessfulGetTask(int dequeIdx) {
     this.dequeStats[dequeIdx].successfulGetTask.inc();
@@ -74,5 +86,12 @@ public class StatsTracker {
   public void onDequeEmpty(int dequeIdx) {
     this.dequeStats[dequeIdx].dequeEmpty.inc();
   }
+  
+  public void onAcquireTime(int dequeIdx, long time) {
+    this.dequeStats[dequeIdx].acquiredTime.inc(time);
+  }
 
+  public static String getStatisticName(String id, String category, int number) {
+    return String.format("%s#%s#%d", id, category, number);
+  }
 }
