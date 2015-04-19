@@ -12,7 +12,7 @@ public class FJavaFibonacci extends FibonacciBase {
   public FJavaFibonacci(FJavaPool pool) {
     this.pool = pool;
   }
-
+  
   public long fibonacci(int n) {
     FibonacciTask task = new FibonacciTask(n);
     pool.run(task);
@@ -48,8 +48,8 @@ public class FJavaFibonacci extends FibonacciBase {
       }
       FibonacciTask childTask1 = new FibonacciTask(n-1, this);
       FibonacciTask childTask2 = new FibonacciTask(n-2, this);
-      childTask1.fork();
-      childTask2.fork();
+      childTask1.fork(true);
+      childTask2.fork(true);
       sync();
       answer = childTask1.answer + childTask2.answer;
     }
