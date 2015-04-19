@@ -10,6 +10,8 @@ import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.utils.FibonacciUtils;
 import com.ikaver.aagarwal.fjava.EmptyFJavaTask;
 import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory.StealingAlgorithm;
 import com.ikaver.aagarwal.fjavaexamples.FJavaFibonacci;
 import com.ikaver.aagarwal.javaforkjoin.FibonacciJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqFibonacci;
@@ -44,7 +46,7 @@ public class TestFibonacci extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testFibonacciFJava() {
-    FJavaPool pool = new FJavaPool();
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(StealingAlgorithm.RECEIVER_INITIATED);
     FJavaFibonacci fibonacci =
         new FJavaFibonacci(pool);
     long result = fibonacci.fibonacci(N);
