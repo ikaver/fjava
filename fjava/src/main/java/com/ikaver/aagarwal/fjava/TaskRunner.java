@@ -11,10 +11,9 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
 public class TaskRunner implements Runnable {
 
-  private Thread thread;
   private TaskRunnerDeque deque;
   private int taskRunnerID;
-  private volatile boolean shouldShutdown;
+  private FJavaTask rootTask;
     
   private Logger log;
   private FastStopwatch getTaskStopwatch;
@@ -25,26 +24,20 @@ public class TaskRunner implements Runnable {
   public TaskRunner(TaskRunnerDeque deque, int taskRunnerID) {
     this.deque = deque;
     this.taskRunnerID = taskRunnerID;
-    this.thread = new Thread(this, "Task Runner " + this.taskRunnerID);
     this.log = LogManager.getLogger();
     this.getTaskStopwatch = new FastStopwatch();
     this.runTaskStopwatch = new FastStopwatch();
     log = LogManager.getLogger(TaskRunner.class.getCanonicalName());
-
+  }
+  
+  public void setRootTask(FJavaTask task) {
+    this.rootTask = task;
   }
   
   public void addTask(FJavaTask task) {
     if(Definitions.TRACK_STATS) 
       StatsTracker.getInstance().onTaskCreated(this.taskRunnerID);
     this.deque.addTask(task);
-  }
-  
-  public void startRunning() {
-    this.thread.start();
-  }
-  
-  public void setShouldShutdown(boolean shouldShutdown) {
-    this.shouldShutdown = shouldShutdown;
   }
   
   public void syncTask(FJavaTask parentTask) {
@@ -77,7 +70,7 @@ public class TaskRunner implements Runnable {
   @Override
   public void run() {
     int triesBeforeSteal = 1;
-    while(!this.shouldShutdown) {    
+    while(!this.rootTask.isDone()) {    
       this.getTaskStopwatch.start();
       FJavaTask task = deque.getTask(null);
       if(Definitions.TRACK_STATS)
@@ -94,7 +87,6 @@ public class TaskRunner implements Runnable {
       task.execute(this);
       this.notifyTaskDone(task);
     }
-    log.warn("TR {} shutting down", this.taskRunnerID);
   }
     
   

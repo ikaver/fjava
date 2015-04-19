@@ -5,10 +5,13 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
 public class FJavaPool {
 
+  private Thread [] threads;
 	private TaskRunner[] taskRunners;
 	private int poolSize;
 	private boolean isRunning;
 	private boolean shuttingDown;
+	
+	private FJavaTask rootTask;
 
 
 	FJavaPool(int poolSize, TaskRunnerDeque [] deques) {
@@ -16,21 +19,27 @@ public class FJavaPool {
 	}
 
 	public synchronized void run(FJavaTask task) {
-		// TODO: record total running time
 		if (this.isRunning)
 			throw new IllegalStateException("This pool is already running a task!");
 		this.isRunning = true;
+		this.rootTask = task;
 		this.taskRunners[0].addTask(task);
 		for (int i = 0; i < this.poolSize; ++i) {
-			this.taskRunners[i].startRunning();
+	    this.taskRunners[i].setRootTask(task);
+			this.threads[i].start();
 		}
-		while (!task.isDone()) {
-			// TODO: remove busy waiting
-		}
+		
+		try {
+		  for(int i = 0; i < this.poolSize; ++i) {
+		    this.threads[i].join();
+		  }
+    } 
+		catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
 		this.shuttingDown = true;
-		for (int i = 0; i < this.poolSize; ++i) {
-			this.taskRunners[i].setShouldShutdown(true);
-		}
+
 		if (Definitions.TRACK_STATS)
 			StatsTracker.getInstance().printStats();
 	}
@@ -43,18 +52,20 @@ public class FJavaPool {
 			StatsTracker.getInstance().setup(poolSize);
 
 		this.poolSize = poolSize;
+		this.threads = new Thread[this.poolSize];
 		this.taskRunners = new TaskRunner[this.poolSize];
 		this.isRunning = false;
 
 		for (int i = 0; i < this.poolSize; ++i) {
 		  deques[i].setupWithPool(this);
 			this.taskRunners[i] = new TaskRunner(deques[i], i);
+			this.threads[i] = new Thread(this.taskRunners[i], "Task runner " + i);
 		}
 
 	}
 
 	public boolean isShuttingDown() {
-	  return this.shuttingDown;
+	  return this.rootTask.isDone();
 	}
 
 

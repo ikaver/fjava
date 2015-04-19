@@ -75,6 +75,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private int numWorkers;
   
+  private FJavaPool pool;
+  
   private FastStopwatch acquireStopwatch;
   
   public ReceiverInitiatedDeque(RefInt [] status, 
@@ -104,7 +106,9 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.acquireStopwatch = new FastStopwatch();
   } 
   
-  public void setupWithPool(FJavaPool pool) { /* NOOP */ }
+  public void setupWithPool(FJavaPool pool) { 
+    this.pool = pool;
+  }
   
   /**
    * Adds a task to this deque. Should be only called by the associated
@@ -164,7 +168,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           //TODO: measure time waiting?
           while(this.responseCells[this.dequeID].task == emptyTask) {
             this.communicate(); //TODO: remove busy waiting
-            if(parentTask != null && parentTask.areAllChildsDone()) {
+            if(parentTask != null && parentTask.areAllChildsDone() || pool.isShuttingDown()) {
               reservedRequestCell = stealIdx;
               return;
             }
