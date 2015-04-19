@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.concurrent.ForkJoinPool;
 
+import org.apache.logging.log4j.LogManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -10,6 +11,10 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory.StealingAlgorithm;
+import com.ikaver.aagarwal.fjavaexamples.FJavaQuickSort;
 import com.ikaver.aagarwal.javaforkjoin.QuickSortJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqQuickSort;
 
@@ -34,6 +39,8 @@ public class TestQuickSort extends AbstractBenchmark {
     original = ArrayHelper.createRandomArray(size, min, max);
     sorted = Arrays.copyOf(original, size);
     Arrays.sort(sorted);
+    
+    LogManager.getLogger().debug("Starting sort test...");
   }
   
   @Before
@@ -44,11 +51,20 @@ public class TestQuickSort extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testForkJoinPoolQuickSort() {   
-    ForkJoinPool pool = new ForkJoinPool();
+    ForkJoinPool pool = new ForkJoinPool(4);
     new QuickSortJavaForkJoin(pool).sort(testArray, 0, size-1);
     if(debug) Assert.assertArrayEquals(sorted, original);
   }
   
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
+  @Test
+  public void testFJavaQuickSort() {
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(4, StealingAlgorithm.RECEIVER_INITIATED);
+    FJavaQuickSort sort =
+        new FJavaQuickSort(pool);
+    sort.sort(testArray, 0, size-1);
+    if(debug) Assert.assertArrayEquals(sorted, original);
+  }
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
