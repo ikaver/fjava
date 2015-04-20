@@ -3,11 +3,9 @@ package com.ikaver.aagarwal.fjava;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.ikaver.aagarwal.common.StealingAlgorithm;
+
 public class FJavaPoolFactory {
-  
-  public enum StealingAlgorithm {
-    RECEIVER_INITIATED, SENDER_INITIATED,
-  }
   
   private static FJavaPoolFactory instance;
   

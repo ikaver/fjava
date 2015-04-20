@@ -11,14 +11,17 @@ public class FastStopwatch {
   public FastStopwatch() { }
   
   public void start() {
-    if(Definitions.TRACK_STATS)
+    if(FJavaConf.getInstance().shouldTrackStats()) {
       stopwatch = Stopwatch.createStarted();
+    }
   }
   
   public long end() {
-    if(Definitions.TRACK_STATS)
+    if(FJavaConf.getInstance().shouldTrackStats()) {
       return stopwatch.elapsed(TimeUnit.MILLISECONDS);
-    else return 0;
+    } else {
+    	return 0;
+    }
   }
 
 }

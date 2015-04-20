@@ -1,6 +1,6 @@
 package com.ikaver.aagarwal.fjava;
 
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -29,8 +29,9 @@ public class TaskRunner implements Runnable {
   }
   
   public void addTask(FJavaTask task) {
-    if(Definitions.TRACK_STATS) 
+    if(FJavaConf.getInstance().shouldTrackStats()) { 
       StatsTracker.getInstance().onTaskCreated(this.taskRunnerID);
+    }
     this.deque.addTask(task);
   }
   
@@ -52,20 +53,24 @@ public class TaskRunner implements Runnable {
         this.getTaskStopwatch.start();
 
         FJavaTask task = deque.getTask(parentTask);
-        if(Definitions.TRACK_STATS)
-          StatsTracker.getInstance().onGetTaskTime(this.taskRunnerID, this.getTaskStopwatch.end());
+        if(FJavaConf.getInstance().shouldTrackStats()) {
+          StatsTracker.getInstance().onGetTaskTime(
+          		this.taskRunnerID, this.getTaskStopwatch.end());
+        }
         if(task == null) {
           ++triesBeforeSteal;
           continue;
         }
-        if(Definitions.TRACK_STATS) {
-          StatsTracker.getInstance().onTaskAcquired(this.taskRunnerID, triesBeforeSteal);
+        if(FJavaConf.getInstance().shouldTrackStats()) {
+          StatsTracker.getInstance().onTaskAcquired(
+          		this.taskRunnerID, triesBeforeSteal);
         }
         triesBeforeSteal = 0;
         this.runTaskStopwatch.start();
         task.execute(this);
-        if(Definitions.TRACK_STATS) {
-          StatsTracker.getInstance().onRunTaskTime(this.taskRunnerID, this.runTaskStopwatch.end());
+        if(FJavaConf.getInstance().shouldTrackStats()) {
+          StatsTracker.getInstance().onRunTaskTime(
+          		this.taskRunnerID, this.runTaskStopwatch.end());
         }
         this.notifyTaskDone(task);
       }
@@ -78,15 +83,22 @@ public class TaskRunner implements Runnable {
     while(!this.rootTask.isDone()) {    
       this.getTaskStopwatch.start();
       FJavaTask task = deque.getTask(null);
-      if(Definitions.TRACK_STATS)
-        StatsTracker.getInstance().onGetTaskTime(this.taskRunnerID, this.getTaskStopwatch.end());
+
+      if(FJavaConf.getInstance().shouldTrackStats()) {
+        StatsTracker.getInstance().onGetTaskTime(
+        		this.taskRunnerID, this.getTaskStopwatch.end());
+      }
+
       if(task == null) {
         ++triesBeforeSteal;
         continue;
       }
-      if(Definitions.TRACK_STATS) {
-        StatsTracker.getInstance().onTaskAcquired(this.taskRunnerID, triesBeforeSteal);
+
+      if(FJavaConf.getInstance().shouldTrackStats()) {
+        StatsTracker.getInstance().onTaskAcquired(
+        		this.taskRunnerID, triesBeforeSteal);
       }
+
       triesBeforeSteal = 1;
       this.runTaskStopwatch.start();
       task.execute(this);
@@ -96,7 +108,7 @@ public class TaskRunner implements Runnable {
     
   
   private void notifyTaskDone(FJavaTask task) {
-    if(Definitions.TRACK_STATS) {
+    if(FJavaConf.getInstance().shouldTrackStats()) {
       StatsTracker.getInstance().onTaskCompleted(this.taskRunnerID);
     }
    }

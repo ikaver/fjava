@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.MathHelper;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -158,7 +159,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 		boolean success = communicationCells[victim].compareAndSet(WAITING_TO_RECEIVE_TASK, task);
 
 		if (success) {
-			if (Definitions.TRACK_STATS) {
+			if (FJavaConf.getInstance().shouldTrackStats()) {
 				StatsTracker.getInstance().onSuccessfulTaskDelegation(myIdx);
 			}
 			

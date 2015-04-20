@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.custardsource.parfait.Monitorable;
 import com.custardsource.parfait.MonitorableRegistry;
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 
 public class StatsTracker {
   
@@ -25,7 +25,7 @@ public class StatsTracker {
   }
   
   public void setup(int poolSize) {
-    if(!Definitions.TRACK_STATS)
+    if(!FJavaConf.getInstance().shouldTrackStats())
       return;
     
     ++runNumber;
@@ -41,7 +41,9 @@ public class StatsTracker {
   }
   
   public void printStats() {
-    if(!Definitions.TRACK_STATS) return;
+    if(!FJavaConf.getInstance().shouldTrackStats()) {
+    	return;
+    }
     log.warn("Stats for run #{}", this.runNumber);
     for(Monitorable<?> c : MonitorableRegistry.DEFAULT_REGISTRY.getMonitorables()) {
       log.warn("{} : {}", c.getName(), c.get());
