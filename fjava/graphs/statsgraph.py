@@ -103,5 +103,5 @@ def process_stats(dir_name, regex):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print 'Usage: python graph.py <OUTPUT_DIR_NAME> <REGEX>'
+        print 'Usage: python statsgraph.py <OUTPUT_DIR_NAME> <REGEX>'
     process_stats(sys.argv[1], sys.argv[2])
