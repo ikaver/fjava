@@ -51,7 +51,7 @@ public abstract class FJavaTask {
       }
       else {
         childTasks.remove(i);
-        i = 0;
+        i = -1;
       }
     }
     return true;
