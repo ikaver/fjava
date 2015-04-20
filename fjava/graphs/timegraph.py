@@ -57,8 +57,11 @@ def process_stats(dir_name):
                 stat_name = stat_tokens[1].split(":", 1)[0]
                 stat_time = float(stat_tokens[2])
                 stat_stddev = 0.0
+            if stat_name == 'time.total':
+                continue
             if not stat_name in stats:
                 stats[stat_name] = []
+
             print 'adding ', stat_name, name, stat_time, stat_stddev
             stats[stat_name].append((name, stat_time, stat_stddev))
     show_graph(dir_name, stats)
