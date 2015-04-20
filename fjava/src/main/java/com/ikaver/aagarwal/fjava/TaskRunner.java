@@ -1,8 +1,5 @@
 package com.ikaver.aagarwal.fjava;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
@@ -15,7 +12,6 @@ public class TaskRunner implements Runnable {
   private int taskRunnerID;
   private FJavaTask rootTask;
     
-  private Logger log;
   private FastStopwatch getTaskStopwatch;
   private FastStopwatch runTaskStopwatch;
   
@@ -24,10 +20,8 @@ public class TaskRunner implements Runnable {
   public TaskRunner(TaskRunnerDeque deque, int taskRunnerID) {
     this.deque = deque;
     this.taskRunnerID = taskRunnerID;
-    this.log = LogManager.getLogger();
     this.getTaskStopwatch = new FastStopwatch();
     this.runTaskStopwatch = new FastStopwatch();
-    log = LogManager.getLogger(TaskRunner.class.getCanonicalName());
   }
   
   public void setRootTask(FJavaTask task) {
