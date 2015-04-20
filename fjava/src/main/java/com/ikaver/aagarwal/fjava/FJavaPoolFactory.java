@@ -55,7 +55,7 @@ public class FJavaPoolFactory {
     IntRef[] status = new IntRef[size];
     AtomicInteger[] requestCells = new AtomicInteger[size];
     FJavaTaskRef[] responseCells = new FJavaTaskRef[size];
-    FJavaTask emptyTask = new EmptyFJavaTask(null);
+    FJavaTask emptyTask = new EmptyFJavaTask();
 
     for (int i = 0; i < size; ++i) {
       status[i] = new IntRef(ReceiverInitiatedDeque.INVALID_STATUS);

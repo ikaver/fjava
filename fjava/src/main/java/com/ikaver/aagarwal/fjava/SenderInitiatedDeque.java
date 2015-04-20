@@ -29,14 +29,14 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 	 * {@code FJavaTask} object which indicates if a task runner is waiting for receive
 	 * additional tasks.
 	 */
-	private static final FJavaTask WAITING_TO_RECEIVE_TASK = new EmptyFJavaTask(null);
+	private static final FJavaTask WAITING_TO_RECEIVE_TASK = new EmptyFJavaTask();
 
 	/**
 	 * {@code FJavaTask} object which is used to indicate "NULL" or "EMPTY" task value.
 	 * This is useful for initializing cells and for preventing spurious references to
 	 * a previously assigned task value.
 	 */
-	private static final FJavaTask SENTINEL_TASK = new EmptyFJavaTask(null);
+	private static final FJavaTask SENTINEL_TASK = new EmptyFJavaTask();
 
 	private final AtomicReference<FJavaTask> communicationCells[];
 	private final double nextDealTime[];

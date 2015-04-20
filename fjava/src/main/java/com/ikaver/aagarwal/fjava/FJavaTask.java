@@ -9,17 +9,6 @@ public abstract class FJavaTask {
   private volatile boolean isDone; //TODO: is it necessary to be volatile?
   
   public FJavaTask() {
-    this(null);
-  }
-  
-  public FJavaTask(FJavaTask parent) {
-    if(parent != null) {
-      parent.addChild(this);
-      this.runner = parent.runner;
-    }
-    else {
-      this.runner = null;
-    }
     this.childTasks = new ArrayList<FJavaTask>();
     this.isDone = false;
   }
@@ -43,14 +32,16 @@ public abstract class FJavaTask {
     this.childTasks.clear();
   }
   
-  public void fork(boolean async) {
-    if(async) {
-      this.runner.addTask(this);
-    }
-    else {
-      this.compute();
-      this.setIsDone(true);
-    }
+  public void runAsync(FJavaTask parent) {
+    parent.addChild(this);
+    this.runner = parent.runner;
+    this.runner.addTask(this);
+  }
+  
+  public void runSync(FJavaTask parent) {
+    this.runner = parent.runner;
+    this.compute();
+    this.setIsDone(true);
   }
   
   public boolean areAllChildsDone() {
