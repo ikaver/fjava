@@ -32,7 +32,7 @@ public class DequeStats {
 				"deque.time.acquire", "", idx), "Time spent on acquire");
 
 		this.dequeTaskDelegationSuccess = new MonitoredCounter(
-				"deque.task_delegation#" + idx,
+				StatsTracker.getStatisticName("deque.task_delegation", "", idx),
 				"# of total time task delegation to another worker succeeded");
 	}
 
