@@ -17,7 +17,7 @@ public class FJavaPool {
 		this.setup(poolSize, deques);
 	}
 
-	public synchronized void run(FJavaTask task) {
+	public void run(FJavaTask task) {
 		if (this.isRunning)
 			throw new IllegalStateException("This pool is already running a task!");
 		this.isRunning = true;
