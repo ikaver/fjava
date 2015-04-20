@@ -25,6 +25,9 @@ public class StatsTracker {
   }
   
   public void setup(int poolSize) {
+    if(!Definitions.TRACK_STATS)
+      return;
+    
     ++runNumber;
     MonitorableRegistry.clearDefaultRegistry();
     
