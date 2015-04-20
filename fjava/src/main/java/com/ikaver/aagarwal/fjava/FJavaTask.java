@@ -54,8 +54,6 @@ public abstract class FJavaTask {
   }
   
   public boolean areAllChildsDone() {
-//  	System.out.println("Called by " + toString() + "from id: " +
-//        this.runner.getTaskRunnerID());
     for(int i = 0; i < childTasks.size(); ++i) {
       if(!childTasks.get(i).isDone()) {
         return false;
