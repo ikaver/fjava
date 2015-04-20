@@ -8,8 +8,8 @@ run_test() {
     TEST_TYPE=$3
 
     TEST_DIR=$RESULTS_DIR/$TEST_TYPE/$TEST_TYPE-$ALGORITHM_ARG-$POOL_SIZE_ARG
-    mkdir $RESULTS_DIR/$TEST_TYPE || true
-    mkdir $TEST_DIR || true
+    mkdir -p $RESULTS_DIR/$TEST_TYPE || true
+    mkdir -p $TEST_DIR || true
     
     export COLLECT_STATS="true"
     export ALGORITHM=$ALGORITHM_ARG
@@ -28,13 +28,13 @@ run_test() {
 }
 
 rm -r $RESULTS_DIR || true
-mkdir $RESULTS_DIR
+mkdir -p $RESULTS_DIR
 
 MIN_POOL=2
-MAX_POOL=4
+MAX_POOL=8
 
 for TEST_STR in "testFib" "testMatrixMult" "testPrimes" "testMap"; do
-    for ((i=$MIN_POOL; i<=$MAX_POOL; i+=1))
+    for ((i=$MIN_POOL; i<=$MAX_POOL; i+=2))
     {
         for ALGORITHM_STR in "SID" "RID"; do
             run_test $i $ALGORITHM_STR $TEST_STR
