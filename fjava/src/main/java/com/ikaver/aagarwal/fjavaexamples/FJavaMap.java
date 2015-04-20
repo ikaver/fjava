@@ -31,17 +31,7 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
     this.left = left;
     this.right = right;
   }
-  
-  public FJavaMap(T [] array, V [] result, 
-      MapFunction<T, V> mapFunc, int left, int right, FJavaTask parent) {
-    super(parent);
-    this.array = array;
-    this.result = result;
-    this.mapFunc = mapFunc;
-    this.left = left;
-    this.right = right;
-  }
-  
+    
   public void map(T [] array, V [] result, MapFunction<T, V> mapFunc) {
     this.pool.run(new FJavaMap<T, V>(array, result, mapFunc, 0, array.length-1));
   }
@@ -58,14 +48,14 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
       ArrayList<FJavaMap<T, V>> tasks = new ArrayList<FJavaMap<T, V>>();
       while(left <= right - Definitions.FILTER_SEQ_THRESHOLD) {
         int mid = (right+left)/2;
-        tasks.add(new FJavaMap<T, V>(array, result, mapFunc, left, mid, this));
+        tasks.add(new FJavaMap<T, V>(array, result, mapFunc, left, mid));
         left = mid+1;
       }
 
       for(int i = 0; i < tasks.size(); ++i) {
-        tasks.get(i).fork(true);
+        tasks.get(i).runAsync(this);
       }
-      new FJavaMap<T, V>(array, result, mapFunc, left, right, this).fork(false);
+      new FJavaMap<T, V>(array, result, mapFunc, left, right).runSync(this);
       sync();
     }
   }

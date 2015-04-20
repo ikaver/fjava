@@ -25,13 +25,6 @@ public class FJavaQuickSort extends FJavaTask implements QuickSort {
     this.right = right;
   }
   
-  public FJavaQuickSort(long [] array, int left, int right, FJavaTask parent) {
-    super(parent);
-    this.array = array;
-    this.left = left;
-    this.right = right;
-  }
-  
   @Override
   public void compute() {
     if(right <= left) return;
@@ -41,8 +34,8 @@ public class FJavaQuickSort extends FJavaTask implements QuickSort {
       return;
     }
     int mid = partition();
-    new FJavaQuickSort(array, left, mid-1, this).fork(true);
-    new FJavaQuickSort(array, mid+1, right, this).fork(false);
+    new FJavaQuickSort(array, left, mid-1).runAsync(this);
+    new FJavaQuickSort(array, mid+1, right).runSync(this);
     sync();
   }
   

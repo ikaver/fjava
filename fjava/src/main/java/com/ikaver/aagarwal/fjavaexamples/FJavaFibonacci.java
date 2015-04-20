@@ -24,11 +24,6 @@ public class FJavaFibonacci extends FibonacciBase {
     private int n;
     private long answer;
     
-    public FibonacciTask(int n, FibonacciTask parent) {
-      super(parent);
-      this.n = n;
-    }
-    
     public FibonacciTask(int n) {
       super();
       this.n = n;
@@ -46,10 +41,10 @@ public class FJavaFibonacci extends FibonacciBase {
         answer = FibonacciUtils.fibnth(n);
         return;
       }
-      FibonacciTask childTask1 = new FibonacciTask(n-1, this);
-      FibonacciTask childTask2 = new FibonacciTask(n-2, this);
-      childTask1.fork(true);
-      childTask2.fork(false);
+      FibonacciTask childTask1 = new FibonacciTask(n-1);
+      FibonacciTask childTask2 = new FibonacciTask(n-2);
+      childTask1.runAsync(this);
+      childTask2.runSync(this);
       sync();
       answer = childTask1.answer + childTask2.answer;
     }
