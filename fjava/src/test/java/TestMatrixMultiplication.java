@@ -32,7 +32,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     //debug = true;
-    size = 2048 ;
+    size = 2048;
     float min = -160;
     float max = 160;
     testA = ArrayHelper.createRandomMatrix(size, size, min, max);
@@ -51,7 +51,9 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testJavaForkJoinMatrixMultiplication() {
-    new MatrixMultiplicationJavaForkJoin(new ForkJoinPool()).multiply(testA, testB, result);
+    new MatrixMultiplicationJavaForkJoin(
+        new ForkJoinPool(FJavaConf.getInstance().getPoolSize()))
+        .multiply(testA, testB, result);
     if(debug) {
       for(int i = 0; i < size; ++i) {
         Assert.assertArrayEquals(expected[i], result[i], 2.0f);
@@ -62,7 +64,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testFJavaMatrixMultiplication() {
-    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(FJavaConf.getInstance().getStealingAlgorithm());
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
     new FJavaMatrixMultiplication(pool).multiply(testA, testB, result);
     if(debug) {
       for(int i = 0; i < size; ++i) {

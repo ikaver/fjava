@@ -8,47 +8,68 @@ import org.apache.logging.log4j.LogManager;
  */
 public class FJavaConf {
 
-	private static final String COLLECT_STATS = "COLLECT_STATS";
-	private static final String ALGORITHM = "ALGORITHM";
-	private static FJavaConf conf;
-	
-	private boolean trackStats;
-	private StealingAlgorithm algorithm;
-	
-	
-	public static FJavaConf getInstance() {
-		if (conf == null) {
-			conf = new FJavaConf();
-		}
+  private static final String COLLECT_STATS = "COLLECT_STATS";
+  private static final String ALGORITHM = "ALGORITHM";
+  private static final String POOL_SIZE = "POOL_SIZE";
 
-		return conf;
-	}
+  private static FJavaConf conf;
 
-	private FJavaConf() {
-		configure();
-	}
+  private boolean trackStats;
+  private StealingAlgorithm algorithm;
+  private int poolSize;
 
-	private void configure() {
-		algorithm = StealingAlgorithm.RECEIVER_INITIATED;
-		trackStats = false;
 
-		String statsString = System.getenv(COLLECT_STATS);
-		if (statsString != null) {
-			trackStats = Boolean.valueOf(statsString);
-		}
-		
-		String algorithmString = System.getenv(ALGORITHM);
-		if (algorithmString != null) {
-			algorithm = StealingAlgorithm.valueOf(algorithmString);
-		}
-		LogManager.getLogger().warn("Using track stats = {}, algorithm = {}", trackStats, algorithm);
-	}
+  public static FJavaConf getInstance() {
+    if (conf == null) {
+      conf = new FJavaConf();
+    }
 
-	public boolean shouldTrackStats() {
-		return trackStats;
-	}
-	
-	public StealingAlgorithm getStealingAlgorithm() {
-		return algorithm;
-	}
+    return conf;
+  }
+
+  private FJavaConf() {
+    configure();
+  }
+
+  private void configure() {
+    algorithm = StealingAlgorithm.SENDER_INITIATED;
+    trackStats = false;
+    poolSize = Runtime.getRuntime().availableProcessors();
+
+    String statsString = System.getenv(COLLECT_STATS);
+    if (statsString != null) {
+      trackStats = Boolean.valueOf(statsString);
+    }
+
+    String algorithmString = System.getenv(ALGORITHM);
+    if ("SID".equals(algorithmString)) {
+      algorithm = StealingAlgorithm.SENDER_INITIATED;
+    }
+    else {
+      algorithm = StealingAlgorithm.RECEIVER_INITIATED;
+    }
+
+    String poolSizeString = System.getenv(POOL_SIZE);
+    if(poolSizeString != null) {
+      poolSize = Integer.valueOf(poolSizeString);
+    }
+
+    LogManager.getLogger().warn(
+        "Using track stats = {}, " +
+            "algorithm = {}, " +
+            "pool size = {}", trackStats, algorithm, poolSize);
+  }
+
+  public boolean shouldTrackStats() {
+    return trackStats;
+  }
+
+  public StealingAlgorithm getStealingAlgorithm() {
+    return algorithm;
+  }
+  
+  public int getPoolSize() {
+    return poolSize;
+  }
+
 }

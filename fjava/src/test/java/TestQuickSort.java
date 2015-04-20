@@ -11,6 +11,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.StealingAlgorithm;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
@@ -51,7 +52,7 @@ public class TestQuickSort extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testForkJoinPoolQuickSort() {   
-    ForkJoinPool pool = new ForkJoinPool(4);
+    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getInstance().getPoolSize());
     new QuickSortJavaForkJoin(pool).sort(testArray, 0, size-1);
     if(debug) Assert.assertArrayEquals(sorted, original);
   }
@@ -59,7 +60,7 @@ public class TestQuickSort extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testFJavaQuickSort() {
-    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(4, StealingAlgorithm.RECEIVER_INITIATED);
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
     FJavaQuickSort sort =
         new FJavaQuickSort(pool);
     sort.sort(testArray, 0, size-1);

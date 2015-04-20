@@ -3,21 +3,26 @@ package com.ikaver.aagarwal.fjava;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.StealingAlgorithm;
 
 public class FJavaPoolFactory {
-  
+
   private static FJavaPoolFactory instance;
-  
+
   public static FJavaPoolFactory getInstance() {
     if(instance == null) instance = new FJavaPoolFactory();
     return instance;
   }
-  
+
+  public FJavaPool createPool() {
+    return createPool(FJavaConf.getInstance().getPoolSize(), FJavaConf.getInstance().getStealingAlgorithm());
+  }
+
   public FJavaPool createPool(StealingAlgorithm algorithm) {
     return createPool(Runtime.getRuntime().availableProcessors(), algorithm);
   }
-  
+
   public FJavaPool createPool(int size, StealingAlgorithm algorithm) {
     switch (algorithm) {
     case RECEIVER_INITIATED:
@@ -68,5 +73,5 @@ public class FJavaPoolFactory {
 
     return deques;
   }
-  
+
 }
