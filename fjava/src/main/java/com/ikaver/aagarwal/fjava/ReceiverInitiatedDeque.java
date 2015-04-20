@@ -162,7 +162,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private void acquire(FJavaTask parentTask) {
     //TODO: measure time acquiring a task
-    int counter = 0;
     while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = this.random.nextInt(this.numWorkers);
       if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
@@ -179,7 +178,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
             }
           }
           reservedRequestCell = EMPTY_REQUEST;
-          if(this.responseCells[this.dequeID].task != null && this.responseCells[this.dequeID].task != emptyTask) {
+          if(this.responseCells[this.dequeID].task != null 
+              && this.responseCells[this.dequeID].task != emptyTask) {
             FJavaTask newTask = this.responseCells[this.dequeID].task;
             this.addTask(newTask);
             if(FJavaConf.getInstance().shouldTrackStats()) { 
@@ -190,10 +190,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           return;
       }
       this.communicate();
-      ++counter;
-      if(counter == TRIES_BEFORE_QUIT) {
-        return;
-      }
+      if(pool.isShuttingDown()) break;
     }
   }
   

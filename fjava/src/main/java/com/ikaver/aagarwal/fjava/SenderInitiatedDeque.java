@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
+import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.common.MathHelper;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -42,9 +43,10 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 	private final AtomicReference<FJavaTask> communicationCells[];
 	private final double nextDealTime[];
 	private final Deque<FJavaTask> deque;
+  private final FastStopwatch acquireStopwatch;
 	private FJavaPool pool;
 
-	private final int myIdx;
+	private final int dequeID;
 	private final int numWorkers;
 	private final Random random;
 
@@ -58,20 +60,22 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 	 *          {@code SenderInitiatedDeque#dealAttempt} should be called.
 	 * @param deque
 	 *          is an instance of an empty deque
-	 * @param myIdx
+	 * @param dequeID
 	 *          is the identifier for the {@code FJava
 
 	 */
 	public SenderInitiatedDeque(AtomicReference<FJavaTask> communicationCells[],
-			double[] nextDealTime, int myIdx, int numWorkers) {
+			double[] nextDealTime, int dequeID, int numWorkers) {
 		this.communicationCells = communicationCells;
 		this.nextDealTime = nextDealTime;
 		this.deque = new ArrayDeque<FJavaTask>();
-		this.myIdx = myIdx;
+		this.dequeID = dequeID;
 		this.numWorkers = numWorkers;
 		this.random = new Random();
 
-		communicationCells[myIdx].set(SENTINEL_TASK);
+		communicationCells[dequeID].set(SENTINEL_TASK);
+		
+    this.acquireStopwatch = new FastStopwatch();
 	}
 	
 	public void setupWithPool(FJavaPool pool) {
@@ -89,8 +93,26 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 	@Override
 	public FJavaTask getTask(FJavaTask parentTask) {
+    if(FJavaConf.getInstance().shouldTrackStats()) {
+      StatsTracker.getInstance().onDequeGetTask(this.dequeID);
+    }
+    
 		if (deque.size() == 0) {
+      if(FJavaConf.getInstance().shouldTrackStats()) {
+        StatsTracker.getInstance().onDequeEmpty(this.dequeID);
+      }
+      
+      acquireStopwatch.start();
 			acquire(parentTask);
+      if(FJavaConf.getInstance().shouldTrackStats()) {
+        StatsTracker.getInstance().onAcquireTime(
+            this.dequeID, acquireStopwatch.end());
+      }
+		}
+		else {
+      if(FJavaConf.getInstance().shouldTrackStats()) {
+        StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
+      }
 		}
 
 		if (deque.size() == 0) {
@@ -102,17 +124,17 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 	protected void acquire(FJavaTask parentTask) {
 		// I am looking to receive additional tasks.
-		communicationCells[myIdx].set(WAITING_TO_RECEIVE_TASK);
+		communicationCells[dequeID].set(WAITING_TO_RECEIVE_TASK);
 
 		// While I have not received a task.
-		while (communicationCells[myIdx].get() == WAITING_TO_RECEIVE_TASK) {
+		while (communicationCells[dequeID].get() == WAITING_TO_RECEIVE_TASK) {
 			if (parentTask != null && parentTask.areAllChildsDone()) {
 				
 				// Someone may have assigned me work even if my parentTask was done. If the check fails,
 				// is means that I got assigned some piece of work which may not be in the computation
 				// tree of my {@param parentTask} but is a node in some other part of the 
 				// computation tree.
-				boolean success = communicationCells[myIdx].compareAndSet(WAITING_TO_RECEIVE_TASK,
+				boolean success = communicationCells[dequeID].compareAndSet(WAITING_TO_RECEIVE_TASK,
 						SENTINEL_TASK);
 
 				// Process the piece of work assigned. Not processing this work will lead to a lost
@@ -130,8 +152,8 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 			}
 		}
 
-		deque.addLast(communicationCells[myIdx].get());
-		communicationCells[myIdx].set(SENTINEL_TASK);
+		deque.addLast(communicationCells[dequeID].get());
+		communicationCells[dequeID].set(SENTINEL_TASK);
 	}
 
 	/**
@@ -144,7 +166,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 		int victim = random.nextInt(numWorkers);
 		
-		if (victim == myIdx) {
+		if (victim == dequeID) {
 			return;
 		}
     
@@ -160,7 +182,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 		if (success) {
 			if (FJavaConf.getInstance().shouldTrackStats()) {
-				StatsTracker.getInstance().onSuccessfulTaskDelegation(myIdx);
+				StatsTracker.getInstance().onSuccessfulTaskDelegation(dequeID);
 			}
 			
 			// I successfully managed to send the task to the victim. Now, its time
@@ -171,9 +193,9 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 	protected void communicate() {
 		long now = System.currentTimeMillis();
-		if (now > nextDealTime[myIdx]) {
+		if (now > nextDealTime[dequeID]) {
 			attemptDeal();
-			nextDealTime[myIdx] = now - DELTA * Math.log(
+			nextDealTime[dequeID] = now - DELTA * Math.log(
 					MathHelper.randomBetween(0.2, 0.9));
 		}
 	}

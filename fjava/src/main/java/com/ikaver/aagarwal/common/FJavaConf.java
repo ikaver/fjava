@@ -32,13 +32,13 @@ public class FJavaConf {
   }
 
   private void configure() {
-    algorithm = StealingAlgorithm.SENDER_INITIATED;
-    trackStats = false;
-    poolSize = Runtime.getRuntime().availableProcessors();
 
     String statsString = System.getenv(COLLECT_STATS);
     if (statsString != null) {
       trackStats = Boolean.valueOf(statsString);
+    }
+    else {
+      trackStats = false;
     }
 
     String algorithmString = System.getenv(ALGORITHM);
@@ -52,6 +52,9 @@ public class FJavaConf {
     String poolSizeString = System.getenv(POOL_SIZE);
     if(poolSizeString != null) {
       poolSize = Integer.valueOf(poolSizeString);
+    }
+    else {
+      poolSize = Runtime.getRuntime().availableProcessors();
     }
 
     LogManager.getLogger().warn(
