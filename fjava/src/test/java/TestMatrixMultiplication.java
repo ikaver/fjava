@@ -9,6 +9,9 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory.StealingAlgorithm;
+import com.ikaver.aagarwal.fjavaexamples.FJavaMatrixMultiplication;
 import com.ikaver.aagarwal.javaforkjoin.MatrixMultiplicationJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqMatrixMultiplication;
 
@@ -28,7 +31,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     //debug = true;
-    size = 2048;
+    size = 2048 ;
     float min = -160;
     float max = 160;
     testA = ArrayHelper.createRandomMatrix(size, size, min, max);
@@ -54,6 +57,18 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
       }
     }
   }
+  
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
+  @Test
+  public void testFJavaMatrixMultiplication() {
+    new FJavaMatrixMultiplication(FJavaPoolFactory.getInstance().createPool(StealingAlgorithm.RECEIVER_INITIATED)).multiply(testA, testB, result);
+    if(debug) {
+      for(int i = 0; i < size; ++i) {
+        Assert.assertArrayEquals(expected[i], result[i], 2.0f);
+      }
+    }
+  }
+    
     
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
