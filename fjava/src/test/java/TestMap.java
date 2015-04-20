@@ -9,6 +9,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.StealingAlgorithm;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 import com.ikaver.aagarwal.fjava.FJavaPool;
@@ -75,7 +76,7 @@ public class TestMap extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testFJavaMap() {  
-    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(StealingAlgorithm.RECEIVER_INITIATED);
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(FJavaConf.getInstance().getStealingAlgorithm());
     new FJavaMap<Double, Double>(pool).map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);

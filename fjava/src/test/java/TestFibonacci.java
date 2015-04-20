@@ -7,6 +7,7 @@ import org.junit.Test;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.StealingAlgorithm;
 import com.ikaver.aagarwal.common.utils.FibonacciUtils;
 import com.ikaver.aagarwal.fjava.FJavaPool;
@@ -45,7 +46,7 @@ public class TestFibonacci extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testFibonacciFJava() {
-    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(StealingAlgorithm.RECEIVER_INITIATED);
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(FJavaConf.getInstance().getStealingAlgorithm());
     FJavaFibonacci fibonacci =
         new FJavaFibonacci(pool);
     long result = fibonacci.fibonacci(N);

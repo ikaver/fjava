@@ -9,8 +9,9 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
+import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
-import com.ikaver.aagarwal.fjava.FJavaPoolFactory.StealingAlgorithm;
 import com.ikaver.aagarwal.fjavaexamples.FJavaMatrixMultiplication;
 import com.ikaver.aagarwal.javaforkjoin.MatrixMultiplicationJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqMatrixMultiplication;
@@ -61,7 +62,8 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testFJavaMatrixMultiplication() {
-    new FJavaMatrixMultiplication(FJavaPoolFactory.getInstance().createPool(StealingAlgorithm.RECEIVER_INITIATED)).multiply(testA, testB, result);
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool(FJavaConf.getInstance().getStealingAlgorithm());
+    new FJavaMatrixMultiplication(pool).multiply(testA, testB, result);
     if(debug) {
       for(int i = 0; i < size; ++i) {
         Assert.assertArrayEquals(expected[i], result[i], 2.0f);
