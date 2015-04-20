@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -128,20 +129,24 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * Caller should try again if necessary.
    */
   public FJavaTask getTask(FJavaTask parentTask) {
-    if(Definitions.TRACK_STATS)
+    if(FJavaConf.getInstance().shouldTrackStats()) {
       StatsTracker.getInstance().onDequeGetTask(this.dequeID);
-    
+    }
+
     if(this.tasks.isEmpty()) {
-      if(Definitions.TRACK_STATS)
+      if(FJavaConf.getInstance().shouldTrackStats()) {
         StatsTracker.getInstance().onDequeEmpty(this.dequeID);
+      }
       acquireStopwatch.start();
       acquire(parentTask);
-      if(Definitions.TRACK_STATS)
-        StatsTracker.getInstance().onAcquireTime(this.dequeID, acquireStopwatch.end());
+      if(FJavaConf.getInstance().shouldTrackStats()) {
+        StatsTracker.getInstance().onAcquireTime(
+        		this.dequeID, acquireStopwatch.end());
+      }
       return null;
     }
     else {
-      if(Definitions.TRACK_STATS) {
+      if(FJavaConf.getInstance().shouldTrackStats()) {
         StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
       }
       FJavaTask task = this.tasks.removeLast();
@@ -177,8 +182,9 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           if(this.responseCells[this.dequeID].task != null && this.responseCells[this.dequeID].task != emptyTask) {
             FJavaTask newTask = this.responseCells[this.dequeID].task;
             this.addTask(newTask);
-            if(Definitions.TRACK_STATS) 
+            if(FJavaConf.getInstance().shouldTrackStats()) { 
               StatsTracker.getInstance().onDequeSteal(this.dequeID);
+            }
           }
           this.responseCells[this.dequeID].task = emptyTask;
           return;
