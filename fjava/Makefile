@@ -49,7 +49,12 @@ else
 endif
 
 testQuickSort: clean
-	mvn -Dtest=testQuickSort test
+	mvn -Dtest=TestQuickSort test > out.txt
+ifeq ($(COLLECT_STATS), true)
+	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testQuickSort .\* > testQuickSort.txt
+else
+	cat out.txt | grep TestQuickSort -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testQuickSort
+endif
 
 allTestsStatistics: clean testFib testMap testMatrixMult 
 	  
