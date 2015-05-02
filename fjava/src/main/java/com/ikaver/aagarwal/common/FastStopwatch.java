@@ -18,7 +18,7 @@ public class FastStopwatch {
   
   public long end() {
     if(FJavaConf.getInstance().shouldTrackStats()) {
-      return stopwatch.elapsed(TimeUnit.MILLISECONDS);
+      return stopwatch.elapsed(TimeUnit.NANOSECONDS);
     } else {
     	return 0;
     }
