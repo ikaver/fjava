@@ -19,7 +19,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   public static final int VALID_STATUS = 1;
   public static final int INVALID_STATUS = 0;
   public static final int EMPTY_REQUEST = -1;
-  private static final int TRIES_BEFORE_QUIT = 16;
 
   /**
    * Our deque of tasks.
