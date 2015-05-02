@@ -71,6 +71,10 @@ public class StatsTracker {
     this.taskRunnerStats[trIdx].runTaskTime.inc(time);
   }
   
+  public void onComputeTime(int trIdx, long time) {
+    this.taskRunnerStats[trIdx].computeTime.inc(time);
+  }
+  
   /* Deque stats */
   public void onSuccessfulGetTask(int dequeIdx) {
     this.dequeStats[dequeIdx].successfulGetTask.inc();

@@ -44,7 +44,7 @@ public class TaskRunner implements Runnable {
    * @param parentTask is the task which we want to sync on. 
    */
   public void syncTask(FJavaTask parentTask) {
-    int triesBeforeSteal = 1;
+    int triesBeforeSteal = 0;
     while(true) {
       if(parentTask.areAllChildsDone()) {
         return;
@@ -64,8 +64,8 @@ public class TaskRunner implements Runnable {
         if(FJavaConf.getInstance().shouldTrackStats()) {
           StatsTracker.getInstance().onTaskAcquired(
           		this.taskRunnerID, triesBeforeSteal);
+          triesBeforeSteal = 0;
         }
-        triesBeforeSteal = 0;
         this.runTaskStopwatch.start();
         task.execute(this);
         if(FJavaConf.getInstance().shouldTrackStats()) {

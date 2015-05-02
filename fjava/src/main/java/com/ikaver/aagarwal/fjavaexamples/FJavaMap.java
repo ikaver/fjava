@@ -38,10 +38,12 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
   
   @Override
   public void compute() {
+    this.startWorkTime();
     if(right - left <= Definitions.FILTER_SEQ_THRESHOLD) {
       for(int i = left; i <= right; ++i) {
         this.result[i] = this.mapFunc.map(this.array[i]);
       }
+      this.endWorkTime();
       return;
     }
     else {
@@ -55,6 +57,7 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
       for(int i = 0; i < tasks.size(); ++i) {
         tasks.get(i).runAsync(this);
       }
+      this.endWorkTime();
       new FJavaMap<T, V>(array, result, mapFunc, left, right).runSync(this);
       sync();
     }

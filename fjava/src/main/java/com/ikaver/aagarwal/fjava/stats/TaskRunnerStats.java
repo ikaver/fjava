@@ -10,6 +10,7 @@ public class TaskRunnerStats {
   
   public final MonitoredCounter getTaskTime;
   public final MonitoredCounter runTaskTime;
+  public final MonitoredCounter computeTime;
   
   public TaskRunnerStats(int idx) {
     this.totalTasksCompleted = new MonitoredCounter(
@@ -28,6 +29,9 @@ public class TaskRunnerStats {
     this.runTaskTime = new MonitoredCounter(
         StatsTracker.getStatisticName("TR.time.run_task", "tr_time", idx),
         "Amount of time running tasks");
+    this.computeTime = new MonitoredCounter(
+        StatsTracker.getStatisticName("TR.time.compute_task", "tr_time", idx),
+        "Amount of time actually doing work");
   }
   
 }
