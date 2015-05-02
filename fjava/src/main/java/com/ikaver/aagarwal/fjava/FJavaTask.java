@@ -10,7 +10,7 @@ public abstract class FJavaTask {
   
   private TaskRunner runner;
   private ArrayList<FJavaTask> childTasks;
-  private volatile boolean isDone; //TODO: is it necessary to be volatile?
+  private boolean isDone; //TODO: is it necessary to be volatile?
   
   private FastStopwatch computeTime;
   
