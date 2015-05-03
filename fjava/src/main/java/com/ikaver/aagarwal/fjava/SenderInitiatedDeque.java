@@ -93,24 +93,24 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 	@Override
 	public FJavaTask getTask(FJavaTask parentTask) {
-    if(FJavaConf.getInstance().shouldTrackStats()) {
+    if(FJavaConf.shouldTrackStats()) {
       StatsTracker.getInstance().onDequeGetTask(this.dequeID);
     }
     
 		if (deque.size() == 0) {
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onDequeEmpty(this.dequeID);
       }
       
       acquireStopwatch.start();
 			acquire(parentTask);
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onAcquireTime(
             this.dequeID, acquireStopwatch.end());
       }
 		}
 		else {
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
       }
 		}
@@ -181,7 +181,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 		boolean success = communicationCells[victim].compareAndSet(WAITING_TO_RECEIVE_TASK, task);
 
 		if (success) {
-			if (FJavaConf.getInstance().shouldTrackStats()) {
+			if (FJavaConf.shouldTrackStats()) {
 				StatsTracker.getInstance().onSuccessfulTaskDelegation(dequeID);
 			}
 			

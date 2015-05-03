@@ -14,25 +14,11 @@ public class FJavaConf {
 
   private static FJavaConf conf;
 
-  private boolean trackStats;
-  private StealingAlgorithm algorithm;
-  private int poolSize;
+  private static boolean trackStats;
+  private static StealingAlgorithm algorithm;
+  private static int poolSize;
 
-
-  public static FJavaConf getInstance() {
-    if (conf == null) {
-      conf = new FJavaConf();
-    }
-
-    return conf;
-  }
-
-  private FJavaConf() {
-    configure();
-  }
-
-  private void configure() {
-
+  static {
     String statsString = System.getenv(COLLECT_STATS);
     if (statsString != null) {
       trackStats = Boolean.valueOf(statsString);
@@ -63,15 +49,15 @@ public class FJavaConf {
             "pool size = {}", trackStats, algorithm, poolSize);
   }
 
-  public boolean shouldTrackStats() {
+  public static boolean shouldTrackStats() {
     return trackStats;
   }
 
-  public StealingAlgorithm getStealingAlgorithm() {
+  public static StealingAlgorithm getStealingAlgorithm() {
     return algorithm;
   }
   
-  public int getPoolSize() {
+  public static int getPoolSize() {
     return poolSize;
   }
 

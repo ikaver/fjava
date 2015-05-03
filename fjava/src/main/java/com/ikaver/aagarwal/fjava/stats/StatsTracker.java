@@ -25,7 +25,7 @@ public class StatsTracker {
   }
   
   public void setup(int poolSize) {
-    if(!FJavaConf.getInstance().shouldTrackStats())
+    if (!FJavaConf.shouldTrackStats()) 
       return;
     
     ++runNumber;
@@ -41,7 +41,7 @@ public class StatsTracker {
   }
   
   public void printStats() {
-    if(!FJavaConf.getInstance().shouldTrackStats()) {
+    if (FJavaConf.shouldTrackStats()) {
     	return;
     }
     log.warn("Stats for run #{}", this.runNumber);

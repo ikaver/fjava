@@ -11,13 +11,13 @@ public class FastStopwatch {
   public FastStopwatch() { }
   
   public void start() {
-    if(FJavaConf.getInstance().shouldTrackStats()) {
+    if (FJavaConf.shouldTrackStats()) {
       stopwatch = Stopwatch.createStarted();
     }
   }
   
   public long end() {
-    if(FJavaConf.getInstance().shouldTrackStats()) {
+    if (FJavaConf.shouldTrackStats()) {
       return stopwatch.elapsed(TimeUnit.NANOSECONDS);
     } else {
     	return 0;

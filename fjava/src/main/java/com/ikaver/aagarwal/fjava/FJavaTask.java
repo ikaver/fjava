@@ -38,12 +38,14 @@ public abstract class FJavaTask {
   }
   
   public void startWorkTime() {
-    this.computeTime = new FastStopwatch();
-    this.computeTime.start();
+    if(FJavaConf.shouldTrackStats()) {
+      this.computeTime = new FastStopwatch();
+      this.computeTime.start();
+    }
   }
   
   public void endWorkTime() {
-    if(FJavaConf.getInstance().shouldTrackStats()) {
+    if(FJavaConf.shouldTrackStats()) {
       StatsTracker.getInstance().onComputeTime(this.runner.getTaskRunnerID(), this.computeTime.end());
     }
   }

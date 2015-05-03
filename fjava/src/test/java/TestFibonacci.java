@@ -34,7 +34,7 @@ public class TestFibonacci extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test
 	public void testFibonacciJavaForkJoin() {
-		ForkJoinPool pool = new ForkJoinPool(FJavaConf.getInstance().getPoolSize());
+		ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
 		FibonacciJavaForkJoin fibonacciJavaForkJoin =
 				new FibonacciJavaForkJoin(pool);
 		long result = fibonacciJavaForkJoin.fibonacci(N);
