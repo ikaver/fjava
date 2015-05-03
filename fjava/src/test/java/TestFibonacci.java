@@ -17,34 +17,34 @@ import com.ikaver.aagarwal.seq.SeqFibonacci;
 
 public class TestFibonacci extends AbstractBenchmark {
 
-	private static final int N = 44;
+  private static final int N = 44;
 
-	static long expected;
-	static boolean debug;
+  static long expected;
+  static boolean debug;
 
-	@BeforeClass
-	public static void setUp() {
-                FJavaConf.initialize();
-		debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
-		System.out.println("Debug " + debug);
+  @BeforeClass
+  public static void setUp() {
+    FJavaConf.initialize();
+    debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
+    System.out.println("Debug " + debug);
 
-		// sequentially compute the nth fibonacci number.
-                if(debug)
-                  expected = FibonacciUtils.fibnth(N);
-	}
-	
+    // sequentially compute the nth fibonacci number.
+    if(debug)
+      expected = FibonacciUtils.fibnth(N);
+  }
+
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
-	@Test
-	public void testFibonacciJavaForkJoin() {
-		ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
-		FibonacciJavaForkJoin fibonacciJavaForkJoin =
-				new FibonacciJavaForkJoin(pool);
-		long result = fibonacciJavaForkJoin.fibonacci(N);
-                
-                if(debug)
-                  Assert.assertEquals(result, expected);
-	}
-  
+  @Test
+  public void testFibonacciJavaForkJoin() {
+    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
+    FibonacciJavaForkJoin fibonacciJavaForkJoin =
+        new FibonacciJavaForkJoin(pool);
+    long result = fibonacciJavaForkJoin.fibonacci(N);
+
+    if(debug)
+      Assert.assertEquals(result, expected);
+  }
+
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testFibonacciFJava() {
@@ -55,13 +55,13 @@ public class TestFibonacci extends AbstractBenchmark {
     if(debug)
       Assert.assertEquals(result, expected);
   }
-	
+
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
-	@Test
-	public void testFibonacciSequential() {
-		SeqFibonacci fibonacciSequential = new SeqFibonacci();
-		long result = fibonacciSequential.fibonacci(N);
-                if(debug)
-                  Assert.assertEquals(result, expected);
-	}
+  @Test
+  public void testFibonacciSequential() {
+    SeqFibonacci fibonacciSequential = new SeqFibonacci();
+    long result = fibonacciSequential.fibonacci(N);
+    if(debug)
+      Assert.assertEquals(result, expected);
+  }
 }
