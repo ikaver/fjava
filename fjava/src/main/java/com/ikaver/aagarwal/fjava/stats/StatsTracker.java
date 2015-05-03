@@ -38,7 +38,10 @@ public class StatsTracker {
     if (!FJavaConf.shouldTrackStats()) {
     	return;
     }
-
+    System.err.printf("Stats for run #%d\n", this.runNumber);
+    for(Monitorable<?> c : MonitorableRegistry.DEFAULT_REGISTRY.getMonitorables()) {
+      System.err.printf("%s : %s\n", c.getName(), c.get());
+    }
   }
   
   /* Task Runner Stats */
