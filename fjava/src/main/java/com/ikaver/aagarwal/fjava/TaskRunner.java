@@ -29,7 +29,7 @@ public class TaskRunner implements Runnable {
   }
   
   public void addTask(FJavaTask task) {
-    if(FJavaConf.getInstance().shouldTrackStats()) { 
+    if(FJavaConf.shouldTrackStats()) { 
       StatsTracker.getInstance().onTaskCreated(this.taskRunnerID);
     }
     this.deque.addTask(task);
@@ -53,7 +53,7 @@ public class TaskRunner implements Runnable {
         this.getTaskStopwatch.start();
 
         FJavaTask task = deque.getTask(parentTask);
-        if(FJavaConf.getInstance().shouldTrackStats()) {
+        if(FJavaConf.shouldTrackStats()) {
           StatsTracker.getInstance().onGetTaskTime(
           		this.taskRunnerID, this.getTaskStopwatch.end());
         }
@@ -61,14 +61,14 @@ public class TaskRunner implements Runnable {
           ++triesBeforeSteal;
           continue;
         }
-        if(FJavaConf.getInstance().shouldTrackStats()) {
+        if(FJavaConf.shouldTrackStats()) {
           StatsTracker.getInstance().onTaskAcquired(
           		this.taskRunnerID, triesBeforeSteal);
           triesBeforeSteal = 0;
         }
         this.runTaskStopwatch.start();
         task.execute(this);
-        if(FJavaConf.getInstance().shouldTrackStats()) {
+        if(FJavaConf.shouldTrackStats()) {
           StatsTracker.getInstance().onRunTaskTime(
           		this.taskRunnerID, this.runTaskStopwatch.end());
         }
@@ -84,7 +84,7 @@ public class TaskRunner implements Runnable {
       this.getTaskStopwatch.start();
       FJavaTask task = deque.getTask(null);
 
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onGetTaskTime(
         		this.taskRunnerID, this.getTaskStopwatch.end());
       }
@@ -94,7 +94,7 @@ public class TaskRunner implements Runnable {
         continue;
       }
 
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onTaskAcquired(
         		this.taskRunnerID, triesBeforeSteal);
       }
@@ -108,7 +108,7 @@ public class TaskRunner implements Runnable {
     
   
   private void notifyTaskDone(FJavaTask task) {
-    if(FJavaConf.getInstance().shouldTrackStats()) {
+    if(FJavaConf.shouldTrackStats()) {
       StatsTracker.getInstance().onTaskCompleted(this.taskRunnerID);
     }
    }

@@ -1,7 +1,5 @@
 package com.ikaver.aagarwal.common;
 
-import org.apache.logging.log4j.LogManager;
-
 
 /**
  * Configuration file for FJava framework.
@@ -12,27 +10,11 @@ public class FJavaConf {
   private static final String ALGORITHM = "ALGORITHM";
   private static final String POOL_SIZE = "POOL_SIZE";
 
-  private static FJavaConf conf;
+  private static boolean trackStats;
+  private static StealingAlgorithm algorithm;
+  private static int poolSize;
 
-  private boolean trackStats;
-  private StealingAlgorithm algorithm;
-  private int poolSize;
-
-
-  public static FJavaConf getInstance() {
-    if (conf == null) {
-      conf = new FJavaConf();
-    }
-
-    return conf;
-  }
-
-  private FJavaConf() {
-    configure();
-  }
-
-  private void configure() {
-
+  public static void initialize() {    
     String statsString = System.getenv(COLLECT_STATS);
     if (statsString != null) {
       trackStats = Boolean.valueOf(statsString);
@@ -56,22 +38,21 @@ public class FJavaConf {
     else {
       poolSize = Runtime.getRuntime().availableProcessors();
     }
-
-    LogManager.getLogger().warn(
-        "Using track stats = {}, " +
-            "algorithm = {}, " +
-            "pool size = {}", trackStats, algorithm, poolSize);
+    System.out.printf("Using track stats = %s algorithm = %s pool size = %d\n",
+        trackStats == true ? "true" : "false",
+            algorithm,
+            poolSize);
   }
 
-  public boolean shouldTrackStats() {
+  public static boolean shouldTrackStats() {
     return trackStats;
   }
 
-  public StealingAlgorithm getStealingAlgorithm() {
+  public static StealingAlgorithm getStealingAlgorithm() {
     return algorithm;
   }
   
-  public int getPoolSize() {
+  public static int getPoolSize() {
     return poolSize;
   }
 

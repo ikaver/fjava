@@ -24,22 +24,25 @@ public class TestFibonacci extends AbstractBenchmark {
 
 	@BeforeClass
 	public static void setUp() {
+                FJavaConf.initialize();
 		debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
 		System.out.println("Debug " + debug);
 
 		// sequentially compute the nth fibonacci number.
-		expected = FibonacciUtils.fibnth(N);
+                if(debug)
+                  expected = FibonacciUtils.fibnth(N);
 	}
 	
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test
 	public void testFibonacciJavaForkJoin() {
-		ForkJoinPool pool = new ForkJoinPool(FJavaConf.getInstance().getPoolSize());
+		ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
 		FibonacciJavaForkJoin fibonacciJavaForkJoin =
 				new FibonacciJavaForkJoin(pool);
 		long result = fibonacciJavaForkJoin.fibonacci(N);
-
-		Assert.assertEquals(result, expected);
+                
+                if(debug)
+                  Assert.assertEquals(result, expected);
 	}
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
@@ -49,7 +52,8 @@ public class TestFibonacci extends AbstractBenchmark {
     FJavaFibonacci fibonacci =
         new FJavaFibonacci(pool);
     long result = fibonacci.fibonacci(N);
-    Assert.assertEquals(result, expected);
+    if(debug)
+      Assert.assertEquals(result, expected);
   }
 	
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
@@ -57,7 +61,7 @@ public class TestFibonacci extends AbstractBenchmark {
 	public void testFibonacciSequential() {
 		SeqFibonacci fibonacciSequential = new SeqFibonacci();
 		long result = fibonacciSequential.fibonacci(N);
-
-		Assert.assertEquals(result, expected);
+                if(debug)
+                  Assert.assertEquals(result, expected);
 	}
 }

@@ -1,7 +1,6 @@
 import java.util.Arrays;
 import java.util.concurrent.ForkJoinPool;
 
-import org.apache.logging.log4j.LogManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,6 +30,7 @@ public class TestQuickSort extends AbstractBenchmark {
   
   @BeforeClass
   public static void setup() {
+    FJavaConf.initialize();
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     
@@ -39,9 +39,7 @@ public class TestQuickSort extends AbstractBenchmark {
     long max =   (1 << 60);
     original = ArrayHelper.createRandomArray(size, min, max);
     sorted = Arrays.copyOf(original, size);
-    Arrays.sort(sorted);
-    
-    LogManager.getLogger().debug("Starting sort test...");
+    Arrays.sort(sorted);    
   }
   
   @Before
@@ -52,7 +50,7 @@ public class TestQuickSort extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testForkJoinPoolQuickSort() {   
-    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getInstance().getPoolSize());
+    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
     new QuickSortJavaForkJoin(pool).sort(testArray, 0, size-1);
     if(debug) Assert.assertArrayEquals(sorted, original);
   }

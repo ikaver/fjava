@@ -1,6 +1,5 @@
 package com.ikaver.aagarwal.fjava;
 
-import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
@@ -38,7 +37,7 @@ public class FJavaPool {
       e.printStackTrace();
     }
 
-		if (FJavaConf.getInstance().shouldTrackStats()) {
+		if (FJavaConf.shouldTrackStats()) {
 			StatsTracker.getInstance().printStats();
 		}
 	}
@@ -47,7 +46,7 @@ public class FJavaPool {
 		if (poolSize <= 0)
 			throw new IllegalArgumentException("Pool size should be > 0");
 
-		if (FJavaConf.getInstance().shouldTrackStats()) {
+		if (FJavaConf.shouldTrackStats()) {
 			StatsTracker.getInstance().setup(poolSize);
 		}
 

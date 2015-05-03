@@ -5,7 +5,6 @@ import java.util.Deque;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
@@ -100,7 +99,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.random = new Random();    
     this.dequeID = dequeID;
     this.numWorkers = this.status.length;
-    this.tasks = new ArrayDeque<FJavaTask>();
+    this.tasks = new ArrayDeque<FJavaTask>(4096);
     this.emptyTask = emptyTask;
     
     this.acquireStopwatch = new FastStopwatch();
@@ -128,24 +127,25 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * Caller should try again if necessary.
    */
   public FJavaTask getTask(FJavaTask parentTask) {
-    if(FJavaConf.getInstance().shouldTrackStats()) {
+    if(FJavaConf.shouldTrackStats()) {
       StatsTracker.getInstance().onDequeGetTask(this.dequeID);
     }
 
     if(this.tasks.isEmpty()) {
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+           
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onDequeEmpty(this.dequeID);
       }
       acquireStopwatch.start();
       acquire(parentTask);
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onAcquireTime(
         		this.dequeID, acquireStopwatch.end());
       }
       return null;
     }
     else {
-      if(FJavaConf.getInstance().shouldTrackStats()) {
+      if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
       }
       FJavaTask task = this.tasks.removeLast();
@@ -181,7 +181,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
               && this.responseCells[this.dequeID].task != emptyTask) {
             FJavaTask newTask = this.responseCells[this.dequeID].task;
             this.addTask(newTask);
-            if(FJavaConf.getInstance().shouldTrackStats()) { 
+            if(FJavaConf.shouldTrackStats()) { 
               StatsTracker.getInstance().onDequeSteal(this.dequeID);
             }
           }

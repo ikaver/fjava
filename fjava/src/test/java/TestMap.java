@@ -36,6 +36,7 @@ public class TestMap extends AbstractBenchmark {
   
   @BeforeClass
   public static void setup() {
+    FJavaConf.initialize();
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     size = 1000000;
@@ -66,7 +67,7 @@ public class TestMap extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testForkJoinPoolMap() {  
-    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getInstance().getPoolSize());
+    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
     new MapJavaForkJoin<Double, Double>(pool).map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);

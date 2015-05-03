@@ -10,7 +10,6 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
-import com.ikaver.aagarwal.common.StealingAlgorithm;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
@@ -40,10 +39,11 @@ public class TestPrimes extends AbstractBenchmark {
   
   @BeforeClass
   public static void setup() {
+    FJavaConf.initialize();
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     
-    size = 1000000;
+    size = 100000;
     int min = 1000;
     int max = (1 << 17);
     //we beat ForkJoin with size = 1000000, min = 1000, max = (1 << 15).
@@ -55,8 +55,10 @@ public class TestPrimes extends AbstractBenchmark {
         return testMapFunc(num);
       }
     };
-    for(int i = 0; i < size; ++i) {
-      expected[i] = testMapFunc(original[i]);
+    if(debug) {
+      for(int i = 0; i < size; ++i) {
+        expected[i] = testMapFunc(original[i]);
+      }
     }
   }
   
@@ -72,7 +74,7 @@ public class TestPrimes extends AbstractBenchmark {
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
   public void testForkJoinPoolPrimes() {  
-    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getInstance().getPoolSize());
+    ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
     new MapJavaForkJoin<Integer, Boolean>(pool).map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);

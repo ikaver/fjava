@@ -16,7 +16,7 @@ public class FJavaPoolFactory {
   }
 
   public FJavaPool createPool() {
-    return createPool(FJavaConf.getInstance().getPoolSize(), FJavaConf.getInstance().getStealingAlgorithm());
+    return createPool(FJavaConf.getPoolSize(), FJavaConf.getStealingAlgorithm());
   }
 
   public FJavaPool createPool(StealingAlgorithm algorithm) {

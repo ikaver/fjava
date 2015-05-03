@@ -29,6 +29,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   
   @BeforeClass
   public static void setup() {
+    FJavaConf.initialize();
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     //debug = true;
@@ -52,7 +53,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   @Test
   public void testJavaForkJoinMatrixMultiplication() {
     new MatrixMultiplicationJavaForkJoin(
-        new ForkJoinPool(FJavaConf.getInstance().getPoolSize()))
+        new ForkJoinPool(FJavaConf.getPoolSize()))
         .multiply(testA, testB, result);
     if(debug) {
       for(int i = 0; i < size; ++i) {

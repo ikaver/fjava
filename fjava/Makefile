@@ -14,9 +14,8 @@ testFib: clean
 	echo 'Creating graphs...'
 ifeq ($(COLLECT_STATS), true)
 	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testFib .\* > testFib.txt
-else
-	cat out.txt | grep TestFibonacci -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testFib 
 endif
+	cat out.txt | grep TestFibonacci -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testFib 
 
 testKaratsuba: clean
 	mvn -Dtest=testKaratsuba test
@@ -26,35 +25,35 @@ testMap: clean
 	echo 'Creating graphs...'
 ifeq ($(COLLECT_STATS), true)
 	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testMap .\* > testMap.txt
-else
-	cat out.txt | grep TestMap -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testMap 
 endif
+	cat out.txt | grep TestMap -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testMap 
+
 
 testMatrixMult: clean
 	mvn -Dtest=TestMatrixMultiplication test > out.txt
 	echo 'Creating graphs...'
 ifeq ($(COLLECT_STATS), true)
 	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testMatrixMult .\* > testMatrixMult.txt
-else
-	cat out.txt | grep TestMatrixMultiplication -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testMatrixMult
 endif
+	cat out.txt | grep TestMatrixMultiplication -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testMatrixMult
+
 
 testPrimes: clean
 	mvn -Dtest=TestPrimes test > out.txt
 	echo 'Creating graphs...'
 ifeq ($(COLLECT_STATS), true)
 	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testPrimes .\* > testPrimes.txt
-else
-	cat out.txt | grep TestPrimes -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testPrimes
 endif
+	cat out.txt | grep TestPrimes -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testPrimes
+
 
 testQuickSort: clean
 	mvn -Dtest=TestQuickSort test > out.txt
 ifeq ($(COLLECT_STATS), true)
 	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testQuickSort .\* > testQuickSort.txt
-else
-	cat out.txt | grep TestQuickSort -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testQuickSort
 endif
+	cat out.txt | grep TestQuickSort -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testQuickSort
+
 
 allTestsStatistics: clean testFib testMap testMatrixMult 
 	  
