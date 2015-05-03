@@ -20,6 +20,6 @@ public class ObjectSizeFetcher {
 	public static void main(String args[]) {
 		EmptyFJavaTask task = new EmptyFJavaTask();
 		FJavaTaskRef ref = new FJavaTaskRef(task);
-		System.out.println(RamUsageEstimator.sizeOf(ref));
+		System.out.println(RamUsageEstimator.shallowSizeOf(ref));
 	}
 }
