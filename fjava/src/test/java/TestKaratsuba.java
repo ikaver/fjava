@@ -9,6 +9,7 @@ import org.junit.Test;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.javaforkjoin.KaratsubaMultiplyJavaForkJoin;
 
 public class TestKaratsuba extends AbstractBenchmark {
@@ -23,6 +24,7 @@ public class TestKaratsuba extends AbstractBenchmark {
 
 	@BeforeClass
 	public static void setup() {
+	   FJavaConf.initialize();
 		debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
 		System.out.println("Debug " + debug);
 		x = new BigInteger(generateRandomBinaryStringOfLength(NUM_DIGITS), BASE);
