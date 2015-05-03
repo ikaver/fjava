@@ -68,7 +68,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 			double[] nextDealTime, int dequeID, int numWorkers) {
 		this.communicationCells = communicationCells;
 		this.nextDealTime = nextDealTime;
-		this.deque = new ArrayDeque<FJavaTask>();
+		this.deque = new ArrayDeque<FJavaTask>(8192);
 		this.dequeID = dequeID;
 		this.numWorkers = numWorkers;
 		this.random = new Random();

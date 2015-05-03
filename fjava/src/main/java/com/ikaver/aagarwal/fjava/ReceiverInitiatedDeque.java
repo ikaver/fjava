@@ -99,7 +99,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.random = new Random();    
     this.dequeID = dequeID;
     this.numWorkers = this.status.length;
-    this.tasks = new ArrayDeque<FJavaTask>(4096);
+    this.tasks = new ArrayDeque<FJavaTask>(8192);
     this.emptyTask = emptyTask;
     
     this.acquireStopwatch = new FastStopwatch();
