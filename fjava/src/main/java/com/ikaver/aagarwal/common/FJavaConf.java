@@ -30,7 +30,9 @@ public class FJavaConf {
     else if("CONCURRENT".equals(algorithmString)){
       algorithm = StealingAlgorithm.CONCURRENT;
     }
-    else {
+    else if ("SHARED_CONCURRENT".equals(algorithmString)) {
+    	algorithm = StealingAlgorithm.SHARED_CONCURRENT_QUEUE;
+    } else {
       algorithm = StealingAlgorithm.RECEIVER_INITIATED;
     }
 
