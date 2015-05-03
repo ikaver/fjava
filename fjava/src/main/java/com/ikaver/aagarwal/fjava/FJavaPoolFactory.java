@@ -1,5 +1,6 @@
 package com.ikaver.aagarwal.fjava;
 
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,9 +30,23 @@ public class FJavaPoolFactory {
       return new FJavaPool(size, getReceiverInitiatedDeques(size));
     case SENDER_INITIATED:
       return new FJavaPool(size, getSenderInitiatedDeques(size)); 
+    case CONCURRENT:
+      return new FJavaPool(size, getConcurrentDeques(size));
     default:
       throw new IllegalArgumentException("enum is not yet supported");
     }
+  }
+  
+  private TaskRunnerDeque[] getConcurrentDeques(int size) {
+    TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
+    ConcurrentLinkedDeque<FJavaTask> [] concurrentDeques = new ConcurrentLinkedDeque[size];
+    for(int i = 0; i < size; ++i) {
+      concurrentDeques[i] = new ConcurrentLinkedDeque<FJavaTask>();
+    }
+    for(int i = 0; i < size; ++i) {
+      deques[i] = new LinkedListConcurrentDeque(i, concurrentDeques);
+    }
+    return deques;
   }
 
   private TaskRunnerDeque[] getSenderInitiatedDeques(int size) {

@@ -27,6 +27,9 @@ public class FJavaConf {
     if ("SID".equals(algorithmString)) {
       algorithm = StealingAlgorithm.SENDER_INITIATED;
     }
+    else if("CONCURRENT".equals(algorithmString)){
+      algorithm = StealingAlgorithm.CONCURRENT;
+    }
     else {
       algorithm = StealingAlgorithm.RECEIVER_INITIATED;
     }

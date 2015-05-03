@@ -5,7 +5,8 @@ package com.ikaver.aagarwal.common;
  */
 public enum StealingAlgorithm {
 	RECEIVER_INITIATED("RECEIVER_INITIATED"),
-	SENDER_INITIATED("SENDER_INITIATED");
+	SENDER_INITIATED("SENDER_INITIATED"),
+	CONCURRENT("CONCURRENT");
 	
 	private final String algorithm;
 
