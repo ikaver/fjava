@@ -32,6 +32,8 @@ public class FJavaPoolFactory {
       return new FJavaPool(size, getSenderInitiatedDeques(size)); 
     case CONCURRENT:
       return new FJavaPool(size, getConcurrentDeques(size));
+    case SHARED_CONCURRENT_QUEUE:
+    	return new FJavaPool(size, getSingleSharedConcurrentQueue(size));
     default:
       throw new IllegalArgumentException("enum is not yet supported");
     }
@@ -87,6 +89,16 @@ public class FJavaPoolFactory {
     }
 
     return deques;
+  }
+  
+  private TaskRunnerDeque[] getSingleSharedConcurrentQueue(int size) {
+  	TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
+  	SharedConcurrentQueue queue = new SharedConcurrentQueue();
+  	
+  	for (int i = 0; i < size; i++) {
+  		deques[i] = queue;
+  	}
+  	return deques;
   }
 
 }
