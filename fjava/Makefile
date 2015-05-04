@@ -10,17 +10,26 @@ testExpensiveMap: clean
 	mvn -Dtest=testExpensiveMap test
 
 testFib: clean
-	mvn -Dtest='TestFibonacci#testFibonacciJavaForkJoin' test > out.txt	
-	mvn -Dtest='TestFibonacci#testFibonacciFJava' test 1>> out.txt 2> log.txt	
+	echo 'Running FJava...'
+	mvn -Dtest='TestFibonacci#testFibonacciFJava' test 1> out.txt 2> log.txt	
+	echo 'Pause between tests...'
+	sleep 60
+	echo 'Running Java Fork Join...'
+	mvn -Dtest='TestFibonacci#testFibonacciJavaForkJoin' test >> out.txt		
+	echo 'Pause between tests...'
+	sleep 60
+	echo 'Running sequential...'
 	mvn -Dtest='TestFibonacci#testFibonacciSequential' test >> out.txt	
+	echo 'Processing output...'
 	cat out.txt | grep -v INFO > /tmp/out.txt
 	mv /tmp/out.txt out.txt
 	echo 'Creating graphs...'
 ifeq ($(COLLECT_STATS), true)
-	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testFib .\* > testFib.txt
+	cat log.txt | grep StatsTracker | cut -d " " -f 2,3,4 | python  graphs/statsgraph.py testFib .\* > testFib.txt
 endif
-	cat out.txt | grep TestFibonacci -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testFib 
-
+	cat out.txt | grep TestFibonacci. -A 1 | awk 'NR % 3 != 0' |  python graphs/timegraph.py testFib
+	echo 'Sleeping for computer to chill...'
+	sleep 60
 testKaratsuba: clean
 	mvn -Dtest=testKaratsuba test
 
