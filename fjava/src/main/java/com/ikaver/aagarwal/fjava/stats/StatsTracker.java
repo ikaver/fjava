@@ -9,6 +9,7 @@ public class StatsTracker {
   private TaskRunnerStats [] taskRunnerStats;
   private DequeStats [] dequeStats;
   private int runNumber;
+  private CounterStatFactory factory;
     
   private static StatsTracker instance;
   
@@ -24,13 +25,13 @@ public class StatsTracker {
       return;
     
     ++runNumber;
-    MonitorableRegistry.clearDefaultRegistry();
     
+    this.factory = new CounterStatFactory();
     this.taskRunnerStats = new TaskRunnerStats[poolSize];
     this.dequeStats = new DequeStats[poolSize];
     for(int i = 0; i < poolSize; ++i) {
-      this.taskRunnerStats[i] = new TaskRunnerStats(i);
-      this.dequeStats[i] = new DequeStats(i);
+      this.taskRunnerStats[i] = new TaskRunnerStats(i, factory);
+      this.dequeStats[i] = new DequeStats(i, factory);
     }
   }
   
@@ -38,9 +39,9 @@ public class StatsTracker {
     if (!FJavaConf.shouldTrackStats()) {
     	return;
     }
-    System.err.printf("Stats for run #%d\n", this.runNumber);
-    for(Monitorable<?> c : MonitorableRegistry.DEFAULT_REGISTRY.getMonitorables()) {
-      System.err.printf("%s : %s\n", c.getName(), c.get());
+    System.err.printf("StatsTracker Stats for run #%d\n", this.runNumber);
+    for(CounterStat stat : factory.getCounters()) {
+      System.err.printf("StatsTracker %s : %s\n", stat.getCounterID(), stat.get());
     }
   }
   
@@ -70,10 +71,6 @@ public class StatsTracker {
   }
   
   /* Deque stats */
-  public void onSuccessfulGetTask(int dequeIdx) {
-    this.dequeStats[dequeIdx].successfulGetTask.inc();
-  }
-  
   public void onDequeSteal(int dequeIdx) {
     this.dequeStats[dequeIdx].totalSteals.inc();
   }

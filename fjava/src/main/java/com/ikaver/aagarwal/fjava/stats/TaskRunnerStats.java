@@ -1,35 +1,36 @@
 package com.ikaver.aagarwal.fjava.stats;
 
-import com.custardsource.parfait.MonitoredCounter;
+import java.util.List;
+
 
 public class TaskRunnerStats {
 
-  public final MonitoredCounter totalTasksCompleted; 
-  public final MonitoredCounter totalTasksCreated; 
-  public final MonitoredCounter totalTriesBeforeAcquireTask;
+  public final CounterStat totalTasksCompleted; 
+  public final CounterStat totalTasksCreated; 
+  public final CounterStat totalTriesBeforeAcquireTask;
   
-  public final MonitoredCounter getTaskTime;
-  public final MonitoredCounter runTaskTime;
-  public final MonitoredCounter computeTime;
-  
-  public TaskRunnerStats(int idx) {
-    this.totalTasksCompleted = new MonitoredCounter(
+  public final CounterStat getTaskTime;
+  public final CounterStat runTaskTime;
+  public final CounterStat computeTime;
+    
+  public TaskRunnerStats(int idx, CounterStatFactory factory) {
+    this.totalTasksCompleted = factory.createCounter(
         StatsTracker.getStatisticName("TR.tasks_completed", "", idx),
         "# of tasks completed by TR");
-    this.totalTasksCreated = new MonitoredCounter(
+    this.totalTasksCreated = factory.createCounter(
         StatsTracker.getStatisticName("TR.tasks_created", "", idx),
         "# of tasks created by TR");
-    this.totalTriesBeforeAcquireTask = new MonitoredCounter(
+    this.totalTriesBeforeAcquireTask = factory.createCounter(
         StatsTracker.getStatisticName("TR.failed_to_acquire_task", "", idx),
         "# of failed attempts to acquire task by TR");
     
-    this.getTaskTime = new MonitoredCounter(
+    this.getTaskTime = factory.createCounter(
         StatsTracker.getStatisticName("TR.time.get_task", "tr_time", idx),
         "Amount of time spend on get task");
-    this.runTaskTime = new MonitoredCounter(
+    this.runTaskTime = factory.createCounter(
         StatsTracker.getStatisticName("TR.time.run_task", "tr_time", idx),
         "Amount of time running tasks");
-    this.computeTime = new MonitoredCounter(
+    this.computeTime = factory.createCounter(
         StatsTracker.getStatisticName("TR.time.compute_task", "tr_time", idx),
         "Amount of time actually doing work");
   }
