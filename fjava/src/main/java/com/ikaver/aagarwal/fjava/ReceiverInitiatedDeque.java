@@ -35,7 +35,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * requestCells[i] = j iff task runner j is waiting for task runner i to 
    * give him work
    */
-  private AtomicInteger [] requestCells;   //TODO: make cache efficient? (False sharing)
+  private PaddedAtomicInteger [] requestCells;   //TODO: make cache efficient? (False sharing)
   
   //TODO: make cache efficient? (False sharing)
   //responseCells[j] holds the task that task runner j stole from other task runner.
@@ -79,7 +79,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   private FastStopwatch acquireStopwatch;
   
   public ReceiverInitiatedDeque(IntRef [] status, 
-      AtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID, 
+      PaddedAtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID, 
       FJavaTask emptyTask) {
     for(int i = 0; i < requestCells.length; ++i) {
       if(requestCells[i].get() != EMPTY_REQUEST) 
