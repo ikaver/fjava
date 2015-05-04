@@ -11,7 +11,7 @@ testExpensiveMap: clean
 
 testFib: clean
 	mvn -Dtest='TestFibonacci#testFibonacciJavaForkJoin' test > out.txt	
-	mvn -Dtest='TestFibonacci#testFibonacciFJava' test >> out.txt	
+	mvn -Dtest='TestFibonacci#testFibonacciFJava' test 1>> out.txt 2> log.txt	
 	mvn -Dtest='TestFibonacci#testFibonacciSequential' test >> out.txt	
 	cat out.txt | grep -v INFO > /tmp/out.txt
 	mv /tmp/out.txt out.txt
