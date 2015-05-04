@@ -2,74 +2,37 @@ all: build
 
 build: clean
 	mvn package -DskipTests
+ 
+clean:
+	mvn clean
 
 test: clean
 	mvn package
 
 testExpensiveMap: clean
-	mvn -Dtest=testExpensiveMap test
+	echo 'Running expensive map tests...'
+	sh runSingleTest.sh testExpensiveMap testExpensiveMap
 
 testFib: clean
-	echo 'Running FJava...'
-	mvn -Dtest='TestFibonacci#testFJava' test 1> out.txt 2> log.txt	
-	echo 'Pause between tests...'
-	sleep 60
-	echo 'Running Java Fork Join...'
-	mvn -Dtest='TestFibonacci#testJavaForkJoin' test >> out.txt		
-	echo 'Pause between tests...'
-	sleep 60
-	echo 'Running sequential...'
-	mvn -Dtest='TestFibonacci#testSequential' test >> out.txt	
-	echo 'Processing output...'
-	cat out.txt | grep -v INFO > /tmp/out.txt
-	mv /tmp/out.txt out.txt
-	echo 'Creating graphs...'
-ifeq ($(COLLECT_STATS), true)
-	cat log.txt | grep StatsTracker | cut -d " " -f 2,3,4 | python  graphs/statsgraph.py testFib .\* > testFib.txt
-endif
-	cat out.txt | grep TestFibonacci. -A 1 | awk 'NR % 3 != 0' |  python graphs/timegraph.py testFib
-	echo 'Sleeping for computer to chill...'
-	sleep 60
+	echo 'Running Fibonacci tests...'
+	sh runSingleTest.sh TestFibonacci testFib
 
 testKaratsuba: clean
-	mvn -Dtest=testKaratsuba test
+	echo 'Running karatsuba...'
+	sh runSingleTest.sh TestKaratsuba testKaratsuba 
 
 testMap: clean
-	mvn -Dtest=TestMap test > out.txt	
-	echo 'Creating graphs...'
-ifeq ($(COLLECT_STATS), true)
-	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testMap .\* > testMap.txt
-endif
-	cat out.txt | grep TestMap -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testMap 
-
+	echo 'Running map tests...'
+	sh runSingleTest.sh TestMap testMap 
 
 testMatrixMult: clean
-	mvn -Dtest=TestMatrixMultiplication test > out.txt
-	echo 'Creating graphs...'
-ifeq ($(COLLECT_STATS), true)
-	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testMatrixMult .\* > testMatrixMult.txt
-endif
-	cat out.txt | grep TestMatrixMultiplication -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testMatrixMult
-
+	echo 'Running matrix multiplication tests...'
+	sh runSingleTest.sh TestMatrixMultiplication testMatrixMult
 
 testPrimes: clean
-	mvn -Dtest=TestPrimes test > out.txt
-	echo 'Creating graphs...'
-ifeq ($(COLLECT_STATS), true)
-	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testPrimes .\* > testPrimes.txt
-endif
-	cat out.txt | grep TestPrimes -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testPrimes
-
+	echo 'Running primes tests...'
+	sh runSingleTest.sh TestPrimes testPrimes
 
 testQuickSort: clean
-	mvn -Dtest=TestQuickSort test > out.txt
-ifeq ($(COLLECT_STATS), true)
-	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testQuickSort .\* > testQuickSort.txt
-endif
-	cat out.txt | grep TestQuickSort -A1 | tail -n+3 | awk 'NR % 3 == 0 || NR % 3 == 2' | python graphs/timegraph.py testQuickSort
-
-
-allTestsStatistics: clean testFib testMap testMatrixMult 
-	  
-clean:
-	mvn clean
+	echo 'Running quicksort tests...'
+	sh runSingleTest.sh TestQuickSort testQuickSort

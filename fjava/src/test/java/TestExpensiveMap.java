@@ -12,6 +12,9 @@ import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.MapFunction;
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
+import com.ikaver.aagarwal.fjavaexamples.FJavaMap;
 import com.ikaver.aagarwal.javaforkjoin.MapJavaForkJoin;
 import com.ikaver.aagarwal.seq.SeqMap;
 
@@ -55,8 +58,10 @@ public class TestExpensiveMap extends AbstractBenchmark {
         return res;
       }
     };
-    for (int i = 0; i < size; ++i) {
-      expected[i] = mapFunction.map(original[i]);
+    if(debug) {
+      for (int i = 0; i < size; ++i) {
+        expected[i] = mapFunction.map(original[i]);
+      }
     }
   }
 
@@ -71,17 +76,27 @@ public class TestExpensiveMap extends AbstractBenchmark {
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testForkJoinPoolComputationalExpensiveMap() {
+  public void testJavaForkJoin() {
     ForkJoinPool pool = new ForkJoinPool();
     new MapJavaForkJoin<Integer, Integer>(pool).map(testArray, result, mapFunction);
     if (debug) {
       Assert.assertArrayEquals(expected, result);
     }
   }
+  
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
+  @Test
+  public void testFJava() {  
+    FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
+    new FJavaMap<Integer, Integer>(pool).map(testArray, result, mapFunction);
+    if(debug) {
+      Assert.assertArrayEquals(expected, result);
+    }
+  }
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testComputationalExpensiveMap() {
+  public void testSequential() {
     new SeqMap<Integer, Integer>().map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);
