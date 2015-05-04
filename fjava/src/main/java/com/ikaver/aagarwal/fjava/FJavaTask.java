@@ -36,6 +36,7 @@ public abstract class FJavaTask {
     this.runner = runner;
     this.compute();
     this.setIsDone(true);
+    this.parent = null;
   }
 
   boolean areAllChildsDone() {
