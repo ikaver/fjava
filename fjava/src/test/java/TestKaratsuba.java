@@ -44,7 +44,7 @@ public class TestKaratsuba extends AbstractBenchmark {
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test
-	public void testKaratsubaMultiplyJavaForkJoin() {
+	public void testJavaForkJoin() {
 		ForkJoinPool pool = new ForkJoinPool();
 		KaratsubaMultiplyJavaForkJoin karatsubaMultiplyJavaForkJoin = 
 				new KaratsubaMultiplyJavaForkJoin(pool);

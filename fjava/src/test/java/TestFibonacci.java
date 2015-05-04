@@ -35,7 +35,7 @@ public class TestFibonacci extends AbstractBenchmark {
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testFibonacciJavaForkJoin() {
+  public void testJavaForkJoin() {
     ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
     FibonacciJavaForkJoin fibonacciJavaForkJoin =
         new FibonacciJavaForkJoin(pool);
@@ -47,7 +47,7 @@ public class TestFibonacci extends AbstractBenchmark {
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testFibonacciFJava() {
+  public void testFJava() {
     FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
     FJavaFibonacci fibonacci =
         new FJavaFibonacci(pool);
@@ -58,7 +58,7 @@ public class TestFibonacci extends AbstractBenchmark {
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testFibonacciSequential() {
+  public void testSequential() {
     SeqFibonacci fibonacciSequential = new SeqFibonacci();
     long result = fibonacciSequential.fibonacci(N);
     if(debug)

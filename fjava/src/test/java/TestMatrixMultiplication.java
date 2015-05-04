@@ -51,7 +51,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testJavaForkJoinMatrixMultiplication() {
+  public void testJavaForkJoin() {
     new MatrixMultiplicationJavaForkJoin(
         new ForkJoinPool(FJavaConf.getPoolSize()))
         .multiply(testA, testB, result);
@@ -64,7 +64,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testFJavaMatrixMultiplication() {
+  public void testFJava() {
     FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
     new FJavaMatrixMultiplication(pool).multiply(testA, testB, result);
     if(debug) {
@@ -77,7 +77,7 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testSeqMatrixMultiplication() {
+  public void testSequential() {
     new SeqMatrixMultiplication().multiply(testA, testB, result);
     if(debug) {
       for(int i = 0; i < size; ++i) {

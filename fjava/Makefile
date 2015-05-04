@@ -11,15 +11,15 @@ testExpensiveMap: clean
 
 testFib: clean
 	echo 'Running FJava...'
-	mvn -Dtest='TestFibonacci#testFibonacciFJava' test 1> out.txt 2> log.txt	
+	mvn -Dtest='TestFibonacci#testFJava' test 1> out.txt 2> log.txt	
 	echo 'Pause between tests...'
 	sleep 60
 	echo 'Running Java Fork Join...'
-	mvn -Dtest='TestFibonacci#testFibonacciJavaForkJoin' test >> out.txt		
+	mvn -Dtest='TestFibonacci#testJavaForkJoin' test >> out.txt		
 	echo 'Pause between tests...'
 	sleep 60
 	echo 'Running sequential...'
-	mvn -Dtest='TestFibonacci#testFibonacciSequential' test >> out.txt	
+	mvn -Dtest='TestFibonacci#testSequential' test >> out.txt	
 	echo 'Processing output...'
 	cat out.txt | grep -v INFO > /tmp/out.txt
 	mv /tmp/out.txt out.txt
@@ -30,6 +30,7 @@ endif
 	cat out.txt | grep TestFibonacci. -A 1 | awk 'NR % 3 != 0' |  python graphs/timegraph.py testFib
 	echo 'Sleeping for computer to chill...'
 	sleep 60
+
 testKaratsuba: clean
 	mvn -Dtest=testKaratsuba test
 

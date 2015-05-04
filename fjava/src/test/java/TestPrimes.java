@@ -73,7 +73,7 @@ public class TestPrimes extends AbstractBenchmark {
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testForkJoinPoolPrimes() {  
+  public void testJavaForkJoin() {  
     ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
     new MapJavaForkJoin<Integer, Boolean>(pool).map(testArray, result, mapFunction);
     if(debug) {
@@ -83,7 +83,7 @@ public class TestPrimes extends AbstractBenchmark {
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testFJavaPrimes() {  
+  public void testFJava() {  
     FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
     new FJavaMap<Integer, Boolean>(pool).map(testArray, result, mapFunction);
     if(debug) {
@@ -93,7 +93,7 @@ public class TestPrimes extends AbstractBenchmark {
     
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testPrimes() {
+  public void testSequential() {
     new SeqMap<Integer, Boolean>().map(testArray, result, mapFunction);
     if(debug) {
       Assert.assertArrayEquals(expected, result);

@@ -49,7 +49,7 @@ public class TestQuickSort extends AbstractBenchmark {
 
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testForkJoinPoolQuickSort() {   
+  public void testJavaForkJoin() {   
     ForkJoinPool pool = new ForkJoinPool(FJavaConf.getPoolSize());
     new QuickSortJavaForkJoin(pool).sort(testArray, 0, size-1);
     if(debug) Assert.assertArrayEquals(sorted, original);
@@ -57,7 +57,7 @@ public class TestQuickSort extends AbstractBenchmark {
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testFJavaQuickSort() {
+  public void testFJava() {
     FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
     FJavaQuickSort sort =
         new FJavaQuickSort(pool);
@@ -67,7 +67,7 @@ public class TestQuickSort extends AbstractBenchmark {
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
   @Test
-  public void testQuickSort() {
+  public void testSequential() {
     new SeqQuickSort().sort(testArray, 0, size-1);
     if(debug) Assert.assertArrayEquals(sorted, original);
   }
