@@ -10,7 +10,11 @@ testExpensiveMap: clean
 	mvn -Dtest=testExpensiveMap test
 
 testFib: clean
-	mvn -Dtest=TestFibonacci test > out.txt	
+	mvn -Dtest='TestFibonacci#testFibonacciJavaForkJoin' test > out.txt	
+	mvn -Dtest='TestFibonacci#testFibonacciFJava' test >> out.txt	
+	mvn -Dtest='TestFibonacci#testFibonacciSequential' test >> out.txt	
+	cat out.txt | grep -v INFO > /tmp/out.txt
+	mv /tmp/out.txt out.txt
 	echo 'Creating graphs...'
 ifeq ($(COLLECT_STATS), true)
 	cat log.txt | grep StatsTracker | cut -d "-" -f 2,3 | python  graphs/statsgraph.py testFib .\* > testFib.txt
