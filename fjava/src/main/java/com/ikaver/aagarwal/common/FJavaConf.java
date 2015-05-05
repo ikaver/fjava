@@ -13,13 +13,15 @@ public class FJavaConf {
 	private static final String QUICKSORT_SEQ_THRESHOLD = "TestQuickSort_THRESHOLD";
 	private static final String FILTER_SEQ_THRESHOLD = "TestPrimes_THRESHOLD";
 	private static final String KARATSUBA_SEQ_THRESHOLD = "TestKaratsuba_THRESHOLD";
+	private static final String FIBONACCI_SEQ_THRESHOLD = "TestFibonacci_THRESHOLD";
 
 	private static final double DEFAULT_DELTA = 0.001;
 	public static final int DEFAULT_QUICKSORT_SEQ_THRESHOLD = 4000;
 	public static final int DEFAULT_FILTER_SEQ_THRESHOLD = 64;
 	public static final int DEFAULT_MATRIX_MULT_SEQ_THRESHOLD = 64;
 	public static final int DEFAULT_KARATSUBA_SEQ_THRESHOLD = 100;
-
+	public static final int DEFAULT_FIBONACCI_SEQ_THRESHOLD = 13;
+	
 	private static boolean trackStats;
 	private static StealingAlgorithm algorithm;
 	private static int poolSize;
@@ -28,6 +30,7 @@ public class FJavaConf {
 	private static int mapSequentialThreshold;
 	private static int matrixMultSequentialThreshold;
 	private static int karatsubaSequentialThreshold;
+	private static int fibonacciSequentialThreshold;
 
 	public static void initialize() {
 		String statsString = System.getenv(COLLECT_STATS);
@@ -63,13 +66,18 @@ public class FJavaConf {
 		}
 
 		parseThresholds();
+
 		System.out.printf("Using track stats = %s algorithm = %s pool size = %d\n",
 				trackStats == true ? "true" : "false", algorithm, poolSize);
 		System.out.printf("Threshold values:\n" + "MATRIX_MULT_SEQ_THRESHOLD %d\n"
 				+ "QUICKSORT_SEQ_THRESHOLD %d\n" + "FILTER_SEQ_THRESHOLD %d	\n"
-				+ "KARATSUBA_SEQ_THRESHOLD %d\n", matrixMultSequentialThreshold,
-				quicksortSequentialThreshold, mapSequentialThreshold,
-				karatsubaSequentialThreshold);
+				+ "KARATSUBA_SEQ_THRESHOLD %d\n"
+				+ "FIBONACCI_SEQ_THRESHOLD %d\n",
+				matrixMultSequentialThreshold,
+				quicksortSequentialThreshold,
+				mapSequentialThreshold,
+				karatsubaSequentialThreshold,
+				fibonacciSequentialThreshold);
 	}
 
 	private static void parseThresholds() {
@@ -81,6 +89,8 @@ public class FJavaConf {
 				DEFAULT_FILTER_SEQ_THRESHOLD);
 		karatsubaSequentialThreshold = parseValue(KARATSUBA_SEQ_THRESHOLD,
 				DEFAULT_KARATSUBA_SEQ_THRESHOLD);
+		fibonacciSequentialThreshold = parseValue(FIBONACCI_SEQ_THRESHOLD,
+				DEFAULT_FIBONACCI_SEQ_THRESHOLD);
 	}
 
 	/**
@@ -128,5 +138,9 @@ public class FJavaConf {
 
 	public static int getKaratsubaSequentialThreshold() {
 		return karatsubaSequentialThreshold;
+	}
+	
+	public static int getFibonacciSequentialThreshold() {
+		return fibonacciSequentialThreshold;
 	}
 }

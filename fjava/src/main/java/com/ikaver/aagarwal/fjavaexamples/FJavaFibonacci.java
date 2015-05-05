@@ -1,11 +1,11 @@
 package com.ikaver.aagarwal.fjavaexamples;
 
-import com.ikaver.aagarwal.common.FibonacciBase;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.utils.FibonacciUtils;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
 
-public class FJavaFibonacci extends FibonacciBase {
+public class FJavaFibonacci {
 
   private final FJavaPool pool;
 
@@ -37,7 +37,7 @@ public class FJavaFibonacci extends FibonacciBase {
       } else if (n <= 2) {
         answer = 1;
         return;
-      } else if (n <= THRESHOLD) {
+      } else if (n <= FJavaConf.getFibonacciSequentialThreshold()) {
         answer = FibonacciUtils.fibnth(n);
         return;
       }
