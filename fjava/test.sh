@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$#" -ne 3 ]; then
+    echo "Usage: test.sh MIN_POOL_SIZE MAX_POOL_SIZE POOL_SKIP"
+    exit 1
+fi
+
 RESULTS_DIR=results
 
 run_test() {
@@ -40,6 +45,7 @@ mkdir -p $RESULTS_DIR
 
 MIN_POOL=$1
 MAX_POOL=$2
+POOL_SKIP=$3
 
 for TEST_STR in "TestFibonacci" "TestMatrixMultiplication" "TestPrimes" "TestQuickSort" "TestKaratsuba"; do
    case "$TEST_STR" in
@@ -51,7 +57,6 @@ for TEST_STR in "TestFibonacci" "TestMatrixMultiplication" "TestPrimes" "TestQui
         ;;
     "TestPrimes")
          THRESHOLDS=( 100 1000 10000 )
-
         ;;
     "TestQuickSort")
         THRESHOLDS=( 40 400 4000 )
@@ -61,7 +66,7 @@ for TEST_STR in "TestFibonacci" "TestMatrixMultiplication" "TestPrimes" "TestQui
         ;;
     esac
     for THRESHOLD in "${THRESHOLDS[@]}"; do
-        for ((i=$MIN_POOL; i<=$MAX_POOL; i+=2))
+        for ((i=$MIN_POOL; i<=$MAX_POOL; i+=$POOL_SKIP))
         {
             for ALGORITHM_STR in "SID" "RID" "CONCURRENT"; do
                 run_test $i $ALGORITHM_STR $TEST_STR $THRESHOLD
