@@ -9,30 +9,30 @@ clean:
 test: clean
 	mvn package
 
-testExpensiveMap: clean
+TestExpensiveMap: clean
 	echo 'Running expensive map tests...'
-	sh runSingleTest.sh testExpensiveMap testExpensiveMap
+	sh runSingleTest.sh testExpensiveMap
 
-testFib: clean
+TestFibonacci: clean
 	echo 'Running Fibonacci tests...'
-	sh runSingleTest.sh TestFibonacci testFib
+	sh runSingleTest.sh TestFibonacci
 
-testKaratsuba: clean
+TestKaratsuba: clean
 	echo 'Running karatsuba...'
-	sh runSingleTest.sh TestKaratsuba testKaratsuba 
+	sh runSingleTest.sh TestKaratsuba 
 
-testMap: clean
+TestMap: clean
 	echo 'Running map tests...'
-	sh runSingleTest.sh TestMap testMap 
+	sh runSingleTest.sh TestMap
 
-testMatrixMult: clean
+TestMatrixMultiplication: clean
 	echo 'Running matrix multiplication tests...'
-	sh runSingleTest.sh TestMatrixMultiplication testMatrixMult
+	sh runSingleTest.sh TestMatrixMultiplication
 
-testPrimes: clean
+TestPrimes: clean
 	echo 'Running primes tests...'
-	sh runSingleTest.sh TestPrimes testPrimes
+	sh runSingleTest.sh TestPrimes 
 
-testQuickSort: clean
+TestQuickSort: clean
 	echo 'Running quicksort tests...'
-	sh runSingleTest.sh TestQuickSort testQuickSort
+	sh runSingleTest.sh TestQuickSort
