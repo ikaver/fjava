@@ -10,12 +10,15 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
+import com.ikaver.aagarwal.fjavaexamples.FJavaKaratasubaMultiply;
 import com.ikaver.aagarwal.javaforkjoin.KaratsubaMultiplyJavaForkJoin;
 
 public class TestKaratsuba extends AbstractBenchmark {
 	
 	private static final int BASE = 2;
-	private static final int NUM_DIGITS = 10000;
+	private static final int NUM_DIGITS = 1000000;
 
 	static boolean debug;
 	static BigInteger x;
@@ -24,7 +27,7 @@ public class TestKaratsuba extends AbstractBenchmark {
 
 	@BeforeClass
 	public static void setup() {
-	   FJavaConf.initialize();
+	  FJavaConf.initialize();
 		debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
 		System.out.println("Debug " + debug);
 		x = new BigInteger(generateRandomBinaryStringOfLength(NUM_DIGITS), BASE);
@@ -41,7 +44,16 @@ public class TestKaratsuba extends AbstractBenchmark {
 		}
 		return builder.toString();
 	}
-
+  
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
+	@Test
+	public void testKaratsubaMultiplyFJava() {
+  	FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
+  	FJavaKaratasubaMultiply fJavaMultiply = new FJavaKaratasubaMultiply(pool);
+  	BigInteger result = fJavaMultiply.multiply(x, y);
+  	Assert.assertTrue("Result should match the expected value", expected.equals(result));
+  }
+  
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test
 	public void testKaratsubaMultiplyJavaForkJoin() {
@@ -53,4 +65,12 @@ public class TestKaratsuba extends AbstractBenchmark {
 		Assert.assertTrue("Result value should match expected value",
 				expected.equals(result));
 	}
+  
+  
+  @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
+	@Test
+	public void testKaratsubaSequantial() {
+  	BigInteger result = x.multiply(y);
+  	Assert.assertTrue("Result should match the expected value", expected.equals(result));
+  }
 }
