@@ -2,7 +2,7 @@
 SLEEP_TIME=60
 
 echo 'Running FJava...'
-mvn -Dtest="$1#testFJava" test 1> out.txt 2> log.txt	
+mvn -Dtest="$1#testFJava" test 1> out.txt	
 echo 'Pause between tests...'
 sleep $SLEEP_TIME
 echo 'Running Java Fork Join...'
@@ -17,7 +17,7 @@ mv /tmp/out.txt out.txt
 echo 'Creating graphs...'
 if [ "$COLLECT_STATS" = "true" ] 
 then
-	cat log.txt | grep StatsTracker | cut -d " " -f 2,3,4 | python  graphs/statsgraph.py $1 .\* > $1.txt
+	cat out.txt | grep StatsTracker | cut -d " " -f 2,3,4 | python  graphs/statsgraph.py $1 .\* > $1.txt
 else
 	cat out.txt | grep $1. -A 1 | awk 'NR % 3 != 0' |  python graphs/timegraph.py $1
 fi

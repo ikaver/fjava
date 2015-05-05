@@ -37,9 +37,9 @@ public class StatsTracker {
     if (!FJavaConf.shouldTrackStats()) {
     	return;
     }
-    System.err.printf("StatsTracker Stats for run #%d\n", this.runNumber);
+    System.out.printf("StatsTracker Stats for run #%d\n", this.runNumber);
     for(CounterStat stat : factory.getCounters()) {
-      System.err.printf("StatsTracker %s : %s\n", stat.getCounterID(), stat.get());
+      System.out.printf("StatsTracker %s : %s\n", stat.getCounterID(), stat.get());
     }
   }
   
