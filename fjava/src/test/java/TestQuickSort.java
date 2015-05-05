@@ -37,8 +37,10 @@ public class TestQuickSort extends AbstractBenchmark {
     long min = - (1 << 60);
     long max =   (1 << 60);
     original = ArrayHelper.createRandomArray(size, min, max);
-    sorted = Arrays.copyOf(original, size);
-    Arrays.sort(sorted);    
+    if(debug) {
+      sorted = Arrays.copyOf(original, size);
+      Arrays.sort(sorted);    
+    }
   }
   
   @Before

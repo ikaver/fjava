@@ -43,7 +43,7 @@ public class TestPrimes extends AbstractBenchmark {
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     
-    size = 100000;
+    size = 5000000;
     int min = 1000;
     int max = (1 << 17);
     //we beat ForkJoin with size = 1000000, min = 1000, max = (1 << 15).
