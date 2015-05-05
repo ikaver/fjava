@@ -5,6 +5,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.QuickSort;
 
 public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort {
@@ -30,7 +31,7 @@ public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort 
   protected void compute() {
     if(right <= left) return;
     
-    if(right - left <= Definitions.QUICKSORT_SEQ_THRESHOLD) {
+    if(right - left <= FJavaConf.getQuicksortSequentialThreshold()) {
       Arrays.sort(array, left, right+1);
       return;
     }

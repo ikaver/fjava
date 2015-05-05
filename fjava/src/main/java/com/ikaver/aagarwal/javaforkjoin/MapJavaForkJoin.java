@@ -5,6 +5,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.Map;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 
@@ -39,7 +40,7 @@ public class MapJavaForkJoin<T, V> extends RecursiveAction implements Map<T, V> 
   
   @Override
   protected void compute() {
-    if(right - left <= Definitions.FILTER_SEQ_THRESHOLD) {
+    if(right - left <= FJavaConf.getMapSequentialThreshold()) {
       for(int i = left; i <= right; ++i) {
         this.result[i] = this.mapFunc.map(this.array[i]);
       }
@@ -47,7 +48,7 @@ public class MapJavaForkJoin<T, V> extends RecursiveAction implements Map<T, V> 
     }
     else {
       ArrayList<MapJavaForkJoin<T, V>> tasks = new ArrayList<MapJavaForkJoin<T, V>>();
-      while(left <= right - Definitions.FILTER_SEQ_THRESHOLD) {
+      while(left <= right - FJavaConf.getMapSequentialThreshold()) {
         int mid = (right+left)/2;
         tasks.add(new MapJavaForkJoin<T, V>(array, result, mapFunc, left, mid));
         left = mid+1;

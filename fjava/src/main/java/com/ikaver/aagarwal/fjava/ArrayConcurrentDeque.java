@@ -1,7 +1,6 @@
 package com.ikaver.aagarwal.fjava;
 
 import java.util.Random;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ArrayConcurrentDeque implements TaskRunnerDeque {
 

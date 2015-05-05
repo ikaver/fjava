@@ -1,6 +1,5 @@
 package com.ikaver.aagarwal.fjava.stats;
 
-import java.util.List;
 
 
 public class TaskRunnerStats {

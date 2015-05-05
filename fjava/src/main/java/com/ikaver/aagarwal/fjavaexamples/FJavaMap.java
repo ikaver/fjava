@@ -2,7 +2,7 @@ package com.ikaver.aagarwal.fjavaexamples;
 
 import java.util.ArrayList;
 
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.Map;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 import com.ikaver.aagarwal.fjava.FJavaPool;
@@ -38,7 +38,7 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
   
   @Override
   public void compute() {
-    if(right - left <= Definitions.FILTER_SEQ_THRESHOLD) {
+    if(right - left <= FJavaConf.getMapSequentialThreshold()) {
       for(int i = left; i <= right; ++i) {
         this.result[i] = this.mapFunc.map(this.array[i]);
       }
@@ -46,7 +46,7 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
     }
     else {
       ArrayList<FJavaMap<T, V>> tasks = new ArrayList<FJavaMap<T, V>>();
-      while(left <= right - Definitions.FILTER_SEQ_THRESHOLD) {
+      while(left <= right - FJavaConf.getMapSequentialThreshold()) {
         int mid = (right+left)/2;
         tasks.add(new FJavaMap<T, V>(array, result, mapFunc, left, mid));
         left = mid+1;

@@ -2,7 +2,7 @@ package com.ikaver.aagarwal.seq;
 
 import java.math.BigInteger;
 
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 
 /***
  * Sequential implementation of Karatsuba algorithm
@@ -14,7 +14,7 @@ public class SeqKaratsuba {
 	 */
 	public static BigInteger multiply(BigInteger x, BigInteger y) {
 		int m = (Math.min(x.bitLength(), y.bitLength()) / 2);
-		if (m <= Definitions.KARATSUBA_SEQ_THRESHOLD) {
+		if (m <= FJavaConf.getKaratsubaSequentialThreshold()) {
 			return x.multiply(y);
 		}
 

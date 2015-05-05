@@ -4,6 +4,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.SeqJavaForkJoin;
 import com.ikaver.aagarwal.common.problems.MatrixMultiplication;
 
@@ -42,7 +43,7 @@ public class MatrixMultiplicationJavaForkJoin extends RecursiveAction implements
   }
   
   public void compute() {
-    if(size <= Definitions.MATRIX_MULT_SEQ_THRESHOLD) {
+    if(size <= FJavaConf.getMatrixMultiplicationSequentialThreshold()) {
       multiplySeq();
       return;
     }

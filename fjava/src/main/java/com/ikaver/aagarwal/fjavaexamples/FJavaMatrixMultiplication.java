@@ -1,6 +1,6 @@
 package com.ikaver.aagarwal.fjavaexamples;
 
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.MatrixMultiplication;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
@@ -38,7 +38,7 @@ public class FJavaMatrixMultiplication extends FJavaTask implements MatrixMultip
   }
 
   public void compute() {
-    if(size <= Definitions.MATRIX_MULT_SEQ_THRESHOLD) {
+    if(size <= FJavaConf.getMatrixMultiplicationSequentialThreshold()) {
       multiplySeq();
       return;
     }

@@ -3,12 +3,13 @@ package com.ikaver.aagarwal.seq;
 import java.util.Arrays;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.QuickSort;
 
 public class SeqQuickSort implements QuickSort {
 
   public void sort(long[] array, int left, int right) {
-    if(right - left <= Definitions.QUICKSORT_SEQ_THRESHOLD) {
+    if(right - left <= FJavaConf.getQuicksortSequentialThreshold()) {
       Arrays.sort(array, left, right+1);
       return;
     }

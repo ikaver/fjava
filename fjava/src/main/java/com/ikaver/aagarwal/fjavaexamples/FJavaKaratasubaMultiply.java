@@ -2,7 +2,7 @@ package com.ikaver.aagarwal.fjavaexamples;
 
 import java.math.BigInteger;
 
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
 
@@ -33,7 +33,7 @@ public class FJavaKaratasubaMultiply {
 		@Override
 		public void compute() {
 			int m = (Math.min(x.bitLength(), y.bitLength()) / 2);
-			if (m <= Definitions.KARATSUBA_SEQ_THRESHOLD) {
+			if (m <= FJavaConf.getKaratsubaSequentialThreshold()) {
 				this.result = x.multiply(y);
 				return;
 			}

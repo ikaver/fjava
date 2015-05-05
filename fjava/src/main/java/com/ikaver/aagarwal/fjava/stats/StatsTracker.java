@@ -1,7 +1,5 @@
 package com.ikaver.aagarwal.fjava.stats;
 
-import com.custardsource.parfait.Monitorable;
-import com.custardsource.parfait.MonitorableRegistry;
 import com.ikaver.aagarwal.common.FJavaConf;
 
 public class StatsTracker {

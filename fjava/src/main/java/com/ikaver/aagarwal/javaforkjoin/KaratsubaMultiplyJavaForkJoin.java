@@ -5,6 +5,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
 import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.Multiply;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 
@@ -31,7 +32,7 @@ public class KaratsubaMultiplyJavaForkJoin extends RecursiveTask<BigInteger> {
 	@Override
 	protected BigInteger compute() {
 		int m = (Math.min(x.bitLength(), y.bitLength()) / 2);
-		if (m <= Definitions.KARATSUBA_SEQ_THRESHOLD) {
+		if (m <= FJavaConf.getKaratsubaSequentialThreshold()) {
 			return x.multiply(y);
 		}
 

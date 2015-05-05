@@ -2,7 +2,7 @@ package com.ikaver.aagarwal.fjavaexamples;
 
 import java.util.Arrays;
 
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.QuickSort;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
@@ -29,7 +29,7 @@ public class FJavaQuickSort extends FJavaTask implements QuickSort {
   public void compute() {
     if(right <= left) return;
     
-    if(right - left <= Definitions.QUICKSORT_SEQ_THRESHOLD) {
+    if(right - left <= FJavaConf.getQuicksortSequentialThreshold()) {
       Arrays.sort(array, left, right+1);
       return;
     }

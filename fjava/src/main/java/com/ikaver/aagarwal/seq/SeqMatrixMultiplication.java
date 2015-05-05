@@ -1,6 +1,6 @@
 package com.ikaver.aagarwal.seq;
 
-import com.ikaver.aagarwal.common.Definitions;
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.MatrixMultiplication;
 
 public class SeqMatrixMultiplication implements MatrixMultiplication {
@@ -12,7 +12,7 @@ public class SeqMatrixMultiplication implements MatrixMultiplication {
 
   private void multiply(float [][]A, float[][]B, float[][]C, int size,
       int aRow, int aCol, int bRow, int bCol, int cRow, int cCol) {
-    if(size <= Definitions.MATRIX_MULT_SEQ_THRESHOLD) {
+    if(size <= FJavaConf.getMatrixMultiplicationSequentialThreshold()) {
       multiplySeq(A,B,C,size,
           aRow,aCol,bRow,bCol,cRow,cCol);
       return;

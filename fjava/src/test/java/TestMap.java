@@ -10,7 +10,6 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.ArrayHelper;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
-import com.ikaver.aagarwal.common.StealingAlgorithm;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
