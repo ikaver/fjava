@@ -5,7 +5,6 @@ import java.util.Deque;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.common.MathHelper;
@@ -18,14 +17,6 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
  * @author ankit
  */
 public class SenderInitiatedDeque implements TaskRunnerDeque {
-
-	/**
-	 * Is the delta parameter of the sender based work stealing algorithm. A higher value of delta
-	 * indicates that the tasks are "dealt" i.e. {@code #attemptDeal()} is executed fewer number 
-	 * of times on an average.
-	 * 
-	 */
-	private static final double DELTA = 0.001;
 	
 	/**
 	 * {@code FJavaTask} object which indicates if a task runner is waiting for receive
@@ -195,7 +186,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 		long now = System.currentTimeMillis();
 		if (now > nextDealTime[dequeID]) {
 			attemptDeal();
-			nextDealTime[dequeID] = now - DELTA * Math.log(
+			nextDealTime[dequeID] = now - FJavaConf.getDelta() * Math.log(
 					MathHelper.randomBetween(0.2, 0.9));
 		}
 	}
