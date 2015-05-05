@@ -15,7 +15,7 @@ run_test() {
 
     echo "Starting test with pool size $1 , algorithm $2 , test type $3 , threshold $4..."
 
-    TEST_DIR=$RESULTS_DIR/$TEST_TYPE/$TEST_TYPE-$ALGORITHM_ARG-$POOL_SIZE_ARG
+    TEST_DIR=$RESULTS_DIR/$TEST_TYPE/$TEST_TYPE-$ALGORITHM_ARG-$POOL_SIZE_ARG-T$THRESHOLD
     mkdir -p $RESULTS_DIR/$TEST_TYPE || true
     mkdir -p $TEST_DIR || true
     
