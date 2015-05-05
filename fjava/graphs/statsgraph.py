@@ -71,7 +71,7 @@ def process_stats(dir_name, regex):
     dir_name = os.path.join(dir_name, 'run-')
 
     for line in sys.stdin:
-        if line.startswith(' Stats for run'):
+        if line.startswith('Stats for run'):
             if run_counter > 0:
                 create_dir_if_necessary(dir_name + str(run_counter))
                 show_graph(dir_name + str(run_counter), stats, grouped_stats)
@@ -80,10 +80,12 @@ def process_stats(dir_name, regex):
             run_counter += 1
         elif rexp.match(regex):
             tokens = line.split(':')
+            print tokens
             id_tokens = tokens[0].split("#")
             statistic_id = id_tokens[0]
             group_id = id_tokens[1]
             num = 0
+
 
             if len(id_tokens) > 1:
                 num = id_tokens[2]
