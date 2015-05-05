@@ -26,12 +26,10 @@ run_test() {
     THRESHOLD_VAR_NAME=$TEST_TYPE$THRESHOLD_SUFFIX
     export $THRESHOLD_VAR_NAME=$THRESHOLD
     make $3
-    mv log.txt $TEST_DIR/log-nostats.txt
     mv out.txt $TEST_DIR/out-nostats.txt   
     
     export COLLECT_STATS="true"
     make $3
-    mv log.txt $TEST_DIR/log-wstats.txt
     mv out.txt $TEST_DIR/out-wstats.txt
     mv $TEST_TYPE.txt $TEST_DIR/$TEST_TYPE.txt
 
