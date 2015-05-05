@@ -14,11 +14,12 @@ import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
 import com.ikaver.aagarwal.fjavaexamples.FJavaKaratasubaMultiply;
 import com.ikaver.aagarwal.javaforkjoin.KaratsubaMultiplyJavaForkJoin;
+import com.ikaver.aagarwal.seq.SeqKaratsuba;
 
 public class TestKaratsuba extends AbstractBenchmark {
 	
 	private static final int BASE = 2;
-	private static final int NUM_DIGITS = 1000000;
+	private static final int NUM_DIGITS = 5000000;
 
 	static boolean debug;
 	static BigInteger x;
@@ -47,7 +48,7 @@ public class TestKaratsuba extends AbstractBenchmark {
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test
-	public void testKaratsubaMultiplyFJava() {
+	public void testFJava() {
   	FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
   	FJavaKaratasubaMultiply fJavaMultiply = new FJavaKaratasubaMultiply(pool);
   	BigInteger result = fJavaMultiply.multiply(x, y);
@@ -69,8 +70,9 @@ public class TestKaratsuba extends AbstractBenchmark {
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
 	@Test
-	public void testKaratsubaSequantial() {
-  	BigInteger result = x.multiply(y);
-  	Assert.assertTrue("Result should match the expected value", expected.equals(result));
+	public void testSequential() {
+  	BigInteger result = SeqKaratsuba.multiply(x, y);
+  	Assert.assertTrue("Result should match the expected value",
+  			expected.equals(result));
   }
 }
