@@ -102,6 +102,10 @@ public class TaskRunner implements Runnable {
       triesBeforeSteal = 1;
       this.runTaskStopwatch.start();
       task.execute(this);
+      if(FJavaConf.shouldTrackStats()) {
+        StatsTracker.getInstance().onRunTaskTime(
+            this.taskRunnerID, this.runTaskStopwatch.end());
+      }
       this.notifyTaskDone(task);
     }
   }
