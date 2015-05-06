@@ -2,6 +2,9 @@ package com.ikaver.aagarwal.fjava;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.ikaver.aagarwal.common.FJavaConf;
+import com.ikaver.aagarwal.fjava.stats.StatsTracker;
+
 public abstract class FJavaTask {
 
   private TaskRunner  runner;
@@ -56,6 +59,18 @@ public abstract class FJavaTask {
     }
   }
   
+  /**
+   * Indicates the amount of time we spent on "actually" doing something
+   * suseful for the task.
+   */
+  public void addComputeTime(long amount) {
+  	if (FJavaConf.shouldTrackStats()) {
+  		int taskRunnerIdX = this.runner.getTaskRunnerID();
+  		// Add this amount of time to the computer counter.
+  		StatsTracker.getInstance().onComputeTime(taskRunnerIdX, amount);
+  	}
+  }
+
   void onChildDone() {
     this.childCompleteCount.decrementAndGet();
   }

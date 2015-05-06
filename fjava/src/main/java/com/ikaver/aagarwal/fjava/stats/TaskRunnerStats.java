@@ -11,7 +11,7 @@ public class TaskRunnerStats {
   public final CounterStat getTaskTime;
   public final CounterStat runTaskTime;
   public final CounterStat computeTime;
-    
+
   public TaskRunnerStats(int idx, CounterStatFactory factory) {
     this.totalTasksCompleted = factory.createCounter(
         StatsTracker.getStatisticName("TR.tasks_completed", "", idx),
