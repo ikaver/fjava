@@ -14,8 +14,20 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
  */
 public class ReceiverInitiatedDeque implements TaskRunnerDeque {
 
+  /**
+   * VALID_STATUS indicates that this Deque (possibly) has work to offer.
+   * This means that it is ok for other Deques to request work to me.
+   */
   public static final int VALID_STATUS = 1;
+  /**
+   * INVALID_STATUS indicates that this Deque does not have work to offer.
+   * This means that it is not of for other Deques to request work to me.
+   */
   public static final int INVALID_STATUS = 0;
+  /**
+   * Whenever requestCells[i] == EMPTY_REQUEST, it means that at this moment 
+   * nobody is waiting for me to give them work.
+   */
   public static final int EMPTY_REQUEST = -1;
 
   /**
@@ -28,16 +40,13 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * status[i] == VALID_STATUS iff deque i has some work to offer to idle threads
    * else, status[i] = INVALID_STATUS
    */
-  private IntRef [] status; //TODO: make cache efficient? (False sharing)   
+  private IntRef [] status; 
 
   /**
    * requestCells[i] = j iff task runner j is waiting for task runner i to 
    * give him work
    */
-  private PaddedAtomicInteger [] requestCells;   //TODO: make cache efficient? (False sharing)
-  
-  //TODO: make cache efficient? (False sharing)
-  //responseCells[j] holds the task that task runner j stole from other task runner.
+  private PaddedAtomicInteger [] requestCells;
   
   /**
    * responseCells[j] holds the task that task runner j stole from other
@@ -48,7 +57,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   /**
    * Index that we have reserved in the requestCells array. We are
    * still waiting for a response from the other task runner, but we had
-   * to quit temporarily to handle a join request.
+   * to quit temporarily to handle a sync request.
    */
   private int reservedRequestCell = EMPTY_REQUEST;
   
@@ -73,8 +82,15 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private int numWorkers;
   
+  /**
+   * The pool that is responsible for this deque. We should ask the pool
+   * periodically if all of the tasks are done.
+   */
   private FJavaPool pool;
   
+  /*
+   * Stopwatch used for measuring time spent in acquire.
+   */
   private FastStopwatch acquireStopwatch;
   
   public ReceiverInitiatedDeque(IntRef [] status, 
@@ -104,6 +120,9 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.acquireStopwatch = new FastStopwatch();
   } 
   
+  /**
+   * Any additional initialization required can be done here.
+   */
   public void setupWithPool(FJavaPool pool) { 
     this.pool = pool;
   }
@@ -131,7 +150,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     }
 
     if(this.tasks.isEmpty()) {
-           
+      //we have no tasks, must try to steal from somebody else!
       if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onDequeEmpty(this.dequeID);
       }
@@ -144,6 +163,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       return null;
     }
     else {
+      //I have tasks! Let everybody know by updating my status.
       if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
       }
@@ -159,56 +179,76 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * @return
    */
   private void acquire(FJavaTask parentTask) {
-    //TODO: measure time acquiring a task
+    //Try for as much as possible to steal a task. If the parent task
+    //is done syncing, or if the pool has no more tasks, I must quit.
     while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = this.random.nextInt(this.numWorkers);
       if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
           && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.dequeID))) {
-          
+          //We must use the old reserved request cell if we had one
+          //(There might be a task waiting for us to run in our responseCells array,
+          //since the other deque might have responded while we did the sync).
           if(reservedRequestCell != EMPTY_REQUEST) stealIdx = reservedRequestCell;
           
-          //TODO: measure time waiting?
           while(this.responseCells[this.dequeID].task == emptyTask) {
-            this.communicate(); //TODO: remove busy waiting
+            //must communicate in case somebody was expecting to receive a task from me
+            this.communicate(); 
+            //my parent is done syncing! Must quit to let it proceed.
             if(parentTask != null && parentTask.areAllChildsDone() || pool.isShuttingDown()) {
-              reservedRequestCell = stealIdx;
+              //however, we cannot cancel a request once we made one, so 
+              //save the index of the deque we requested a task to 
+              reservedRequestCell = stealIdx; 
               return;
             }
           }
+          //Finally (possibly) got a task! Clear the reserved request cell and
+          //check what we got!
           reservedRequestCell = EMPTY_REQUEST;
           if(this.responseCells[this.dequeID].task != null 
               && this.responseCells[this.dequeID].task != emptyTask) {
+            //awesome, we got a task. add it to the deque and quit.
             FJavaTask newTask = this.responseCells[this.dequeID].task;
             this.addTask(newTask);
             if(FJavaConf.shouldTrackStats()) { 
               StatsTracker.getInstance().onDequeSteal(this.dequeID);
             }
           }
+          //clear out entry of the response cells array, we got out response.
           this.responseCells[this.dequeID].task = emptyTask;
           return;
       }
+      //must communicate in case somebody was expecting to receive a task from me
       this.communicate();
       if(pool.isShuttingDown()) break;
     }
   }
   
   /*
-   * Respond to requests, if any.
+   * Respond to steal requests, if any.
    */
   private void communicate() {
     int requestIdx = this.requestCells[this.dequeID].get();
-    if(requestIdx == EMPTY_REQUEST) return;
+    if(requestIdx == EMPTY_REQUEST) return; //no steal requests, quick quit.
     
     if(this.tasks.isEmpty()) {
+      //we were available at the time the other deque requested work to us,
+      //but not anymore! respond with null
       this.responseCells[requestIdx].task = null;
     }
     else {
+      //We have work for the other deque! Give work to them.
       FJavaTask task =  this.tasks.removeFirst();
       this.responseCells[requestIdx].task = task;
     }
+    //Responded the request successfully, clear my entry of the request cells
+    //array for others to be able to request work to me.
     this.requestCells[this.dequeID].set(EMPTY_REQUEST);
   }
   
+  /**
+   * Update status, let it be to indicate others that I'm available to give
+   * work to them, or to indicate others that I do not have tasks currently.
+   */
   private void updateStatus() {
     int available = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
     if(this.status[this.dequeID].value != available) 
