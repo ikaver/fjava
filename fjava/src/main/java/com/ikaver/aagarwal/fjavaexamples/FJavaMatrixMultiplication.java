@@ -1,12 +1,14 @@
 package com.ikaver.aagarwal.fjavaexamples;
 
 import com.ikaver.aagarwal.common.FJavaConf;
+import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.common.problems.MatrixMultiplication;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
 
 public class FJavaMatrixMultiplication extends FJavaTask implements MatrixMultiplication {
 
+	private FastStopwatch watch;
   private float [][] A;
   private float [][] B;
   private float [][] C;
@@ -17,6 +19,7 @@ public class FJavaMatrixMultiplication extends FJavaTask implements MatrixMultip
 
   public FJavaMatrixMultiplication(FJavaPool pool) {
     this.pool = pool;
+    // No need to initialize watch here.
   }
 
   public FJavaMatrixMultiplication(float [][] A, float [][] B, float [][] C, int size,
@@ -31,18 +34,26 @@ public class FJavaMatrixMultiplication extends FJavaTask implements MatrixMultip
     this.bCol = colB;
     this.cRow = rowC;
     this.cCol = colC;
+    if (FJavaConf.shouldTrackStats()) {
+    	watch = new FastStopwatch();
+    }
   } 
 
   public void multiply(float[][] a, float[][] b, float[][] result) {
     this.pool.run(new FJavaMatrixMultiplication(a, b, result, a.length, 0,0,0,0,0,0));
   }
 
+  @Override
   public void compute() {
+  	watch.start();
     if(size <= FJavaConf.getMatrixMultiplicationSequentialThreshold()) {
       multiplySeq();
+      addComputeTime(watch.end());
       return;
     }
+
     int mid = size/2;
+    addComputeTime(watch.end());
     FJavaSeq seq1 = new FJavaSeq(
         new FJavaMatrixMultiplication(A, B, C, mid, aRow, aCol,     bRow,     bCol, cRow, cCol),
         new FJavaMatrixMultiplication(A, B, C, mid, aRow, aCol+mid, bRow+mid, bCol, cRow, cCol)
