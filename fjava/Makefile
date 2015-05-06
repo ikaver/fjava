@@ -11,28 +11,28 @@ test: clean
 
 TestExpensiveMap: clean
 	echo 'Running expensive map tests...'
-	sh runSingleTest.sh testExpensiveMap
+	sh scripts/runAllTests.sh testExpensiveMap
 
 TestFibonacci: clean
 	echo 'Running Fibonacci tests...'
-	sh runSingleTest.sh TestFibonacci
+	sh scripts/runAllTests.sh TestFibonacci 
 
 TestKaratsuba: clean
 	echo 'Running karatsuba...'
-	sh runSingleTest.sh TestKaratsuba 
+	sh scripts/runAllTests.sh TestKaratsuba 
 
 TestMap: clean
 	echo 'Running map tests...'
-	sh runSingleTest.sh TestMap
+	sh scripts/runAllTests.sh TestMap
 
 TestMatrixMultiplication: clean
 	echo 'Running matrix multiplication tests...'
-	sh runSingleTest.sh TestMatrixMultiplication
+	sh scripts/runAllTests.sh TestMatrixMultiplication
 
 TestPrimes: clean
 	echo 'Running primes tests...'
-	sh runSingleTest.sh TestPrimes 
+	sh scripts/runAllTests.sh TestPrimes 
 
 TestQuickSort: clean
 	echo 'Running quicksort tests...'
-	sh runSingleTest.sh TestQuickSort
+	sh scripts/runAllTests.sh TestQuickSort
