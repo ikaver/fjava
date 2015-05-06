@@ -9,7 +9,6 @@ public class TaskRunnerStats {
   public final CounterStat totalTriesBeforeAcquireTask;
   
   public final CounterStat getTaskTime;
-  public final CounterStat runTaskTime;
   public final CounterStat computeTime;
 
   public TaskRunnerStats(int idx, CounterStatFactory factory) {
@@ -26,9 +25,6 @@ public class TaskRunnerStats {
     this.getTaskTime = factory.createCounter(
         StatsTracker.getStatisticName("TR.time.get_task", "tr_time", idx),
         "Amount of time spend on get task");
-    this.runTaskTime = factory.createCounter(
-        StatsTracker.getStatisticName("TR.time.run_task", "tr_time", idx),
-        "Amount of time running tasks");
     this.computeTime = factory.createCounter(
         StatsTracker.getStatisticName("TR.time.compute_task", "tr_time", idx),
         "Amount of time actually doing work");

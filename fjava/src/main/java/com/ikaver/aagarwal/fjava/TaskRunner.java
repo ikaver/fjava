@@ -13,7 +13,6 @@ public class TaskRunner implements Runnable {
   private FJavaTask rootTask;
     
   private FastStopwatch getTaskStopwatch;
-  private FastStopwatch runTaskStopwatch;
   
   /* Statistics */
   
@@ -21,7 +20,6 @@ public class TaskRunner implements Runnable {
     this.deque = deque;
     this.taskRunnerID = taskRunnerID;
     this.getTaskStopwatch = new FastStopwatch();
-    this.runTaskStopwatch = new FastStopwatch();
   }
   
   public void setRootTask(FJavaTask task) {
@@ -66,12 +64,7 @@ public class TaskRunner implements Runnable {
           		this.taskRunnerID, triesBeforeSteal);
           triesBeforeSteal = 0;
         }
-        this.runTaskStopwatch.start();
         task.execute(this);
-        if(FJavaConf.shouldTrackStats()) {
-          StatsTracker.getInstance().onRunTaskTime(
-          		this.taskRunnerID, this.runTaskStopwatch.end());
-        }
         this.notifyTaskDone(task);
       }
     }
@@ -100,12 +93,7 @@ public class TaskRunner implements Runnable {
       }
 
       triesBeforeSteal = 1;
-      this.runTaskStopwatch.start();
       task.execute(this);
-      if(FJavaConf.shouldTrackStats()) {
-        StatsTracker.getInstance().onRunTaskTime(
-            this.taskRunnerID, this.runTaskStopwatch.end());
-      }
       this.notifyTaskDone(task);
     }
   }

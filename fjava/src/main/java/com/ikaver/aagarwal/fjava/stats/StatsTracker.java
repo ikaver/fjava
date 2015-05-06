@@ -60,10 +60,6 @@ public class StatsTracker {
     this.taskRunnerStats[trIdx].getTaskTime.inc(time);
   }
   
-  public void onRunTaskTime(int trIdx, long time) {
-    this.taskRunnerStats[trIdx].runTaskTime.inc(time);
-  }
-  
   public void onComputeTime(int trIdx, long time) {
     this.taskRunnerStats[trIdx].computeTime.inc(time);
   }
