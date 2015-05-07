@@ -185,7 +185,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = this.random.nextInt(this.numWorkers);
       if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
-          && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.dequeID))) {
+          && requestCells[stealIdx].get() == EMPTY_REQUEST && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.dequeID))) {
           //We must use the old reserved request cell if we had one
           //(There might be a task waiting for us to run in our responseCells array,
           //since the other deque might have responded while we did the sync).
