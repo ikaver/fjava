@@ -33,4 +33,9 @@ public class SharedConcurrentQueue implements TaskRunnerDeque {
 	public void setupWithPool(FJavaPool pool) {
 		this.pool = pool;
 	}
+
+  @Override
+  public void tryLoadBalance() {
+    //NOOP
+  }
 }

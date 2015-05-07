@@ -71,6 +71,10 @@ public abstract class FJavaTask {
   	}
   }
 
+  public void tryLoadBalance() {
+    this.runner.tryLoadBalance();
+  }
+  
   void onChildDone() {
     this.childCompleteCount.decrementAndGet();
   }

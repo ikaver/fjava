@@ -24,6 +24,12 @@ public interface TaskRunnerDeque {
    *     has finished execution. 
    */
   public FJavaTask getTask(FJavaTask task);
+  
+  /**
+   * Tries to respond to steal requests or to somehow, distribute work
+   * of this deque to other deques
+   */
+  public void tryLoadBalance();
 
   /**
    * This is a one time setup method which is invoked when the pool creates new threads for

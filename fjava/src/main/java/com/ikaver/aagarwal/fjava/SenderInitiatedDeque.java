@@ -81,6 +81,13 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 	  	communicate();
 		}
 	}
+	
+  @Override
+  public void tryLoadBalance() {
+    if(deque.size() > 1) {
+      communicate();
+    }
+  }
 
 	@Override
 	public FJavaTask getTask(FJavaTask parentTask) {
@@ -190,4 +197,5 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 					MathHelper.randomBetween(0.2, 0.9));
 		}
 	}
+
 }

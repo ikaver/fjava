@@ -48,4 +48,9 @@ public class LinkedListConcurrentDeque implements TaskRunnerDeque {
     
   }
 
+  @Override
+  public void tryLoadBalance() {
+    //NOOP
+  }
+
 }

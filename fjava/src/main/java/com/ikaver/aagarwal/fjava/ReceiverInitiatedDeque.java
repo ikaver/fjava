@@ -139,6 +139,14 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.updateStatus();
   }
   
+  public void tryLoadBalance() {
+    boolean success = this.communicate();
+    if(success) {
+      System.out.println(this.dequeID + " COMMUNICATED");
+    }
+    this.updateStatus();
+  }
+  
   /**
    * Returns a task from this deque, or a stolen task, possibly.
    * May return null if it failed to steal any tasks.
@@ -226,13 +234,15 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   /*
    * Respond to steal requests, if any.
    */
-  private void communicate() {
+  private boolean communicate() {
     int requestIdx = this.requestCells[this.dequeID].get();
-    if(requestIdx == EMPTY_REQUEST) return; //no steal requests, quick quit.
+    if(requestIdx == EMPTY_REQUEST) return false; //no steal requests, quick quit.
     
+    boolean didCommunicate = true;
     if(this.tasks.isEmpty()) {
       //we were available at the time the other deque requested work to us,
       //but not anymore! respond with null
+      didCommunicate = false;
       this.responseCells[requestIdx].task = null;
     }
     else {
@@ -243,6 +253,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     //Responded the request successfully, clear my entry of the request cells
     //array for others to be able to request work to me.
     this.requestCells[this.dequeID].set(EMPTY_REQUEST);
+    return didCommunicate;
   }
   
   /**

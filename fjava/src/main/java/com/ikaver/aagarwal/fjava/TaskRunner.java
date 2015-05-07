@@ -97,7 +97,10 @@ public class TaskRunner implements Runnable {
       this.notifyTaskDone(task);
     }
   }
-    
+  
+  public void tryLoadBalance() {
+    this.deque.tryLoadBalance();
+  } 
   
   private void notifyTaskDone(FJavaTask task) {
     if(FJavaConf.shouldTrackStats()) {
