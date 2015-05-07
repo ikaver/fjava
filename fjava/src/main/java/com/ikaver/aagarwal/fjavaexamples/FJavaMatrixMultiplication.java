@@ -92,6 +92,7 @@ public class FJavaMatrixMultiplication extends FJavaTask implements
 
 	private void multiplySeq() {
 		for (int j = 0; j < size; j += 2) {
+		  tryLoadBalance();
 			for (int i = 0; i < size; i += 2) {
 
 				float[] a0 = A[aRow + i];
