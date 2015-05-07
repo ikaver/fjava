@@ -106,17 +106,16 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
         StatsTracker.getInstance().onAcquireTime(
             this.dequeID, acquireStopwatch.end());
       }
+      return null;
 		}
 		else {
       if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
       }
-		}
-
-		if (deque.size() == 0) {
-			return null;
-		} else {
-			return deque.removeLast();
+      if(deque.size() > 1) {
+        this.communicate();
+      }
+      return deque.removeLast();
 		}
 	}
 
