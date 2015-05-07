@@ -66,15 +66,14 @@ public class FJavaPoolFactory {
   private TaskRunnerDeque[] getSenderInitiatedDeques(int size) {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
     AtomicReference<FJavaTask> communicationCells[] = new AtomicReference[size];
-    PaddedDouble[] dealtime = new PaddedDouble[size];
 
     for (int i = 0; i < size; ++i) {
       communicationCells[i] = new AtomicReference<FJavaTask>();
-      dealtime[i] = new PaddedDouble(-1.0);
     }
 
     for (int i = 0; i < size; ++i) {
-      deques[i] = new SenderInitiatedDeque(communicationCells, dealtime, i,
+      deques[i] = new SenderInitiatedDeque(communicationCells,
+      		i,
           size);
     }
 
