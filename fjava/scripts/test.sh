@@ -58,6 +58,21 @@ run_basic_test() {
     export $THRESHOLD_VAR_NAME=$THRESHOLD
     
     sh scripts/runSingleTest.sh $3 $BASELINE
+    echo "COPYING $BASELINE.txt TO $TEST_DIR"
+    cp $BASELINE.txt $TEST_DIR
+}
+
+copy_to_test_dir() {
+    POOL_SIZE_ARG=$1
+    ALGORITHM_ARG=$2
+    TEST_TYPE=$3
+    THRESHOLD=$4
+    BASELINE=$5
+
+    echo "Copying with pool size $1 , algorithm $2 , test type $3 , threshold $4, baseline $5..."
+
+    TEST_DIR=$RESULTS_DIR/$TEST_TYPE/$TEST_TYPE-$ALGORITHM_ARG-$POOL_SIZE_ARG-T$THRESHOLD
+    cp $BASELINE $TEST_DIR 
 }
 
 collect_results() {
@@ -65,14 +80,11 @@ collect_results() {
     ALGORITHM_ARG=$2
     TEST_TYPE=$3
     THRESHOLD=$4
-    BASELINE=$5
 
-    echo "Starting basic test with pool size $1 , algorithm $2 , test type $3 , threshold $4, baseline $5..."
+
+    echo "Collecting results  with pool size $1 , algorithm $2 , test type $3 , threshold $4"
 
     TEST_DIR=$RESULTS_DIR/$TEST_TYPE/$TEST_TYPE-$ALGORITHM_ARG-$POOL_SIZE_ARG-T$THRESHOLD
-
-    cp testJavaForkJoin.txt $TEST_DIR
-    cp testSequential.txt $TEST_DIR
 
     export COLLECT_STATS="false"
     sh scripts/collectResults.sh $3 $TEST_DIR    
@@ -96,7 +108,7 @@ for TEST_STR in "TestFibonacci"; do #"TestMatrixMultiplication" "TestPrimes" "Te
          THRESHOLDS=( 32 64 )
         ;;
     "TestPrimes")
-         THRESHOLDS=( 100 1000 10000 )
+         THRESHOLDS=( 100 500 1000 2000 5000 10000 250000 500000 )
         ;;
     "TestQuickSort")
         THRESHOLDS=( 40 400 4000 )
@@ -112,8 +124,17 @@ for TEST_STR in "TestFibonacci"; do #"TestMatrixMultiplication" "TestPrimes" "Te
                 run_fjava_test $POOL_SIZE $ALGORITHM_STR $TEST_STR $THRESHOLD
             done
             run_basic_test $POOL_SIZE "NONE" $TEST_STR $THRESHOLD "testJavaForkJoin"
-            run_basic_test $POOL_SIZE "NONE" $TEST_STR $THRESHOLD "testSequential"
-            for ALGORITHM_STR in "SID" "RID" "CONCURRENT"; do 
+            for ALGORITHM_STR in "SID" "RID" "CONCURRENT"; do
+                copy_to_test_dir $POOL_SIZE $ALGORITHM_STR $TEST_STR $THRESHOLD "testJavaForkJoin.txt"
+            done
+        }   
+    done
+    run_basic_test $POOL_SIZE "NONE" $TEST_STR $THRESHOLD "testSequential"
+    for THRESHOLD in "${THRESHOLDS[@]}"; do
+        for ((POOL_SIZE=$MIN_POOL; POOL_SIZE<=$MAX_POOL; POOL_SIZE+=$POOL_SKIP))
+        {
+            for ALGORITHM_STR in "SID" "RID" "CONCURRENT"; do
+                copy_to_test_dir $POOL_SIZE $ALGORITHM_STR $TEST_STR $THRESHOLD "testSequential.txt"
                 collect_results $POOL_SIZE $ALGORITHM_STR $TEST_STR $THRESHOLD
             done
         }
