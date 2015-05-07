@@ -32,7 +32,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 	private static final FJavaTask SENTINEL_TASK = new EmptyFJavaTask();
 
 	private final AtomicReference<FJavaTask> communicationCells[];
-	private final double nextDealTime[];
+	private final PaddedDouble nextDealTime[];
 	private final Deque<FJavaTask> deque;
   private final FastStopwatch acquireStopwatch;
 	private FJavaPool pool;
@@ -56,7 +56,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 	 */
 	public SenderInitiatedDeque(AtomicReference<FJavaTask> communicationCells[],
-			double[] nextDealTime, int dequeID, int numWorkers) {
+			PaddedDouble[] nextDealTime, int dequeID, int numWorkers) {
 		this.communicationCells = communicationCells;
 		this.nextDealTime = nextDealTime;
 		this.deque = new ArrayDeque<FJavaTask>(8192);
@@ -190,9 +190,9 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
 
 	protected void communicate() {
 		long now = System.currentTimeMillis();
-		if (now > nextDealTime[dequeID]) {
+		if (now > nextDealTime[dequeID].value) {
 			attemptDeal();
-			nextDealTime[dequeID] = now - FJavaConf.getDelta() * Math.log(
+			nextDealTime[dequeID].value = now - FJavaConf.getDelta() * Math.log(
 					MathHelper.randomBetween(0.2, 0.9));
 		}
 	}
