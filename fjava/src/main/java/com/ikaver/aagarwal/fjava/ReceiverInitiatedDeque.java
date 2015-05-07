@@ -104,6 +104,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.tasks.addLast(task);
     this.updateStatus();
     this.communicate();
+    this.updateStatus();
   }
   
   public void tryLoadBalance() {
@@ -142,6 +143,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       FJavaTask task = this.tasks.removeLast();
       updateStatus();
       communicate();
+      updateStatus();
       return task;
     }
   }
