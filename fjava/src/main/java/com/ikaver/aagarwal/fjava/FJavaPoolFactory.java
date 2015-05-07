@@ -29,8 +29,10 @@ public class FJavaPoolFactory {
       return new FJavaPool(size, getReceiverInitiatedDeques(size));
     case SENDER_INITIATED:
       return new FJavaPool(size, getSenderInitiatedDeques(size)); 
-    case CONCURRENT:
-      return new FJavaPool(size, getConcurrentDeques(size));
+    case CONCURRENT_ARRAY:
+      return new FJavaPool(size, getConcurrentArrayDeques(size));
+    case CONCURRENT_LIST:
+      return new FJavaPool(size, getConcurrentListDeques(size));
     case SHARED_CONCURRENT_QUEUE:
     	return new FJavaPool(size, getSingleSharedConcurrentQueue(size));
     default:
@@ -38,7 +40,17 @@ public class FJavaPoolFactory {
     }
   }
   
-  private TaskRunnerDeque[] getConcurrentDeques(int size) {
+  private TaskRunnerDeque[] getConcurrentArrayDeques(int size) {
+    TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
+    ConcurrentArrayDeque [] concurrentDeques = new ConcurrentArrayDeque[size];
+    for(int i = 0; i < size; ++i) {
+      concurrentDeques[i] = new ConcurrentArrayDeque(concurrentDeques, i);
+      deques[i] = concurrentDeques[i];
+    }
+    return deques;
+  }
+  
+  private TaskRunnerDeque[] getConcurrentListDeques(int size) {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
     ConcurrentLinkedDeque<FJavaTask> [] concurrentDeques = new ConcurrentLinkedDeque[size];
     for(int i = 0; i < size; ++i) {

@@ -43,11 +43,14 @@ public class FJavaConf {
 		String algorithmString = System.getenv(ALGORITHM);
 		if ("SID".equals(algorithmString)) {
 			algorithm = StealingAlgorithm.SENDER_INITIATED;
-		} else if ("CONCURRENT".equals(algorithmString)) {
-			algorithm = StealingAlgorithm.CONCURRENT;
+		} else if ("CONCURRENT_LIST".equals(algorithmString)) {
+			algorithm = StealingAlgorithm.CONCURRENT_LIST;
 		} else if ("SHARED_CONCURRENT".equals(algorithmString)) {
 			algorithm = StealingAlgorithm.SHARED_CONCURRENT_QUEUE;
-		} else {
+		} else if ("CONCURRENT_ARRAY".equals(algorithmString)) {
+      algorithm = StealingAlgorithm.CONCURRENT_ARRAY;
+    }
+		else {
 			algorithm = StealingAlgorithm.RECEIVER_INITIATED;
 		}
 
