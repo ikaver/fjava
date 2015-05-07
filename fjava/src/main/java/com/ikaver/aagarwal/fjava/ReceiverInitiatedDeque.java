@@ -1,7 +1,6 @@
 package com.ikaver.aagarwal.fjava;
 
 import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Random;
 
 import com.ikaver.aagarwal.common.FJavaConf;
@@ -33,7 +32,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   /**
    * Our deque of tasks.
    */
-  private Deque<FJavaTask> tasks;
+  private ArrayDeque<FJavaTask> tasks;
   
   /**
    * Indicates the status of the current deque.
@@ -65,7 +64,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * An empty task, used to differentiate "not responded yet" from "sorry, 
    * I have no tasks for you" responses in the responseCells array.
    */
-  private FJavaTask emptyTask;
+  private static final FJavaTask emptyTask = new EmptyFJavaTask();
   
   /**
    * A random number generator to find victim task runners.
@@ -94,20 +93,14 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   private FastStopwatch acquireStopwatch;
   
   public ReceiverInitiatedDeque(IntRef [] status, 
-      PaddedAtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID, 
-      FJavaTask emptyTask) {
+      PaddedAtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID) {
     for(int i = 0; i < requestCells.length; ++i) {
       if(requestCells[i].get() != EMPTY_REQUEST) 
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
-      if(responseCells[i].task != emptyTask)
-        throw new IllegalArgumentException("All response cells should be empty");
       if(status[i].value != INVALID_STATUS)
         throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
+      responseCells[i] = new FJavaTaskRef(emptyTask);
     }
-    if(emptyTask == null) {
-      throw new IllegalArgumentException("Empty task shouldn't be null");
-    }
-    
     this.status = status;
     this.requestCells = requestCells;
     this.responseCells = responseCells;
@@ -115,7 +108,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.dequeID = dequeID;
     this.numWorkers = this.status.length;
     this.tasks = new ArrayDeque<FJavaTask>(8192);
-    this.emptyTask = emptyTask;
     
     this.acquireStopwatch = new FastStopwatch();
   } 
@@ -136,6 +128,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
         throw new IllegalArgumentException("Task cannot be null");
 
     this.tasks.addLast(task);
+    this.updateStatus();
+    this.communicate();
     this.updateStatus();
   }
   
@@ -175,6 +169,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       FJavaTask task = this.tasks.removeLast();
       updateStatus();
       communicate();
+      updateStatus();
       return task;
     }
   }

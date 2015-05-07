@@ -74,17 +74,15 @@ public class FJavaPoolFactory {
     IntRef[] status = new IntRef[size];
     PaddedAtomicInteger[] requestCells = new PaddedAtomicInteger[size];
     FJavaTaskRef[] responseCells = new FJavaTaskRef[size];
-    FJavaTask emptyTask = new EmptyFJavaTask();
 
     for (int i = 0; i < size; ++i) {
       status[i] = new IntRef(ReceiverInitiatedDeque.INVALID_STATUS);
       requestCells[i] = new PaddedAtomicInteger(ReceiverInitiatedDeque.EMPTY_REQUEST);
-      responseCells[i] = new FJavaTaskRef(emptyTask);
     }
 
     for (int i = 0; i < size; ++i) {
       deques[i] = new ReceiverInitiatedDeque(status, requestCells,
-          responseCells, i, emptyTask);
+          responseCells, i);
     }
 
     return deques;
