@@ -42,21 +42,18 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * status[i] == VALID_STATUS iff deque i has some work to offer to idle threads
    * else, status[i] = INVALID_STATUS
    */
-  @Contended
   private IntRef [] status; 
 
   /**
    * requestCells[i] = j iff task runner j is waiting for task runner i to 
    * give him work
    */
-  @Contended
   private PaddedAtomicInteger [] requestCells;
   
   /**
    * responseCells[j] holds the task that task runner j stole from other
    * task runner (specifically, where j put his id in requestCells array).
    */
-  @Contended
   private FJavaTaskRef [] responseCells;
   
   /**
