@@ -29,7 +29,13 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * nobody is waiting for me to give them work.
    */
   public static final int EMPTY_REQUEST = -1;
-
+  
+  /**
+   * An empty task, used to differentiate "not responded yet" from "sorry, 
+   * I have no tasks for you" responses in the responseCells array.
+   */
+  private static final FJavaTask emptyTask = new EmptyFJavaTask();
+ 
   /**
    * Our deque of tasks.
    */
@@ -60,17 +66,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * to quit temporarily to handle a sync request.
    */
   private int reservedRequestCell = EMPTY_REQUEST;
-  
-  /**
-   * An empty task, used to differentiate "not responded yet" from "sorry, 
-   * I have no tasks for you" responses in the responseCells array.
-   */
-  private static final FJavaTask emptyTask = new EmptyFJavaTask();
-  
-  /**
-   * A random number generator to find victim task runners.
-   */
-  private Random random;
 
   /**
    * The ID of this deque.
@@ -107,7 +102,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.status = status;
     this.requestCells = requestCells;
     this.responseCells = responseCells;
-    this.random = new Random();    
     this.dequeID = dequeID;
     this.numWorkers = this.status.length;
     this.tasks = new ArrayDeque<FJavaTask>(8192);
