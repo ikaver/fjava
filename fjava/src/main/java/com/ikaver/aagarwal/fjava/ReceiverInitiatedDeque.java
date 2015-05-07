@@ -186,7 +186,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     //Try for as much as possible to steal a task. If the parent task
     //is done syncing, or if the pool has no more tasks, I must quit.
     while(parentTask == null || !parentTask.areAllChildsDone()) {
-      int stealIdx = this.random.nextInt(this.numWorkers);// ThreadLocalRandom.current().nextInt(this.numWorkers);
+      int stealIdx = ThreadLocalRandom.current().nextInt(this.numWorkers);
       if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
           && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.dequeID))) {
           //We must use the old reserved request cell if we had one
