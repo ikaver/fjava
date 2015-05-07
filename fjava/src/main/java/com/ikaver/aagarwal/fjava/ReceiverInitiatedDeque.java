@@ -140,10 +140,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   }
   
   public void tryLoadBalance() {
-    boolean success = this.communicate();
-    if(success) {
-      System.out.println(this.dequeID + " COMMUNICATED");
-    }
+    this.communicate();
     this.updateStatus();
   }
   
