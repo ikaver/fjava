@@ -11,7 +11,6 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
  * Represents a Sender Initiated Deque. This means that task runners that need
  * tasks to run (receivers) are the ones who ask others for tasks.
  */
-@sun.misc.Contended
 public class ReceiverInitiatedDeque implements TaskRunnerDeque {
 
   /**
@@ -35,7 +34,24 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private ArrayDeque<FJavaTask> tasks;
   
-  private ReceiverInitiatedMetadata [] metadata;
+  /**
+   * Indicates the status of the current deque.
+   * status[i] == VALID_STATUS iff deque i has some work to offer to idle threads
+   * else, status[i] = INVALID_STATUS
+   */
+  private IntRef [] status; 
+
+  /**
+   * requestCells[i] = j iff task runner j is waiting for task runner i to 
+   * give him work
+   */
+  private PaddedAtomicInteger [] requestCells;
+  
+  /**
+   * responseCells[j] holds the task that task runner j stole from other
+   * task runner (specifically, where j put his id in requestCells array).
+   */
+  private FJavaTaskRef [] responseCells;
   
   /**
    * Index that we have reserved in the requestCells array. We are
@@ -48,7 +64,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * An empty task, used to differentiate "not responded yet" from "sorry, 
    * I have no tasks for you" responses in the responseCells array.
    */
-  public static final FJavaTask emptyTask = new EmptyFJavaTask();
+  private static final FJavaTask emptyTask = new EmptyFJavaTask();
   
   /**
    * A random number generator to find victim task runners.
@@ -76,11 +92,21 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private FastStopwatch acquireStopwatch;
   
-  public ReceiverInitiatedDeque(ReceiverInitiatedMetadata [] metadata, int dequeID) {
-    this.metadata = metadata;
+  public ReceiverInitiatedDeque(IntRef [] status, 
+      PaddedAtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID) {
+    for(int i = 0; i < requestCells.length; ++i) {
+      if(requestCells[i].get() != EMPTY_REQUEST) 
+        throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
+      if(status[i].value != INVALID_STATUS)
+        throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
+      responseCells[i] = new FJavaTaskRef(emptyTask);
+    }
+    this.status = status;
+    this.requestCells = requestCells;
+    this.responseCells = responseCells;
     this.random = new Random();    
     this.dequeID = dequeID;
-    this.numWorkers = this.metadata.length;
+    this.numWorkers = this.status.length;
     this.tasks = new ArrayDeque<FJavaTask>(8192);
     
     this.acquireStopwatch = new FastStopwatch();
@@ -131,7 +157,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       acquire(parentTask);
       if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onAcquireTime(
-        		this.dequeID, acquireStopwatch.end());
+            this.dequeID, acquireStopwatch.end());
       }
       return null;
     }
@@ -157,15 +183,14 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     //is done syncing, or if the pool has no more tasks, I must quit.
     while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = this.random.nextInt(this.numWorkers);
-      if(reservedRequestCell != EMPTY_REQUEST || (this.metadata[stealIdx].status == VALID_STATUS 
-          && this.metadata[stealIdx].requestCell.get() == EMPTY_REQUEST && 
-          this.metadata[stealIdx].requestCell.compareAndSet(EMPTY_REQUEST, this.dequeID))) {
+      if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
+          && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.dequeID))) {
           //We must use the old reserved request cell if we had one
           //(There might be a task waiting for us to run in our responseCells array,
           //since the other deque might have responded while we did the sync).
           if(reservedRequestCell != EMPTY_REQUEST) stealIdx = reservedRequestCell;
           
-          while(this.metadata[this.dequeID].responseCell == emptyTask) {
+          while(this.responseCells[this.dequeID].task == emptyTask) {
             //must communicate in case somebody was expecting to receive a task from me
             this.communicate(); 
             //my parent is done syncing! Must quit to let it proceed.
@@ -179,17 +204,17 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           //Finally (possibly) got a task! Clear the reserved request cell and
           //check what we got!
           reservedRequestCell = EMPTY_REQUEST;
-          if(this.metadata[this.dequeID].responseCell != null 
-              && this.metadata[this.dequeID].responseCell != emptyTask) {
+          if(this.responseCells[this.dequeID].task != null 
+              && this.responseCells[this.dequeID].task != emptyTask) {
             //awesome, we got a task. add it to the deque and quit.
-            FJavaTask newTask = this.metadata[this.dequeID].responseCell;
+            FJavaTask newTask = this.responseCells[this.dequeID].task;
             this.addTask(newTask);
             if(FJavaConf.shouldTrackStats()) { 
               StatsTracker.getInstance().onDequeSteal(this.dequeID);
             }
           }
           //clear out entry of the response cells array, we got out response.
-          this.metadata[this.dequeID].responseCell = emptyTask;
+          this.responseCells[this.dequeID].task = emptyTask;
           return;
       }
       //must communicate in case somebody was expecting to receive a task from me
@@ -202,7 +227,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * Respond to steal requests, if any.
    */
   private boolean communicate() {
-    int requestIdx = this.metadata[this.dequeID].requestCell.get();
+    int requestIdx = this.requestCells[this.dequeID].get();
     if(requestIdx == EMPTY_REQUEST) return false; //no steal requests, quick quit.
     
     boolean didCommunicate = true;
@@ -210,16 +235,16 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       //we were available at the time the other deque requested work to us,
       //but not anymore! respond with null
       didCommunicate = false;
-      this.metadata[requestIdx].responseCell = null;
+      this.responseCells[requestIdx].task = null;
     }
     else {
       //We have work for the other deque! Give work to them.
       FJavaTask task =  this.tasks.removeFirst();
-      this.metadata[requestIdx].responseCell = task;
+      this.responseCells[requestIdx].task = task;
     }
     //Responded the request successfully, clear my entry of the request cells
     //array for others to be able to request work to me.
-    this.metadata[this.dequeID].requestCell.set(EMPTY_REQUEST);
+    this.requestCells[this.dequeID].set(EMPTY_REQUEST);
     return didCommunicate;
   }
   
@@ -229,7 +254,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private void updateStatus() {
     int available = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
-    if(this.metadata[this.dequeID].status != available) 
-      this.metadata[this.dequeID].status = available;
+    if(this.status[this.dequeID].value != available) 
+      this.status[this.dequeID].value = available;
   }
 }
