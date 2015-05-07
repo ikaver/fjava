@@ -1,6 +1,7 @@
 package com.ikaver.aagarwal.fjava;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.ikaver.aagarwal.common.FJavaConf;
@@ -83,18 +84,16 @@ public class FJavaPoolFactory {
 
   private TaskRunnerDeque[] getReceiverInitiatedDeques(int size) {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
-    IntRef[] status = new IntRef[size];
-    PaddedAtomicInteger[] requestCells = new PaddedAtomicInteger[size];
-    FJavaTaskRef[] responseCells = new FJavaTaskRef[size];
-
+    ReceiverInitiatedMetadata [] metadata = new ReceiverInitiatedMetadata[size];
+    
     for (int i = 0; i < size; ++i) {
-      status[i] = new IntRef(ReceiverInitiatedDeque.INVALID_STATUS);
-      requestCells[i] = new PaddedAtomicInteger(ReceiverInitiatedDeque.EMPTY_REQUEST);
+      metadata[i] = new ReceiverInitiatedMetadata(ReceiverInitiatedDeque.INVALID_STATUS, 
+          ReceiverInitiatedDeque.emptyTask,
+          new AtomicInteger(ReceiverInitiatedDeque.EMPTY_REQUEST));
     }
 
     for (int i = 0; i < size; ++i) {
-      deques[i] = new ReceiverInitiatedDeque(status, requestCells,
-          responseCells, i);
+      deques[i] = new ReceiverInitiatedDeque(metadata, i);
     }
 
     return deques;
