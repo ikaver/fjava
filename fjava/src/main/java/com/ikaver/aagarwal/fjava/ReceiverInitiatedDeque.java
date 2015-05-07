@@ -3,6 +3,8 @@ package com.ikaver.aagarwal.fjava;
 import java.util.ArrayDeque;
 import java.util.Random;
 
+import sun.misc.Contended;
+
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
@@ -11,6 +13,7 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
  * Represents a Sender Initiated Deque. This means that task runners that need
  * tasks to run (receivers) are the ones who ask others for tasks.
  */
+@sun.misc.Contended
 public class ReceiverInitiatedDeque implements TaskRunnerDeque {
 
   /**
@@ -39,18 +42,21 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * status[i] == VALID_STATUS iff deque i has some work to offer to idle threads
    * else, status[i] = INVALID_STATUS
    */
+  @Contended
   private IntRef [] status; 
 
   /**
    * requestCells[i] = j iff task runner j is waiting for task runner i to 
    * give him work
    */
+  @Contended
   private PaddedAtomicInteger [] requestCells;
   
   /**
    * responseCells[j] holds the task that task runner j stole from other
    * task runner (specifically, where j put his id in requestCells array).
    */
+  @Contended
   private FJavaTaskRef [] responseCells;
   
   /**
@@ -130,7 +136,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.tasks.addLast(task);
     this.updateStatus();
     this.communicate();
-    this.updateStatus();
   }
   
   public void tryLoadBalance() {
@@ -169,7 +174,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       FJavaTask task = this.tasks.removeLast();
       updateStatus();
       communicate();
-      updateStatus();
       return task;
     }
   }

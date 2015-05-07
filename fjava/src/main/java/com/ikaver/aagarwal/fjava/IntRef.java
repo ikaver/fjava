@@ -1,10 +1,11 @@
 package com.ikaver.aagarwal.fjava;
 
+import sun.misc.Contended;
+
+@Contended
 public class IntRef {
   
-  //16 bytes (object)
-  public volatile int value; //value (4 btyes)
-  int a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11; //padding (44 bytes)
+  public volatile int value;
   
   public IntRef() {
     this.value = 0;
