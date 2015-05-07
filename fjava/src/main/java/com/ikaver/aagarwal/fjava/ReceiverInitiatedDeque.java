@@ -2,6 +2,7 @@ package com.ikaver.aagarwal.fjava;
 
 import java.util.ArrayDeque;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
@@ -86,12 +87,14 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * periodically if all of the tasks are done.
    */
   private FJavaPool pool;
-  
+    
   /*
    * Stopwatch used for measuring time spent in acquire.
    */
   private FastStopwatch acquireStopwatch;
   
+  private int localValue;
+    
   public ReceiverInitiatedDeque(IntRef [] status, 
       PaddedAtomicInteger [] requestCells, FJavaTaskRef [] responseCells, int dequeID) {
     for(int i = 0; i < requestCells.length; ++i) {
@@ -108,6 +111,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.dequeID = dequeID;
     this.numWorkers = this.status.length;
     this.tasks = new ArrayDeque<FJavaTask>(8192);
+    this.localValue = INVALID_STATUS;
     
     this.acquireStopwatch = new FastStopwatch();
   } 
@@ -182,7 +186,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     //Try for as much as possible to steal a task. If the parent task
     //is done syncing, or if the pool has no more tasks, I must quit.
     while(parentTask == null || !parentTask.areAllChildsDone()) {
-      int stealIdx = this.random.nextInt(this.numWorkers);
+      int stealIdx = this.random.nextInt(this.numWorkers);// ThreadLocalRandom.current().nextInt(this.numWorkers);
       if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
           && requestCells[stealIdx].compareAndSet(EMPTY_REQUEST, this.dequeID))) {
           //We must use the old reserved request cell if we had one
@@ -252,9 +256,15 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * Update status, let it be to indicate others that I'm available to give
    * work to them, or to indicate others that I do not have tasks currently.
    */
+  /**
+   * Update status, let it be to indicate others that I'm available to give
+   * work to them, or to indicate others that I do not have tasks currently.
+   */
   private void updateStatus() {
-    int available = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
-    if(this.status[this.dequeID].value != available) 
-      this.status[this.dequeID].value = available;
+    int newValue = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
+    if(this.localValue != newValue) { 
+      this.status[this.dequeID].value = newValue;
+      this.localValue = newValue;
+    }
   }
 }
