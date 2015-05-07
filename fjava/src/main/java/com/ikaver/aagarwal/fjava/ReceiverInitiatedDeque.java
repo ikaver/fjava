@@ -3,8 +3,6 @@ package com.ikaver.aagarwal.fjava;
 import java.util.ArrayDeque;
 import java.util.Random;
 
-import sun.misc.Contended;
-
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;

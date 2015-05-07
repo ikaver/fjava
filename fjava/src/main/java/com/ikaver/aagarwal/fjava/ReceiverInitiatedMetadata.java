@@ -2,9 +2,7 @@ package com.ikaver.aagarwal.fjava;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import sun.misc.Contended;
-
-@Contended
+@sun.misc.Contended
 public class ReceiverInitiatedMetadata {
   
   /**
