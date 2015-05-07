@@ -99,7 +99,7 @@ MIN_POOL=$1
 MAX_POOL=$2
 POOL_SKIP=$3
 
-for TEST_STR in "TestFibonacci"; do #"TestMatrixMultiplication" "TestPrimes" "TestQuickSort" "TestKaratsuba"; do
+for TEST_STR in "TestFibonacci" "TestMatrixMultiplication" "TestPrimes" "TestQuickSort" "TestKaratsuba"; do
    case "$TEST_STR" in
     "TestFibonacci") 
         THRESHOLDS=( 13 )
