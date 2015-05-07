@@ -108,7 +108,7 @@ for TEST_STR in "TestFibonacci" "TestMatrixMultiplication" "TestPrimes" "TestQui
          THRESHOLDS=( 32 64 )
         ;;
     "TestPrimes")
-         THRESHOLDS=( 100 500 1000 2000 5000 10000 250000 500000 )
+         THRESHOLDS=( 100 500 1000 2000 5000 10000 25000 50000 100000 250000 500000 )
         ;;
     "TestQuickSort")
         THRESHOLDS=( 40 400 4000 )
