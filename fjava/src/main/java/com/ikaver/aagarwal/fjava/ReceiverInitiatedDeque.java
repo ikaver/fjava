@@ -48,7 +48,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * status[i] == VALID_STATUS iff deque i has some work to offer to idle threads
    * else, status[i] = INVALID_STATUS
    */
-  private IntRef [] status; 
+  private int [] status; 
 
   /**
    * requestCells[i] = j iff task runner j is waiting for task runner i to 
@@ -62,7 +62,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * responseCells[j] holds the task that task runner j stole from other
    * task runner (specifically, where j put his id in requestCells array).
    */
-  private FJavaTaskRef [] responseCells;
+  private FJavaTask [] responseCells;
   
   /**
    * Index that we have reserved in the requestCells array. We are
@@ -96,32 +96,41 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   
   private static final int  REQUEST_CELLS_BASE;
   private static final int  REQUEST_CELLS_SCALE;
+  private static final int STATUS_CELLS_BASE;
+  private static final int STATUS_CELLS_SCALE;
+  private static final int RESPONSE_CELLS_BASE;
+  private static final int RESPONSE_CELLS_SCALE;
 
   static {
       try {
           Class<?> rid = ReceiverInitiatedDeque.class;
-          Class<?> array = int[].class;
-          REQUEST_CELLS_BASE = UNSAFE.arrayBaseOffset(array);
-          REQUEST_CELLS_SCALE = UNSAFE.arrayIndexScale(array);
+          Class<?> intarray = int[].class;
+          Class<?> fjarray = FJavaTask[].class;
+          REQUEST_CELLS_BASE = UNSAFE.arrayBaseOffset(intarray);
+          REQUEST_CELLS_SCALE = UNSAFE.arrayIndexScale(intarray);
+          STATUS_CELLS_BASE = UNSAFE.arrayBaseOffset(intarray);
+          STATUS_CELLS_SCALE = UNSAFE.arrayIndexScale(intarray);
+          RESPONSE_CELLS_BASE = UNSAFE.arrayBaseOffset(fjarray);
+          RESPONSE_CELLS_SCALE = UNSAFE.arrayIndexScale(fjarray);
       } catch (Exception e) {
           throw new Error(e);
       }
   }
     
-  public ReceiverInitiatedDeque(IntRef [] status, 
-      int [] requestCells, FJavaTaskRef [] responseCells, int dequeID) {
+  public ReceiverInitiatedDeque(int [] status, 
+      int [] requestCells, FJavaTask [] responseCells, int dequeID) {
     for(int i = 0; i < responseCells.length; ++i) {
       if(requestCells[16*i] != EMPTY_REQUEST) 
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
-      if(status[i].value != INVALID_STATUS)
+      if(status[16*i] != INVALID_STATUS)
         throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
-      responseCells[i] = new FJavaTaskRef(emptyTask);
+      responseCells[i] = emptyTask;
     }
     this.status = status;
     this.requestCells = requestCells;
     this.responseCells = responseCells;
     this.dequeID = dequeID;
-    this.numWorkers = this.status.length;
+    this.numWorkers = this.responseCells.length;
     this.tasks = new ArrayDeque<FJavaTask>(8192);
     this.localValue = INVALID_STATUS;
     
@@ -200,14 +209,15 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = ThreadLocalRandom.current().nextInt(this.numWorkers);
       int offset = REQUEST_CELLS_BASE + 16 * stealIdx * REQUEST_CELLS_SCALE;
-      if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
-          && UNSAFE.compareAndSwapInt(this.requestCells, offset, EMPTY_REQUEST, this.dequeID))) {
+      if(reservedRequestCell != EMPTY_REQUEST || (UNSAFE.getIntVolatile(status, offset) == VALID_STATUS 
+          && UNSAFE.compareAndSwapInt(requestCells, offset, EMPTY_REQUEST, this.dequeID))) {
           //We must use the old reserved request cell if we had one
           //(There might be a task waiting for us to run in our responseCells array,
           //since the other deque might have responded while we did the sync).
           if(reservedRequestCell != EMPTY_REQUEST) stealIdx = reservedRequestCell;
           
-          while(this.responseCells[this.dequeID].task == emptyTask) {
+          int fjoffset = RESPONSE_CELLS_BASE + this.dequeID * RESPONSE_CELLS_SCALE;
+          while(UNSAFE.getObjectVolatile(this.responseCells, fjoffset) == emptyTask) {
             //must communicate in case somebody was expecting to receive a task from me
             this.communicate(); 
             //my parent is done syncing! Must quit to let it proceed.
@@ -221,17 +231,17 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           //Finally (possibly) got a task! Clear the reserved request cell and
           //check what we got!
           reservedRequestCell = EMPTY_REQUEST;
-          if(this.responseCells[this.dequeID].task != null 
-              && this.responseCells[this.dequeID].task != emptyTask) {
+          if(this.responseCells[this.dequeID] != null 
+              && this.responseCells[this.dequeID] != emptyTask) {
             //awesome, we got a task. add it to the deque and quit.
-            FJavaTask newTask = this.responseCells[this.dequeID].task;
+            FJavaTask newTask = this.responseCells[this.dequeID];
             this.addTask(newTask);
             if(FJavaConf.shouldTrackStats()) { 
               StatsTracker.getInstance().onDequeSteal(this.dequeID);
             }
           }
           //clear out entry of the response cells array, we got out response.
-          this.responseCells[this.dequeID].task = emptyTask;
+          this.responseCells[this.dequeID] = emptyTask;
           return;
       }
       //must communicate in case somebody was expecting to receive a task from me
@@ -249,16 +259,17 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     if(requestIdx == EMPTY_REQUEST) return false; //no steal requests, quick quit.
     
     boolean didCommunicate = true;
+    int fjoffset = RESPONSE_CELLS_BASE + requestIdx * RESPONSE_CELLS_SCALE;
     if(this.tasks.isEmpty()) {
       //we were available at the time the other deque requested work to us,
       //but not anymore! respond with null
       didCommunicate = false;
-      this.responseCells[requestIdx].task = null;
+      UNSAFE.putOrderedObject(this.responseCells, fjoffset, null);
     }
     else {
       //We have work for the other deque! Give work to them.
       FJavaTask task =  this.tasks.removeFirst();
-      this.responseCells[requestIdx].task = task;
+      UNSAFE.putOrderedObject(this.responseCells, fjoffset, task);
     }
     //Responded the request successfully, clear my entry of the request cells
     //array for others to be able to request work to me.
@@ -277,7 +288,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   private void updateStatus() {
     int newValue = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
     if(this.localValue != newValue) { 
-      this.status[this.dequeID].value = newValue;
+      int offset = REQUEST_CELLS_BASE + 16 * this.dequeID * REQUEST_CELLS_SCALE;
+      UNSAFE.putOrderedInt(this.status, offset, newValue);
       this.localValue = newValue;
     }
   }
