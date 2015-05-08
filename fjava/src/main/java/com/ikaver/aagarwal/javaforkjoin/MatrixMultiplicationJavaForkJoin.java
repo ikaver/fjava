@@ -3,10 +3,9 @@ package com.ikaver.aagarwal.javaforkjoin;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
-import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
-import com.ikaver.aagarwal.common.SeqJavaForkJoin;
 import com.ikaver.aagarwal.common.problems.MatrixMultiplication;
+import com.ikaver.aagarwal.fjavaexamples.SeqJavaForkJoin;
 
 public class MatrixMultiplicationJavaForkJoin extends RecursiveAction implements MatrixMultiplication {
 

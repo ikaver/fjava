@@ -34,20 +34,20 @@ public abstract class FJavaTask {
   public void sync() {
     this.runner.syncTask(this);
   }
+  
+  public boolean areAllChildsDone() {
+    return this.childCompleteCount.get() == 0;
+  }
+  
+  public boolean isDone() {
+    return this.isDone;
+  }
 
   void execute(TaskRunner runner) {
     this.runner = runner;
     this.compute();
     this.setIsDone(true);
     this.parent = null;
-  }
-
-  boolean areAllChildsDone() {
-    return this.childCompleteCount.get() == 0;
-  }
-
-  boolean isDone() {
-    return this.isDone;
   }
 
   void setIsDone(boolean done) {

@@ -1,7 +1,10 @@
-package com.ikaver.aagarwal.fjava;
+package com.ikaver.aagarwal.fjava.deques;
 
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
+
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaTask;
 
 public class LinkedListConcurrentDeque implements TaskRunnerDeque {
 

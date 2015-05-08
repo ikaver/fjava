@@ -1,6 +1,9 @@
-package com.ikaver.aagarwal.fjava;
+package com.ikaver.aagarwal.fjava.deques;
 
 import java.util.concurrent.LinkedBlockingDeque;
+
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaTask;
 
 /**
  * Implementation of the FJava framework with a single shared concurrent queue.

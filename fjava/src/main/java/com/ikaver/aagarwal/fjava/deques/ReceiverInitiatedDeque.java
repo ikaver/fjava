@@ -1,4 +1,4 @@
-package com.ikaver.aagarwal.fjava;
+package com.ikaver.aagarwal.fjava.deques;
 
 import java.util.ArrayDeque;
 import java.util.concurrent.ThreadLocalRandom;
@@ -8,6 +8,9 @@ import sun.misc.Unsafe;
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.common.UnsafeHelper;
+import com.ikaver.aagarwal.fjava.EmptyFJavaTask;
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaTask;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
 /**

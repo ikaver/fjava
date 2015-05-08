@@ -1,4 +1,7 @@
-package com.ikaver.aagarwal.fjava;
+package com.ikaver.aagarwal.fjava.deques;
+
+import com.ikaver.aagarwal.fjava.FJavaPool;
+import com.ikaver.aagarwal.fjava.FJavaTask;
 
 /**
  * Interface which has to be implemented by a deque for task runner.
