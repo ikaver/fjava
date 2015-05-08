@@ -1,4 +1,4 @@
-package com.ikaver.aagarwal.common;
+package com.ikaver.aagarwal.common.utils;
 
 public class ArrayHelper {
 

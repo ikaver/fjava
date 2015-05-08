@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.FastStopwatch;
-import com.ikaver.aagarwal.common.MathHelper;
+import com.ikaver.aagarwal.common.utils.MathHelper;
 import com.ikaver.aagarwal.fjava.EmptyFJavaTask;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
