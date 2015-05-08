@@ -10,7 +10,7 @@ public abstract class FJavaTask {
   private TaskRunner  runner;
   private FJavaTask parent;
   private AtomicInteger childCompleteCount;
-  private boolean     isDone;    // TODO: is it necessary to be volatile?
+  private volatile boolean isDone; 
 
   public FJavaTask() {
     this.childCompleteCount = new AtomicInteger(0);
