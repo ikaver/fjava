@@ -264,16 +264,16 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       //we were available at the time the other deque requested work to us,
       //but not anymore! respond with null
       didCommunicate = false;
-      UNSAFE.putOrderedObject(this.responseCells, fjoffset, null);
+      UNSAFE.putObjectVolatile(this.responseCells, fjoffset, null);
     }
     else {
       //We have work for the other deque! Give work to them.
       FJavaTask task =  this.tasks.removeFirst();
-      UNSAFE.putOrderedObject(this.responseCells, fjoffset, task);
+      UNSAFE.putObjectVolatile(this.responseCells, fjoffset, task);
     }
     //Responded the request successfully, clear my entry of the request cells
     //array for others to be able to request work to me.
-    UNSAFE.putOrderedInt(this.requestCells, offset, EMPTY_REQUEST);
+    UNSAFE.putIntVolatile(this.requestCells, offset, EMPTY_REQUEST);
     return didCommunicate;
   }
   
@@ -289,7 +289,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     int newValue = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
     if(this.localValue != newValue) { 
       int offset = REQUEST_CELLS_BASE + 16 * this.dequeID * REQUEST_CELLS_SCALE;
-      UNSAFE.putOrderedInt(this.status, offset, newValue);
+      UNSAFE.putIntVolatile(this.status, offset, newValue);
       this.localValue = newValue;
     }
   }
