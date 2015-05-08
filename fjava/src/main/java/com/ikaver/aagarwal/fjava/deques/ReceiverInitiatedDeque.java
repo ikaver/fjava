@@ -16,6 +16,8 @@ import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 /**
  * Represents a Sender Initiated Deque. This means that task runners that need
  * tasks to run (receivers) are the ones who ask others for tasks.
+ * 
+ * Code based on paper: {@link http://dl.acm.org/citation.cfm?id=2442538}
  */
 public class ReceiverInitiatedDeque implements TaskRunnerDeque {
 
@@ -36,10 +38,15 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   public static final int EMPTY_REQUEST = -1;
   
   /**
-   * An empty task, used to differentiate "not responded yet" from "sorry, 
+   * {@code FJavaTask} used to differentiate "not responded yet" from "sorry, 
    * I have no tasks for you" responses in the responseCells array.
    */
   private static final FJavaTask emptyTask = new EmptyFJavaTask();
+  
+  /**
+   * Reference to UNSAFE. Nasty implementation needed to speed up our code.
+   */
+  private static final Unsafe UNSAFE = UnsafeHelper.getUnsafe();
  
   /**
    * Our deque of tasks.
@@ -58,9 +65,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * give him work
    */
   private int [] requestCells;
-  
-  private static final Unsafe UNSAFE = UnsafeHelper.getUnsafe();
-  
+    
   /**
    * responseCells[j] holds the task that task runner j stole from other
    * task runner (specifically, where j put his id in requestCells array).
@@ -73,6 +78,14 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * to quit temporarily to handle a sync request.
    */
   private int reservedRequestCell = EMPTY_REQUEST;
+  
+  /**
+   * Holds the state of the current status of this deque.
+   * Indicates INVALID_STATUS if we currently have no tasks to offer to other
+   * deques, else it indicates VALID_STATUS.
+   * Optimization to avoid reading volatile variables a lot.
+   */
+  private int localStatus;
 
   /**
    * The ID of this deque.
@@ -95,26 +108,6 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private FastStopwatch acquireStopwatch;
   
-  private int localValue;
-  
-  private static final int INT_ARRAY_BASE;
-  private static final int INT_ARRAY_SCALE;
-  private static final int RESPONSE_CELLS_BASE;
-  private static final int RESPONSE_CELLS_SCALE;
-
-  static {
-      try {
-          Class<?> intarray = int[].class;
-          Class<?> fjarray = FJavaTask[].class;
-          INT_ARRAY_BASE = UNSAFE.arrayBaseOffset(intarray);
-          INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(intarray);
-          RESPONSE_CELLS_BASE = UNSAFE.arrayBaseOffset(fjarray);
-          RESPONSE_CELLS_SCALE = UNSAFE.arrayIndexScale(fjarray);
-      } catch (Exception e) {
-          throw new Error(e);
-      }
-  }
-    
   public ReceiverInitiatedDeque(int [] status, 
       int [] requestCells, FJavaTask [] responseCells, int dequeID) {
     for(int i = 0; i < responseCells.length; ++i) {
@@ -130,7 +123,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.dequeID = dequeID;
     this.numWorkers = this.responseCells.length;
     this.tasks = new ArrayDeque<FJavaTask>(8192);
-    this.localValue = INVALID_STATUS;
+    this.localStatus = INVALID_STATUS;
     
     this.acquireStopwatch = new FastStopwatch();
   } 
@@ -156,6 +149,9 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.updateStatus();
   }
   
+  /**
+   * Respond to steal requests, if any.
+   */
   public void tryLoadBalance() {
     this.communicate();
     this.updateStatus();
@@ -190,6 +186,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
         StatsTracker.getInstance().onDequeNotEmpty(this.dequeID);
       }
       FJavaTask task = this.tasks.removeLast();
+      //update my status, respond to steal requests, and update my status again.
       updateStatus();
       communicate();
       updateStatus();
@@ -198,8 +195,10 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   }
     
   /**
-   * Called whenever there are no tasks in this deque
-   * @return
+   * Called whenever there are no tasks in this deque.
+   * This code will return whenever we manage to steal a task, or 
+   * the parent task we are syncing on has finished syncing, or 
+   * the pool has shutted down.
    */
   private void acquire(FJavaTask parentTask) {
     //Try for as much as possible to steal a task. If the parent task
@@ -285,10 +284,30 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   private void updateStatus() {
     int newValue = this.tasks.size() > 0 ? VALID_STATUS : INVALID_STATUS;
-    if(this.localValue != newValue) { 
+    if(this.localStatus != newValue) { 
       int offset = INT_ARRAY_BASE + 16 * this.dequeID * INT_ARRAY_SCALE;
       UNSAFE.putIntVolatile(this.status, offset, newValue);
-      this.localValue = newValue;
+      this.localStatus = newValue;
     }
+  }
+  
+  /** Code for setting up UNSAFE here **/
+  
+  private static final int INT_ARRAY_BASE;
+  private static final int INT_ARRAY_SCALE;
+  private static final int RESPONSE_CELLS_BASE;
+  private static final int RESPONSE_CELLS_SCALE;
+
+  static {
+      try {
+          Class<?> intarray = int[].class;
+          Class<?> fjarray = FJavaTask[].class;
+          INT_ARRAY_BASE = UNSAFE.arrayBaseOffset(intarray);
+          INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(intarray);
+          RESPONSE_CELLS_BASE = UNSAFE.arrayBaseOffset(fjarray);
+          RESPONSE_CELLS_SCALE = UNSAFE.arrayIndexScale(fjarray);
+      } catch (Exception e) {
+          throw new Error(e);
+      }
   }
 }

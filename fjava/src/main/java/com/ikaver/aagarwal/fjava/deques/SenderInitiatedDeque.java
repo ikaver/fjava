@@ -14,9 +14,9 @@ import com.ikaver.aagarwal.fjava.FJavaTask;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
 /**
- * Implementation of sender initiated deque. Taken from {@link http
- * ://dl.acm.org/citation.cfm?id=2442538}
+ * Implementation of sender initiated deque. 
  * 
+ * Code based on paper: {@link http://dl.acm.org/citation.cfm?id=2442538}
  * @author ankit
  */
 public class SenderInitiatedDeque implements TaskRunnerDeque {
