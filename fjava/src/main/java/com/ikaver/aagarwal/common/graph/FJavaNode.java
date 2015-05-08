@@ -72,5 +72,10 @@ public class FJavaNode {
     FJavaNode otherNode = (FJavaNode)other;
     return this.nodeID == otherNode.nodeID;
   }
+  
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(this.nodeID);
+  }
       
 }

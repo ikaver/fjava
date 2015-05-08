@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
-import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.QuickSort;
 
@@ -14,23 +13,23 @@ public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort 
   private long [] array;
   private int left;
   private int right;
-  
+
   private ForkJoinPool pool;
-  
+
   public QuickSortJavaForkJoin(ForkJoinPool pool) { 
     this.pool = pool;
   }
-  
+
   public QuickSortJavaForkJoin(long [] array, int left, int right) {
     this.array = array;
     this.left = left;
     this.right = right;
   }
-  
+
   @Override
   protected void compute() {
     if(right <= left) return;
-    
+
     if(right - left <= FJavaConf.getQuicksortSequentialThreshold()) {
       Arrays.sort(array, left, right+1);
       return;
@@ -39,14 +38,14 @@ public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort 
     invokeAll(
         new QuickSortJavaForkJoin(array, left, mid-1),
         new QuickSortJavaForkJoin(array, mid+1, right)
-    );
+        );
   }
-  
+
   private int partition() {
     int i = left, j = right+1;
     long tmp;
     long pivot = array[left];
-   
+
     while (true) {
       while(array[++i] <= pivot) 
         if(i == right) break;
@@ -61,7 +60,7 @@ public class QuickSortJavaForkJoin extends RecursiveAction implements QuickSort 
     tmp = array[j];
     array[j] = pivot;
     array[left] = tmp;
-    
+
     return j;
   }
 

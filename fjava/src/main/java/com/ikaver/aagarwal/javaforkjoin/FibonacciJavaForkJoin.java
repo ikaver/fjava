@@ -20,7 +20,11 @@ public class FibonacciJavaForkJoin {
 
 	private static class FibonacciTask extends RecursiveTask<Long> {
 
-		private final int n;
+		/**
+     * 
+     */
+    private static final long serialVersionUID = 549561076313678272L;
+    private final int n;
 
 		public FibonacciTask(int n) {
 			this.n = n;

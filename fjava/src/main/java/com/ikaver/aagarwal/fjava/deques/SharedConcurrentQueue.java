@@ -16,7 +16,6 @@ import com.ikaver.aagarwal.fjava.FJavaTask;
 public class SharedConcurrentQueue implements TaskRunnerDeque {
 
 	private final LinkedBlockingDeque<FJavaTask> queue;
-	private FJavaPool pool;
 
 	public SharedConcurrentQueue() {
 		queue = new LinkedBlockingDeque<>();
@@ -34,7 +33,7 @@ public class SharedConcurrentQueue implements TaskRunnerDeque {
 
 	@Override
 	public void setupWithPool(FJavaPool pool) {
-		this.pool = pool;
+
 	}
 
   @Override

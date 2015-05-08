@@ -15,10 +15,11 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
 public class FJavaGraph extends JFrame {
-  
+
+  private static final long serialVersionUID = 8941766394613134384L;
   private mxGraph graph;
   private Object graphRoot;
-  
+
 
   private HashMap<Integer, FJavaNode> idToNode;
   private static final String COMPLETED_STYLE = "C";
@@ -26,14 +27,14 @@ public class FJavaGraph extends JFrame {
   private static final String QUEUED_STYLE = "Q";
   private static final String RUNNING_STYLE = "R";
   private static final String NONE_STYLE = "N";
-  
+
   public FJavaGraph() {
     super("FJava Graph");
 
     this.graph = new mxGraph();
     this.graphRoot = graph.getDefaultParent();
     this.idToNode = new HashMap<Integer, FJavaNode>();
-    
+
     mxGraphComponent graphComponent = new mxGraphComponent(graph);
     getContentPane().add(graphComponent);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,11 +54,11 @@ public class FJavaGraph extends JFrame {
     {
       graph.getModel().endUpdate();
     }
-    
+
     graph.getView().validate();
     System.out.println("Added root " + taskInfo);
   }
-  
+
   public void addChild(int parentID, FJavaTaskInfo newTaskInfo) {
     graph.getModel().beginUpdate();
     FJavaNode parentNode = this.idToNode.get(parentID);
@@ -76,23 +77,23 @@ public class FJavaGraph extends JFrame {
     new mxHierarchicalLayout(graph).execute(this.graphRoot);
     new mxParallelEdgeLayout(graph).execute(this.graphRoot);
   }
-  
+
   public void onTaskQueued(int taskID) {
     transitionToState(taskID, FJavaNodeState.QUEUED);
   }
-  
+
   public void onTaskRunning(int taskID) {
     transitionToState(taskID, FJavaNodeState.RUNNING);
   }
-  
+
   public void onTaskCompleted(int taskID) { 
     transitionToState(taskID, FJavaNodeState.COMPLETED);
   }
-  
+
   public void onTaskSync(int taskID) { 
     transitionToState(taskID, FJavaNodeState.PERFORMING_SYNC);
   }
-  
+
   public void onTaskAssigned(int taskID, int taskRunnerID) {
     FJavaNode node = this.idToNode.get(taskID);
     node.setTaskRunnerID(taskRunnerID);
@@ -100,8 +101,8 @@ public class FJavaGraph extends JFrame {
     state.setLabel(node.getTaskDescription());
     this.graph.refresh();
   }
-  
-  
+
+
   private FJavaNode getFJavaNodeFromTaskInfo(FJavaTaskInfo taskInfo, int parentID) {
     FJavaNode node = new FJavaNode(taskInfo.taskID, parentID);
     node.setState(FJavaNode.FJavaNodeState.NONE);
@@ -113,7 +114,7 @@ public class FJavaGraph extends JFrame {
     this.idToNode.put(node.getNodeID(), node);
     return node;
   }
-  
+
   public void transitionToState(int nodeID, FJavaNode.FJavaNodeState state) {
     FJavaNode node = this.idToNode.get(nodeID);
     node.setState(state);
@@ -121,11 +122,11 @@ public class FJavaGraph extends JFrame {
     this.graph.setCellStyle(stringForState(state), new Object[]{nodeObj}); //changes the color to red
     this.graph.refresh();
   }
-  
+
   private String getStyleForNode(FJavaNode node) {
     return stringForState(node.getState()); 
   }
-  
+
   private void createStyles() {
     mxStylesheet stylesheet = graph.getStylesheet();
     Hashtable<String, Object> style = new Hashtable<String, Object>();
@@ -133,33 +134,33 @@ public class FJavaGraph extends JFrame {
     style.put(mxConstants.STYLE_OPACITY, 50);
     style.put(mxConstants.STYLE_FILLCOLOR, "#AAAAAA");
     stylesheet.putCellStyle(NONE_STYLE, style);
-    
+
     style = new Hashtable<String, Object>();
     style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
     style.put(mxConstants.STYLE_OPACITY, 50);
     style.put(mxConstants.STYLE_FILLCOLOR, "#FF4400");
     stylesheet.putCellStyle(RUNNING_STYLE, style);
-    
+
     style = new Hashtable<String, Object>();
     style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
     style.put(mxConstants.STYLE_OPACITY, 50);
     style.put(mxConstants.STYLE_FILLCOLOR, "#ADD8E6");
     stylesheet.putCellStyle(QUEUED_STYLE, style);
-    
+
     style = new Hashtable<String, Object>();
     style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
     style.put(mxConstants.STYLE_OPACITY, 50);
     style.put(mxConstants.STYLE_FILLCOLOR, "#7FFF00");
     stylesheet.putCellStyle(COMPLETED_STYLE, style);
-    
+
     style = new Hashtable<String, Object>();
     style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
     style.put(mxConstants.STYLE_OPACITY, 50);
     style.put(mxConstants.STYLE_FILLCOLOR, "#FFFF00");
     stylesheet.putCellStyle(QUEUED_STYLE, style);
   }
-  
-  
+
+
   private String stringForState(FJavaNode.FJavaNodeState state) {
     if(state == FJavaNodeState.COMPLETED) {
       return COMPLETED_STYLE;
@@ -175,8 +176,8 @@ public class FJavaGraph extends JFrame {
     }
     return NONE_STYLE;
   }
-    
-  
+
+
   public static void main(String [] args) throws InterruptedException {
     FJavaGraph graph = new FJavaGraph();
     graph.addRoot(new FJavaTaskInfo(1, 0, "Root"));
