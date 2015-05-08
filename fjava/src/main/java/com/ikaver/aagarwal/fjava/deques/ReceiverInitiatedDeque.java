@@ -38,11 +38,10 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    */
   public static final int EMPTY_REQUEST = -1;
   
-  /**
-   * {@code FJavaTask} used to differentiate "not responded yet" from "sorry, 
-   * I have no tasks for you" responses in the responseCells array.
-   */
-  private static final ArrayList<FJavaTask> emptyTask = new ArrayList<FJavaTask>();
+  public static final int EMPTY_RESPONSE = -2;
+  public static final int NO_TASKS_RESPONSE = -1;
+  public static final int WITH_TASKS_RESPONSE = 0;
+  public static final int MAX_STOLEN_TASKS = 6;
   
   /**
    * Reference to UNSAFE. Nasty implementation needed to speed up our code.
@@ -71,7 +70,9 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * responseCells[j] holds the task that task runner j stole from other
    * task runner (specifically, where j put his id in requestCells array).
    */
-  private ArrayList<FJavaTask> [] responseCells;
+  private int [] responseCells;
+  
+  private StolenTasksStorage [] stolenTasks;
   
   /**
    * Index that we have reserved in the requestCells array. We are
@@ -110,13 +111,13 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   private FastStopwatch acquireStopwatch;
   
   public ReceiverInitiatedDeque(int [] status, 
-      int [] requestCells, ArrayList<FJavaTask> [] responseCells, int dequeID) {
+      int [] requestCells, int [] responseCells, StolenTasksStorage [] stolenTasks, int dequeID) {
     for(int i = 0; i < responseCells.length; ++i) {
       if(requestCells[16*i] != EMPTY_REQUEST) 
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
       if(status[16*i] != INVALID_STATUS)
         throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
-      responseCells[i] = emptyTask;
+      responseCells[i] = EMPTY_RESPONSE;
     }
     this.status = status;
     this.requestCells = requestCells;
@@ -125,7 +126,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     this.numWorkers = this.responseCells.length;
     this.tasks = new ArrayDeque<FJavaTask>(8192);
     this.localStatus = INVALID_STATUS;
-    
+    this.stolenTasks = stolenTasks;
     this.acquireStopwatch = new FastStopwatch();
   } 
   
@@ -214,8 +215,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           //since the other deque might have responded while we did the sync).
           if(reservedRequestCell != EMPTY_REQUEST) stealIdx = reservedRequestCell;
           
-          int fjoffset = RESPONSE_CELLS_BASE + this.dequeID * RESPONSE_CELLS_SCALE;
-          while(UNSAFE.getObjectVolatile(this.responseCells, fjoffset) == emptyTask) {
+          int fjoffset = INT_ARRAY_BASE + this.dequeID * INT_ARRAY_SCALE;
+          while(UNSAFE.getIntVolatile(this.responseCells, fjoffset) == EMPTY_RESPONSE) {
             //must communicate in case somebody was expecting to receive a task from me
             this.communicate(); 
             //my parent is done syncing! Must quit to let it proceed.
@@ -229,19 +230,20 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           //Finally (possibly) got a task! Clear the reserved request cell and
           //check what we got!
           reservedRequestCell = EMPTY_REQUEST;
-          if(this.responseCells[this.dequeID] != null 
-              && this.responseCells[this.dequeID] != emptyTask) {
+          if(this.responseCells[this.dequeID] > 0) {
             //awesome, we got a task. add it to the deque and quit.
-            ArrayList<FJavaTask> newTasks = this.responseCells[this.dequeID];
-            for(FJavaTask task : newTasks) {
-              this.addTask(task);
+            FJavaTask [] stolen = this.stolenTasks[this.dequeID].getStolenTasks();
+            for(int i = 0; i < this.responseCells[this.dequeID]; ++i) {
+              FJavaTask stolenTask = (FJavaTask)UNSAFE.getObjectVolatile(stolen, RESPONSE_CELLS_BASE + i * RESPONSE_CELLS_SCALE);
+              this.addTask(stolenTask);
+              stolen[i] = null;
               if(FJavaConf.shouldTrackStats()) { 
                 StatsTracker.getInstance().onDequeSteal(this.dequeID);
               }
             }
           }
           //clear out entry of the response cells array, we got out response.
-          this.responseCells[this.dequeID] = emptyTask;
+          this.responseCells[this.dequeID] = EMPTY_RESPONSE;
           return;
       }
       //must communicate in case somebody was expecting to receive a task from me
@@ -249,9 +251,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       if(pool.isShuttingDown()) break;
     }
   }
-  
-  private int totalSteals = 0;
-  
+    
   /*
    * Respond to steal requests, if any.
    */
@@ -261,28 +261,27 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     if(requestIdx == EMPTY_REQUEST) return false; //no steal requests, quick quit.
     
     boolean didCommunicate = true;
-    int fjoffset = RESPONSE_CELLS_BASE + requestIdx * RESPONSE_CELLS_SCALE;
+    int responseOffset = INT_ARRAY_BASE + requestIdx * INT_ARRAY_SCALE;
     if(this.tasks.isEmpty()) {
       //we were available at the time the other deque requested work to us,
       //but not anymore! respond with null
       didCommunicate = false;
-      UNSAFE.putObjectVolatile(this.responseCells, fjoffset, null);
+      UNSAFE.putIntVolatile(this.responseCells, responseOffset, NO_TASKS_RESPONSE);
     }
     else {
       //We have work for the other deque! Give work to them.
-      ArrayList<FJavaTask> stolenTasks = new ArrayList<FJavaTask>();
       //int stealSize = 0;
       int numSteals = 0;
-      int maxSteals = this.tasks.size() / 2;
+      int maxSteals = Math.min(MAX_STOLEN_TASKS, this.tasks.size() / 2);
+      maxSteals = Math.max(maxSteals, 1);
+      FJavaTask [] stolen = this.stolenTasks[requestIdx].getStolenTasks();
       do {
         FJavaTask task =  this.tasks.removeFirst();
-        //stealSize += task.getTaskSize();
-        stolenTasks.add(task);
+        //stolen[numSteals] = task;
+        UNSAFE.putObjectVolatile(stolen, RESPONSE_CELLS_BASE + numSteals * RESPONSE_CELLS_SCALE, task);
         ++numSteals;
-        //if(stealSize >= this.pool.getDesiredChunk()) break;
       } while(numSteals < maxSteals);
-      //System.out.println("STOLE " + numSteals);
-      UNSAFE.putObjectVolatile(this.responseCells, fjoffset, stolenTasks);
+      UNSAFE.putIntVolatile(this.responseCells, responseOffset, numSteals);
     }
     //Responded the request successfully, clear my entry of the request cells
     //array for others to be able to request work to me.
@@ -317,7 +316,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   static {
       try {
           Class<?> intarray = int[].class;
-          Class<?> fjarray = ArrayList[].class;
+          Class<?> fjarray = FJavaTask[].class;
           INT_ARRAY_BASE = UNSAFE.arrayBaseOffset(intarray);
           INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(intarray);
           RESPONSE_CELLS_BASE = UNSAFE.arrayBaseOffset(fjarray);

@@ -1,6 +1,5 @@
 package com.ikaver.aagarwal.fjava;
 
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -11,6 +10,7 @@ import com.ikaver.aagarwal.fjava.deques.LinkedListConcurrentDeque;
 import com.ikaver.aagarwal.fjava.deques.ReceiverInitiatedDeque;
 import com.ikaver.aagarwal.fjava.deques.SenderInitiatedDeque;
 import com.ikaver.aagarwal.fjava.deques.SharedConcurrentQueue;
+import com.ikaver.aagarwal.fjava.deques.StolenTasksStorage;
 import com.ikaver.aagarwal.fjava.deques.TaskRunnerDeque;
 
 public class FJavaPoolFactory {
@@ -92,16 +92,19 @@ public class FJavaPoolFactory {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
     int[] status = new int[16*size];
     int[] requestCells = new int[16*size];
-    ArrayList<FJavaTask>[] responseCells = new ArrayList[size];
-
+    int[] responseCells = new int[size];
+    StolenTasksStorage [] stolenStorage = new StolenTasksStorage[size];
+    
     for (int i = 0; i < size; ++i) {
       status[16*i] = ReceiverInitiatedDeque.INVALID_STATUS;
       requestCells[16*i] = ReceiverInitiatedDeque.EMPTY_REQUEST;
+      responseCells[i] = ReceiverInitiatedDeque.EMPTY_RESPONSE;
+      stolenStorage[i] = new StolenTasksStorage(ReceiverInitiatedDeque.MAX_STOLEN_TASKS);
     }
 
     for (int i = 0; i < size; ++i) {
       deques[i] = new ReceiverInitiatedDeque(status, requestCells,
-          responseCells, i);
+          responseCells, stolenStorage, i);
     }
 
     return deques;
