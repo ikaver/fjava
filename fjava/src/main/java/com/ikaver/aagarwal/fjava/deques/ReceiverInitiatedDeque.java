@@ -1,6 +1,7 @@
 package com.ikaver.aagarwal.fjava.deques;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 import sun.misc.Unsafe;
@@ -41,7 +42,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * {@code FJavaTask} used to differentiate "not responded yet" from "sorry, 
    * I have no tasks for you" responses in the responseCells array.
    */
-  private static final FJavaTask emptyTask = new EmptyFJavaTask();
+  private static final ArrayList<FJavaTask> emptyTask = new ArrayList<FJavaTask>();
   
   /**
    * Reference to UNSAFE. Nasty implementation needed to speed up our code.
@@ -70,7 +71,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * responseCells[j] holds the task that task runner j stole from other
    * task runner (specifically, where j put his id in requestCells array).
    */
-  private FJavaTask [] responseCells;
+  private ArrayList<FJavaTask> [] responseCells;
   
   /**
    * Index that we have reserved in the requestCells array. We are
@@ -109,7 +110,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   private FastStopwatch acquireStopwatch;
   
   public ReceiverInitiatedDeque(int [] status, 
-      int [] requestCells, FJavaTask [] responseCells, int dequeID) {
+      int [] requestCells, ArrayList<FJavaTask> [] responseCells, int dequeID) {
     for(int i = 0; i < responseCells.length; ++i) {
       if(requestCells[16*i] != EMPTY_REQUEST) 
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
@@ -231,10 +232,12 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
           if(this.responseCells[this.dequeID] != null 
               && this.responseCells[this.dequeID] != emptyTask) {
             //awesome, we got a task. add it to the deque and quit.
-            FJavaTask newTask = this.responseCells[this.dequeID];
-            this.addTask(newTask);
-            if(FJavaConf.shouldTrackStats()) { 
-              StatsTracker.getInstance().onDequeSteal(this.dequeID);
+            ArrayList<FJavaTask> newTasks = this.responseCells[this.dequeID];
+            for(FJavaTask task : newTasks) {
+              this.addTask(task);
+              if(FJavaConf.shouldTrackStats()) { 
+                StatsTracker.getInstance().onDequeSteal(this.dequeID);
+              }
             }
           }
           //clear out entry of the response cells array, we got out response.
@@ -246,6 +249,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
       if(pool.isShuttingDown()) break;
     }
   }
+  
+  private int totalSteals = 0;
   
   /*
    * Respond to steal requests, if any.
@@ -265,8 +270,19 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     }
     else {
       //We have work for the other deque! Give work to them.
-      FJavaTask task =  this.tasks.removeFirst();
-      UNSAFE.putObjectVolatile(this.responseCells, fjoffset, task);
+      ArrayList<FJavaTask> stolenTasks = new ArrayList<FJavaTask>();
+      //int stealSize = 0;
+      int numSteals = 0;
+      int maxSteals = this.tasks.size() / 2;
+      do {
+        FJavaTask task =  this.tasks.removeFirst();
+        //stealSize += task.getTaskSize();
+        stolenTasks.add(task);
+        ++numSteals;
+        //if(stealSize >= this.pool.getDesiredChunk()) break;
+      } while(numSteals < maxSteals);
+      //System.out.println("STOLE " + numSteals);
+      UNSAFE.putObjectVolatile(this.responseCells, fjoffset, stolenTasks);
     }
     //Responded the request successfully, clear my entry of the request cells
     //array for others to be able to request work to me.
@@ -301,7 +317,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   static {
       try {
           Class<?> intarray = int[].class;
-          Class<?> fjarray = FJavaTask[].class;
+          Class<?> fjarray = ArrayList[].class;
           INT_ARRAY_BASE = UNSAFE.arrayBaseOffset(intarray);
           INT_ARRAY_SCALE = UNSAFE.arrayIndexScale(intarray);
           RESPONSE_CELLS_BASE = UNSAFE.arrayBaseOffset(fjarray);

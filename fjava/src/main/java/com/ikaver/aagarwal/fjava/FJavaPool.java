@@ -12,10 +12,20 @@ public class FJavaPool {
 	private boolean isRunning;
 	
 	private FJavaTask rootTask;
+	private int desiredChunk;
 
 
 	FJavaPool(int poolSize, TaskRunnerDeque [] deques) {
 		this.setup(poolSize, deques);
+	}
+	
+	public FJavaPool(int poolSize, TaskRunnerDeque [] deques, int desiredChunk) {
+	  this.setup(poolSize, deques);
+	  this.desiredChunk = desiredChunk;
+	}
+	
+	public int getDesiredChunk() {
+	  return this.desiredChunk;
 	}
 
 	public void run(FJavaTask task) {

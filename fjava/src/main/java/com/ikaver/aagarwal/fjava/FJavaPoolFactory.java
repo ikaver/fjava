@@ -1,5 +1,6 @@
 package com.ikaver.aagarwal.fjava;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,7 +33,8 @@ public class FJavaPoolFactory {
   public FJavaPool createPool(int size, StealingAlgorithm algorithm) {
     switch (algorithm) {
     case RECEIVER_INITIATED:
-      return new FJavaPool(size, getReceiverInitiatedDeques(size));
+      FJavaPool pool = new FJavaPool(size, getReceiverInitiatedDeques(size), 128);
+      return pool;
     case SENDER_INITIATED:
       return new FJavaPool(size, getSenderInitiatedDeques(size)); 
     case CONCURRENT_ARRAY:
@@ -90,7 +92,7 @@ public class FJavaPoolFactory {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
     int[] status = new int[16*size];
     int[] requestCells = new int[16*size];
-    FJavaTask[] responseCells = new FJavaTask[size];
+    ArrayList<FJavaTask>[] responseCells = new ArrayList[size];
 
     for (int i = 0; i < size; ++i) {
       status[16*i] = ReceiverInitiatedDeque.INVALID_STATUS;

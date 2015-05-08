@@ -11,12 +11,22 @@ public abstract class FJavaTask {
   private FJavaTask parent;
   private AtomicInteger childCompleteCount;
   private boolean     isDone;    // TODO: is it necessary to be volatile?
+  private int taskSize;
 
   public FJavaTask() {
     this.childCompleteCount = new AtomicInteger(0);
     this.isDone = false;
   }
-
+  
+  public FJavaTask setupWithSize(int size) {
+    this.taskSize = size;
+    return this;
+  }
+  
+  public int getTaskSize() {
+    return this.taskSize;
+  }
+  
   public abstract void compute();
 
   public void runAsync(FJavaTask parent) {
