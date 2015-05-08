@@ -77,9 +77,9 @@ MatrixMultiplication {
         aRow + mid, aCol, bRow, bCol + mid, cRow + mid, cCol + mid),
         new FJavaMatrixMultiplication(A, B, C, mid, aRow + mid, aCol + mid,
             bRow + mid, bCol + mid, cRow + mid, cCol + mid));
-    seq1.runAsync(this);
-    seq2.runAsync(this);
-    seq3.runAsync(this);
+    seq1.setupWithSize(mid).runAsync(this);
+    seq2.setupWithSize(mid).runAsync(this);
+    seq3.setupWithSize(mid).runAsync(this);
     seq4.runSync(this);
     sync();
   }
