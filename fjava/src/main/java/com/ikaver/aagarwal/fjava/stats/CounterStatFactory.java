@@ -18,6 +18,7 @@ public class CounterStatFactory {
   }
   
   public List<CounterStat> getCounters() {
+    this.counters.sort(CounterStat.ID_COMPARATOR);
     return this.counters;
   }
   

@@ -1,10 +1,21 @@
 package com.ikaver.aagarwal.fjava.stats;
 
-public class CounterStat {
+import java.util.Comparator;
+
+public class CounterStat implements Comparable<CounterStat> {
     
   private final String counterID;
   private final String description;
   private long counter;
+  
+  public static final Comparator<CounterStat> ID_COMPARATOR = new Comparator<CounterStat>() {
+
+    @Override
+    public int compare(CounterStat o1, CounterStat o2) {
+      return o1.compareTo(o2);
+    }
+
+  };
   
   public CounterStat(String counterID) {
     this(counterID, "");
@@ -38,6 +49,11 @@ public class CounterStat {
   
   public String toString() {
     return String.format("%s : %d", this.counterID, this.counter);
+  }
+
+  @Override
+  public int compareTo(CounterStat o) {
+    return this.getCounterID().compareTo(o.getCounterID());
   }
 
 }
