@@ -26,7 +26,7 @@ public class FJavaPoolFactory {
   }
 
   public FJavaPool createPool(StealingAlgorithm algorithm) {
-    return createPool(Runtime.getRuntime().availableProcessors(), algorithm);
+    return createPool(FJavaConf.getPoolSize(), algorithm);
   }
 
   public FJavaPool createPool(int size, StealingAlgorithm algorithm) {
@@ -40,12 +40,12 @@ public class FJavaPoolFactory {
     case CONCURRENT_LIST:
       return new FJavaPool(size, getConcurrentListDeques(size));
     case SHARED_CONCURRENT_QUEUE:
-    	return new FJavaPool(size, getSingleSharedConcurrentQueue(size));
+      return new FJavaPool(size, getSingleSharedConcurrentQueue(size));
     default:
       throw new IllegalArgumentException("enum is not yet supported");
     }
   }
-  
+
   private TaskRunnerDeque[] getConcurrentArrayDeques(int size) {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
     ConcurrentArrayDeque [] concurrentDeques = new ConcurrentArrayDeque[size];
@@ -55,7 +55,7 @@ public class FJavaPoolFactory {
     }
     return deques;
   }
-  
+
   private TaskRunnerDeque[] getConcurrentListDeques(int size) {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
     ConcurrentLinkedDeque<FJavaTask> [] concurrentDeques = new ConcurrentLinkedDeque[size];
@@ -78,7 +78,7 @@ public class FJavaPoolFactory {
 
     for (int i = 0; i < size; ++i) {
       deques[i] = new SenderInitiatedDeque(communicationCells,
-      		i,
+          i,
           size);
     }
 
@@ -104,15 +104,15 @@ public class FJavaPoolFactory {
 
     return deques;
   }
-  
+
   private TaskRunnerDeque[] getSingleSharedConcurrentQueue(int size) {
-  	TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
-  	SharedConcurrentQueue queue = new SharedConcurrentQueue();
-  	
-  	for (int i = 0; i < size; i++) {
-  		deques[i] = queue;
-  	}
-  	return deques;
+    TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
+    SharedConcurrentQueue queue = new SharedConcurrentQueue();
+
+    for (int i = 0; i < size; i++) {
+      deques[i] = queue;
+    }
+    return deques;
   }
 
 }
