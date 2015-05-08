@@ -100,9 +100,9 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
   static {
       try {
           Class<?> rid = ReceiverInitiatedDeque.class;
-          Class<?> pi = int[].class;
-          REQUEST_CELLS_BASE = UNSAFE.arrayBaseOffset(pi);
-          REQUEST_CELLS_SCALE = UNSAFE.arrayIndexScale(pi);
+          Class<?> array = int[].class;
+          REQUEST_CELLS_BASE = UNSAFE.arrayBaseOffset(array);
+          REQUEST_CELLS_SCALE = UNSAFE.arrayIndexScale(array);
       } catch (Exception e) {
           throw new Error(e);
       }
@@ -110,8 +110,8 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     
   public ReceiverInitiatedDeque(IntRef [] status, 
       int [] requestCells, FJavaTaskRef [] responseCells, int dequeID) {
-    for(int i = 0; i < requestCells.length; ++i) {
-      if(requestCells[i] != EMPTY_REQUEST) 
+    for(int i = 0; i < responseCells.length; ++i) {
+      if(requestCells[16*i] != EMPTY_REQUEST) 
         throw new IllegalArgumentException("All request cells should be EMPTY_REQUEST initially");
       if(status[i].value != INVALID_STATUS)
         throw new IllegalArgumentException("All status should be INVALID_STATUS initially");
@@ -199,7 +199,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
     //is done syncing, or if the pool has no more tasks, I must quit.
     while(parentTask == null || !parentTask.areAllChildsDone()) {
       int stealIdx = ThreadLocalRandom.current().nextInt(this.numWorkers);
-      int offset = REQUEST_CELLS_BASE + stealIdx * REQUEST_CELLS_SCALE;
+      int offset = REQUEST_CELLS_BASE + 16 * stealIdx * REQUEST_CELLS_SCALE;
       if(reservedRequestCell != EMPTY_REQUEST || (status[stealIdx].value == VALID_STATUS 
           && UNSAFE.compareAndSwapInt(this.requestCells, offset, EMPTY_REQUEST, this.dequeID))) {
           //We must use the old reserved request cell if we had one
@@ -244,7 +244,7 @@ public class ReceiverInitiatedDeque implements TaskRunnerDeque {
    * Respond to steal requests, if any.
    */
   private boolean communicate() {
-    int offset = REQUEST_CELLS_BASE + this.dequeID * REQUEST_CELLS_SCALE;
+    int offset = REQUEST_CELLS_BASE + 16 * this.dequeID * REQUEST_CELLS_SCALE;
     int requestIdx = UNSAFE.getIntVolatile(this.requestCells, offset);
     if(requestIdx == EMPTY_REQUEST) return false; //no steal requests, quick quit.
     
