@@ -84,12 +84,12 @@ public class FJavaPoolFactory {
   private TaskRunnerDeque[] getReceiverInitiatedDeques(int size) {
     TaskRunnerDeque[] deques = new TaskRunnerDeque[size];
     IntRef[] status = new IntRef[size];
-    PaddedAtomicInteger[] requestCells = new PaddedAtomicInteger[size];
+    int[] requestCells = new int[size];
     FJavaTaskRef[] responseCells = new FJavaTaskRef[size];
 
     for (int i = 0; i < size; ++i) {
       status[i] = new IntRef(ReceiverInitiatedDeque.INVALID_STATUS);
-      requestCells[i] = new PaddedAtomicInteger(ReceiverInitiatedDeque.EMPTY_REQUEST);
+      requestCells[i] = ReceiverInitiatedDeque.EMPTY_REQUEST;
     }
 
     for (int i = 0; i < size; ++i) {
