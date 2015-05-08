@@ -2,7 +2,7 @@ package com.ikaver.aagarwal.common.utils;
 
 import com.carrotsearch.sizeof.RamUsageEstimator;
 import com.ikaver.aagarwal.fjava.EmptyFJavaTask;
-import com.ikaver.aagarwal.fjava.FJavaTaskRef;
+import com.ikaver.aagarwal.fjava.FJavaTask;
 
 
 /**
@@ -18,8 +18,7 @@ public class ObjectSizeFetcher {
 	}
 
 	public static void main(String args[]) {
-		EmptyFJavaTask task = new EmptyFJavaTask();
-		FJavaTaskRef ref = new FJavaTaskRef(task);
-		System.out.println(RamUsageEstimator.shallowSizeOf(ref));
+		FJavaTask test = new EmptyFJavaTask();
+		System.out.println(RamUsageEstimator.shallowSizeOf(test));
 	}
 }
