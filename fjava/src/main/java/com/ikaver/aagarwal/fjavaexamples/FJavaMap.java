@@ -17,6 +17,8 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
   private int left;
   private int right;
   
+  public static final int ITERATIONS_FOR_BALANCE = 250;
+  
   private FJavaPool pool;
   
   public FJavaMap(FJavaPool pool) {
@@ -38,9 +40,16 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
   
   @Override
   public void compute() {
+    int count = 0;
+   
     if(right - left <= FJavaConf.getMapSequentialThreshold()) {
       for(int i = left; i <= right; ++i) {
         this.result[i] = this.mapFunc.map(this.array[i]);
+        ++count;
+        if(count == ITERATIONS_FOR_BALANCE) {
+          this.tryLoadBalance();
+          count = 0;
+        }
       }
       return;
     }
