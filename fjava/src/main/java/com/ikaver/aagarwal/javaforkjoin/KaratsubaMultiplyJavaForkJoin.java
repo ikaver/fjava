@@ -8,9 +8,7 @@ import com.ikaver.aagarwal.common.FJavaConf;
 
 public class KaratsubaMultiplyJavaForkJoin extends RecursiveTask<BigInteger> {
 
-  /**
-   * 
-   */
+
   private static final long serialVersionUID = 569249375244976958L;
   private ForkJoinPool pool;
   private BigInteger x, y;
