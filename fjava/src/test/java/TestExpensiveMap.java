@@ -9,7 +9,6 @@ import org.junit.Test;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
-import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.MapFunction;
 import com.ikaver.aagarwal.common.utils.ArrayHelper;
 import com.ikaver.aagarwal.fjava.FJavaPool;
@@ -36,7 +35,6 @@ public class TestExpensiveMap extends AbstractBenchmark {
 
   @BeforeClass
   public static void setup() {
-    FJavaConf.initialize();
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
 

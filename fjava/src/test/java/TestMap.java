@@ -35,7 +35,6 @@ public class TestMap extends AbstractBenchmark {
   
   @BeforeClass
   public static void setup() {
-    FJavaConf.initialize();
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
     size = 1000000;
