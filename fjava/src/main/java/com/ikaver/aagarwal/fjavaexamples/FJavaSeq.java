@@ -14,6 +14,7 @@ public class FJavaSeq extends FJavaTask {
   public void compute() {
     for(int i = 0; i < tasks.length; ++i) {
       tasks[i].runSync(this);
+      this.tryLoadBalance();
     }
   }
 
