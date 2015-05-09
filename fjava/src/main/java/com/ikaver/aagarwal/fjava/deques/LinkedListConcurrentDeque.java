@@ -6,6 +6,14 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
 
+/**
+  * Implementation of concurrent deque. Each {@code TaskRunner} 
+  * maintains an a local instance of this queue; this instance can
+  * also access other instances belonging to other task runners, concurrently.
+  * 
+  * Note that this class was created for the sole purpose of benchmarking and
+  * will NOT be shipped with the production API.
+ */
 public class LinkedListConcurrentDeque implements TaskRunnerDeque {
 
   private final int dequeID;

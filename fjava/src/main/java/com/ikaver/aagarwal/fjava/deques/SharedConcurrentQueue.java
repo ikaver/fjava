@@ -10,7 +10,9 @@ import com.ikaver.aagarwal.fjava.FJavaTask;
  * In the single concurrent queue we push the work to the back of the queue and
  * remove "tasks" from the front.
  * 
- * We expect this strategy to perform slower than the existing strategies. Also,
+ * We expect this strategy to perform slower than the existing strategies.
+ * Note that this class was created for the sole purpose of benchmarking and
+ * will NOT be shipped with the production API.
  * 
  */
 public class SharedConcurrentQueue implements TaskRunnerDeque {
