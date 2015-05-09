@@ -57,3 +57,19 @@ the sequential version of the code for several problems.
 **For different values of the sequential threshold T, the results vary. 
 FJava uses Private Deques, therefore, as expected, for larger values of T, 
 Java's native Fork Join outperforms FJava (but not by a large margin)**.
+
+To address this issue, we have added **tryLoadBalance** function to our API. This call allows FJava to perform competitively with Java 8 Fork Join even for tasks that have large sequential thresholds. On the downside, the user is responsible for making sure they call tryLoadBalance periodically during their long computations. For example:
+
+```java
+  @Override
+  public void compute() { 
+    if(right - left <= SEQUENTIAL_THRESHOLD) {
+      for(int i = left; i <= right; ++i) {
+        this.result[i] = this.mapFunc.map(this.array[i]);
+        if(i % ITERATIONS_FOR_BALANCE == 0) this.tryLoadBalance();
+      }
+      return;
+    }
+    //create child tasks using runAsync here
+  }
+```
