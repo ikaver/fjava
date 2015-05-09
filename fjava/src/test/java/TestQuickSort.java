@@ -10,7 +10,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
-import com.ikaver.aagarwal.common.utils.ArrayHelper;
+import com.ikaver.aagarwal.common.utils.TestArrayHelper;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
 import com.ikaver.aagarwal.fjavaexamples.FJavaQuickSort;
@@ -35,7 +35,7 @@ public class TestQuickSort extends AbstractBenchmark {
     size = 10000000;
     long min = - (1 << 60);
     long max =   (1 << 60);
-    original = ArrayHelper.createRandomArray(size, min, max);
+    original = TestArrayHelper.createRandomArray(size, min, max);
     if(debug) {
       sorted = Arrays.copyOf(original, size);
       Arrays.sort(sorted);    

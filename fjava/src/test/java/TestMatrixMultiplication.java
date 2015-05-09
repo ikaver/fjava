@@ -9,7 +9,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
-import com.ikaver.aagarwal.common.utils.ArrayHelper;
+import com.ikaver.aagarwal.common.utils.TestArrayHelper;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
 import com.ikaver.aagarwal.fjavaexamples.FJavaMatrixMultiplication;
@@ -35,8 +35,8 @@ public class TestMatrixMultiplication extends AbstractBenchmark {
     size = 2048;
     float min = -160;
     float max = 160;
-    testA = ArrayHelper.createRandomMatrix(size, size, min, max);
-    testB = ArrayHelper.createRandomMatrix(size, size, min, max);
+    testA = TestArrayHelper.createRandomMatrix(size, size, min, max);
+    testB = TestArrayHelper.createRandomMatrix(size, size, min, max);
     if(debug) {
       expected = new float[size][size];
       new SeqMatrixMultiplication().multiply(testA, testB, expected);

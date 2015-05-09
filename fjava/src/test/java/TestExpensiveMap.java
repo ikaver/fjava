@@ -10,7 +10,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.problems.MapFunction;
-import com.ikaver.aagarwal.common.utils.ArrayHelper;
+import com.ikaver.aagarwal.common.utils.TestArrayHelper;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
 import com.ikaver.aagarwal.fjavaexamples.FJavaMap;
@@ -41,7 +41,7 @@ public class TestExpensiveMap extends AbstractBenchmark {
     size = 100000;
     int min = 0;
     int max = 10001;
-    original = ArrayHelper.createRandomAray(size, min, max);
+    original = TestArrayHelper.createRandomAray(size, min, max);
     expected = new Integer[size];
 
     mapFunction = new MapFunction<Integer, Integer>() {

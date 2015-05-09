@@ -10,7 +10,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.ikaver.aagarwal.common.Definitions;
 import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.common.problems.MapFunction;
-import com.ikaver.aagarwal.common.utils.ArrayHelper;
+import com.ikaver.aagarwal.common.utils.TestArrayHelper;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
 import com.ikaver.aagarwal.fjavaexamples.FJavaMap;
@@ -46,7 +46,7 @@ public class TestPrimes extends AbstractBenchmark {
     int min = 1000;
     int max = (1 << 17);
     //we beat ForkJoin with size = 1000000, min = 1000, max = (1 << 15).
-    original = ArrayHelper.createRandomAray(size, min, max);
+    original = TestArrayHelper.createRandomAray(size, min, max);
     expected = new Boolean[size];
     mapFunction = new MapFunction<Integer, Boolean>() {
       public Boolean map(Integer obj) {

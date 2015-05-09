@@ -1,11 +1,11 @@
 package com.ikaver.aagarwal.common.utils;
 
-public class ArrayHelper {
+public class TestArrayHelper {
 
   public static double [] createRandomArray(int size, double minValue, double maxValue) {
     double [] array = new double[size];
     for(int i = 0; i < size; ++i) {
-      array[i] = MathHelper.randomBetween(minValue, maxValue);
+      array[i] = TestRandomHelper.randomBetween(minValue, maxValue);
     }
     return array;
   }
@@ -13,7 +13,7 @@ public class ArrayHelper {
   public static int [] createRandomAray(int size, int minValue, int maxValue) {
 	  int [] array = new int[size];
 	  for(int i = 0; i < size; i++) {
-		  array[i] = MathHelper.randomBetween(minValue, maxValue);
+		  array[i] = TestRandomHelper.randomBetween(minValue, maxValue);
 	  }
 
 	  return array;
@@ -22,7 +22,7 @@ public class ArrayHelper {
   public static long [] createRandomArray(int size, long minValue, long maxValue) {
     long [] array = new long[size];
     for(int i = 0; i < size; ++i) {
-      array[i] = MathHelper.randomLongBetween(minValue, maxValue);
+      array[i] = TestRandomHelper.randomLongBetween(minValue, maxValue);
     }
     return array;
   }
@@ -31,7 +31,7 @@ public class ArrayHelper {
     float [][] m = new float[rows][cols];
     for(int i = 0; i < rows; ++i) 
       for(int j = 0; j < cols; ++j)
-        m[i][j] = MathHelper.randomBetween(minValue, maxValue);
+        m[i][j] = TestRandomHelper.randomBetween(minValue, maxValue);
     return m;
   }
   
