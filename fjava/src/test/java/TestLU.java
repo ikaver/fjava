@@ -27,7 +27,7 @@ public class TestLU extends AbstractBenchmark {
     debug = "1".equals(System.getenv("fjava-debug")) ? true : false;
     System.out.println("Debug " + debug);
 
-    size = 1024;
+    size = 4096;
     testMatrix = new double[size][size];
     randomInit(testMatrix, size);
     copy = new double[size][size];
