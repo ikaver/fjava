@@ -52,7 +52,7 @@ the sequential version of the code for several problems.
 - **Fibonacci**: Solve **fibonacci(50)** recursively
 - **QuickSort**: Sort 10,000,000 longs using QuickSort
 
-![Preliminary results](http://www.andrew.cmu.edu/user/ikaveror/15618/images/home-speedup.png)
+![Preliminary results](http://www.andrew.cmu.edu/user/ikaveror/15618/images/speedup-github.png)
 
 **For different values of the sequential threshold T, the results vary. 
 FJava uses Private Deques, therefore, as expected, for larger values of T, 
