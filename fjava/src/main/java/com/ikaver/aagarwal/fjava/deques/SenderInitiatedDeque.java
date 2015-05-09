@@ -56,7 +56,7 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
    * @param deque
    *          is an instance of an empty deque
    * @param dequeID
-   *          is the identifier for the {@code FJava
+   *          is the identifier for the {@code SenderInitiatedDeque}
    */
   public SenderInitiatedDeque(AtomicReference<FJavaTask> communicationCells[],
       int dequeID,
