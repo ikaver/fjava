@@ -11,7 +11,12 @@ test: clean
 
 TestExpensiveMap: clean
 	echo 'Running expensive map tests...'
-	sh scripts/runAllTests.sh testExpensiveMap
+	sh scripts/runAllTests.sh TestExpensiveMap
+
+TestLU: clean
+	echo 'Running expensive map tests...'
+	sh scripts/runAllTests.sh TestLU
+
 
 TestFibonacci: clean
 	echo 'Running Fibonacci tests...'
