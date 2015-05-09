@@ -39,16 +39,12 @@ public class FJavaMap<T, V> extends FJavaTask implements Map<T, V> {
   }
   
   @Override
-  public void compute() {
-    int count = 0;
-   
+  public void compute() {   
     if(right - left <= FJavaConf.getMapSequentialThreshold()) {
       for(int i = left; i <= right; ++i) {
         this.result[i] = this.mapFunc.map(this.array[i]);
-        ++count;
-        if(count == ITERATIONS_FOR_BALANCE) {
+        if(i % ITERATIONS_FOR_BALANCE == 0) {
           this.tryLoadBalance();
-          count = 0;
         }
       }
       return;
