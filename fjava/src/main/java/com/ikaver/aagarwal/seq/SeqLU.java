@@ -14,73 +14,11 @@ public class SeqLU {
   // granularity is hard-wired as compile-time constant here
   static final int BLOCK_SIZE = 16; 
 
-  static final boolean CHECK = true; // set true to check answer
 
-  public static void main(String[] args) {
-
-    int n = 4096;
-    int runs = 1;
-
-    for (int run = 0; run < runs; ++run) {
-
-      double[][] m = new double[n][n];
-      randomInit(m, n);
-
-
-      double[][] copy = null;
-      if (CHECK) {
-        copy = new double[n][n];
-        for (int i = 0; i < n; ++i) {
-          for (int j = 0; j < n; ++j) {
-            copy[i][j] = m[i][j];
-          }
-        }
-      }
-
-      Block M = new Block(m, 0, 0);
-      Stopwatch watch = Stopwatch.createStarted();
-      new LowerUpper(n, M).run();
-      System.out.println(watch.elapsed(TimeUnit.MILLISECONDS));
-      if (CHECK) check(m, copy, n);
-    }
+  public void calculateLU(double [][] m, int n) {
+    Block M = new Block(m, 0, 0);
+    new LowerUpper(n, M).run();
   }
-
-
-  static void randomInit(double[][] M, int n) {
-
-    java.util.Random rng = new java.util.Random();
-
-    for (int i = 0; i < n; ++i)
-      for (int j = 0; j < n; ++j)
-        M[i][j] = rng.nextDouble();
-
-    // for compatibility with hood demo, force larger diagonals
-    for (int k = 0; k < n; ++k)
-      M[k][k] *= 10.0;
-  }
-
-  static void check(double[][] LU, double[][] M, int n) {
-
-    double maxDiff = 0.0; // track max difference
-
-    for (int i = 0; i < n; ++i) {
-      for (int j = 0; j < n; ++j) {
-        double v = 0.0;
-        int k;
-        for (k = 0; k < i && k <= j; k++ ) v += LU[i][k] * LU[k][j];
-        if (k == i && k <= j ) v += LU[k][j];
-        double diff = M[i][j] - v;
-        if (diff < 0) diff = -diff;
-        if (diff > 0.001) {
-          System.out.println("large diff at[" + i + "," + j + "]: " + M[i][j] + " vs " + v);
-        }
-        if (diff > maxDiff) maxDiff = diff;
-      }
-    }
-
-    System.out.println("Max difference = " + maxDiff);
-  }
-
 
   // Blocks record underlying matrix, and offsets into current block
   static class Block {
