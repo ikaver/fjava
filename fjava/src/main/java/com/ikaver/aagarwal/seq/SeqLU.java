@@ -1,14 +1,16 @@
 package com.ikaver.aagarwal.seq;
 
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Stopwatch;
 
 /**
- * LU matrix decomposition demo
- * Based on those in Cilk and Hood
+ * LU matrix decomposition.
+ * 
+ * Code of recursive decomposition taken from  
+ * @see <a href="http://gee.cs.oswego.edu/dl/papers/fj.pdf">this paper</a>
+ * 
+ * See  
+ * @see <a href="http://www.cs.cornell.edu/~bindel/class/cs6210-f09/lec10.pdf">this explanation</a> 
+ * to understand the math</a>
  **/
-
 public class SeqLU {
 
   // granularity is hard-wired as compile-time constant here
