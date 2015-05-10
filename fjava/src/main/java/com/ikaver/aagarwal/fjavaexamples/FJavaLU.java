@@ -38,32 +38,32 @@ public class FJavaLU {
 
   static class LUBase extends FJavaTask {
 
-  	private final FastStopwatch watch;
+    private final FastStopwatch watch;
 
-  	public LUBase() {
-  		if (FJavaConf.shouldTrackStats()) {
-  			watch = new FastStopwatch();
-  		} else {
-  			watch = null;
-  		}
-		}
+    public LUBase() {
+      if (FJavaConf.shouldTrackStats()) {
+        watch = new FastStopwatch();
+      } else {
+        watch = null;
+      }
+    }
 
-		@Override
-		public void compute() {
-			if (FJavaConf.shouldTrackStats()) {
-				watch.start();
-			}
-		}
-		
-		/**
-		 * Signified end of computation.
-		 */
-		public void endCompute() {
-			if (FJavaConf.shouldTrackStats()) {
-				addComputeTime(watch.end());
-			}
-		}
-  	
+    @Override
+    public void compute() {
+      if (FJavaConf.shouldTrackStats()) {
+        watch.start();
+      }
+    }
+
+    /**
+     * Signified end of computation.
+     */
+    public void endCompute() {
+      if (FJavaConf.shouldTrackStats()) {
+        addComputeTime(watch.end());
+      }
+    }
+
   }
 
   static class Schur extends LUBase {
@@ -73,7 +73,7 @@ public class FJavaLU {
     final Block M;
 
     Schur(int size, Block V, Block W, Block M) {
-    	super();
+      super();
       this.size = size; this.V = V; this.W = W; this.M = M;
     }
 
@@ -92,7 +92,7 @@ public class FJavaLU {
 
     @Override
     public void compute() {
-    	super.compute();
+      super.compute();
       if (size == BLOCK_SIZE) {
         schur();
         endCompute();
@@ -119,26 +119,26 @@ public class FJavaLU {
         new FJavaSeq(
             new Schur(h, V00, W00, M00),
             new Schur(h, V01, W10, M00)
-        ).runAsync(this);
-        
+            ).runAsync(this);
+
 
         new FJavaSeq(
             new Schur(h, V00, W01, M01),
             new Schur(h, V01, W11, M01)
-        ).runAsync(this);
-        
+            ).runAsync(this);
+
         new FJavaSeq(
             new Schur(h, V10, W00, M10),
             new Schur(h, V11, W10, M10)
-        ).runAsync(this);
-        
+            ).runAsync(this);
+
         new FJavaSeq(
             new Schur(h, V10, W01, M11),
             new Schur(h, V11, W11, M11)
-        ).runSync(this);
-        
+            ).runSync(this);
+
         this.sync();
-        
+
       }
     }
   }
@@ -151,7 +151,7 @@ public class FJavaLU {
     final Block M;
 
     Lower(int size, Block L, Block M) {
-    	super();
+      super();
       this.size = size; this.L = L; this.M = M;
     }
 
@@ -173,7 +173,7 @@ public class FJavaLU {
 
     @Override
     public void compute() {
-    	super.compute();
+      super.compute();
       if (size == BLOCK_SIZE) {
         lower();
         endCompute();
@@ -190,21 +190,21 @@ public class FJavaLU {
         Block L01 = new Block(L.m, L.loRow,   L.loCol+h);
         Block L10 = new Block(L.m, L.loRow+h, L.loCol);
         Block L11 = new Block(L.m, L.loRow+h, L.loCol+h);
-        
+
         endCompute();
         new FJavaSeq(
             new Lower(h, L00, M00),
             new Schur(h, L10, M00, M10),
             new Lower(h, L11, M10)
-        ).runAsync(this); 
+            ).runAsync(this); 
         new FJavaSeq(
             new Lower(h, L00, M01),
             new Schur(h, L10, M01, M11),
             new Lower(h, L11, M11)
-        ).runSync(this);
-        
+            ).runSync(this);
+
         this.sync();
-        
+
       }
     }
   }
@@ -217,7 +217,7 @@ public class FJavaLU {
     final Block M;
 
     Upper(int size, Block U, Block M) {
-    	super();
+      super();
       this.size = size; this.U = U; this.M = M;
     }
 
@@ -239,7 +239,7 @@ public class FJavaLU {
 
     @Override
     public void compute() {
-    	super.compute();
+      super.compute();
       if (size == BLOCK_SIZE) {
         upper();
         endCompute();
@@ -262,13 +262,13 @@ public class FJavaLU {
             new Upper(h, U00, M00),
             new Schur(h, M00, U01, M01),
             new Upper(h, U11, M01)   
-        ).runAsync(this); 
-        
+            ).runAsync(this); 
+
         new FJavaSeq(
             new Upper(h, U00, M10),
             new Schur(h, M10, U01, M11),
             new Upper(h, U11, M11) 
-        ).runSync(this); 
+            ).runSync(this); 
         this.sync();
       }
     }
@@ -281,7 +281,7 @@ public class FJavaLU {
     final Block M;
 
     LowerUpper(int size, Block M) {
-    	super();
+      super();
       this.size = size; this.M = M;
     }
 
@@ -305,7 +305,7 @@ public class FJavaLU {
 
     @Override
     public void compute() {
-    	super.compute();
+      super.compute();
       if (size == BLOCK_SIZE) {
         lu();
         endCompute();
@@ -326,7 +326,7 @@ public class FJavaLU {
              * Compute A00 = L00 * U00 (we get L00 and U00 from this step)
              * After this step, M00 will be LU decomposed.
              * (Top right half of M00 is U00, bottom left is L00)
-            */
+             */
             new LowerUpper(h, M00), 
             /**
              * Now, compute in parallel:
@@ -337,20 +337,20 @@ public class FJavaLU {
             new FJavaConcurrent(
                 new Lower(h, M00, M01),
                 new Upper(h, M00, M10)
-            ),
-            /**
-             * Now, calculate Schur's complement 
-             * S = A11 - L10 * U01, store in M11
-             */
-            new Schur(h, M10, M01, M11),
-            /**
-             * Now, LU decompose S = A11 - L10 * U01
-             * M11 = L11 * U11
-             * Store in M11.
-             * After this step, M11 will be LU decomposed.
-             */
-            new LowerUpper(h, M11)
-        ).runSync(this);
+                ),
+                /**
+                 * Now, calculate Schur's complement 
+                 * S = A11 - L10 * U01, store in M11
+                 */
+                new Schur(h, M10, M01, M11),
+                /**
+                 * Now, LU decompose S = A11 - L10 * U01
+                 * M11 = L11 * U11
+                 * Store in M11.
+                 * After this step, M11 will be LU decomposed.
+                 */
+                new LowerUpper(h, M11)
+            ).runSync(this);
       }
     }
   }
