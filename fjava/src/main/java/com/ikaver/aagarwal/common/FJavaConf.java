@@ -14,13 +14,15 @@ public class FJavaConf {
   private static final String FILTER_SEQ_THRESHOLD = "TestPrimes_THRESHOLD";
   private static final String KARATSUBA_SEQ_THRESHOLD = "TestKaratsuba_THRESHOLD";
   private static final String FIBONACCI_SEQ_THRESHOLD = "TestFibonacci_THRESHOLD";
+  private static final String LU_SEQ_THRESHOLD = "TestLU_THRESHOLD";
 
   private static final double DEFAULT_DELTA = 10000;
   public static final int DEFAULT_QUICKSORT_SEQ_THRESHOLD = 4000;
   public static final int DEFAULT_FILTER_SEQ_THRESHOLD = 64;
-  public static final int DEFAULT_MATRIX_MULT_SEQ_THRESHOLD = 64;
+  public static final int DEFAULT_MATRIX_MULT_SEQ_THRESHOLD = 32;
   public static final int DEFAULT_KARATSUBA_SEQ_THRESHOLD = 10000;
   public static final int DEFAULT_FIBONACCI_SEQ_THRESHOLD = 13;
+  public static final int DEFAULT_LU_SEQ_THRESHOLD = 64;
 
   private static boolean trackStats;
   private static StealingAlgorithm algorithm;
@@ -31,6 +33,7 @@ public class FJavaConf {
   private static int matrixMultSequentialThreshold;
   private static int karatsubaSequentialThreshold;
   private static int fibonacciSequentialThreshold;
+  private static int luSequentialThreshold;
 
   static {
     String statsString = System.getenv(COLLECT_STATS);
@@ -98,6 +101,8 @@ public class FJavaConf {
         DEFAULT_KARATSUBA_SEQ_THRESHOLD);
     fibonacciSequentialThreshold = parseValue(FIBONACCI_SEQ_THRESHOLD,
         DEFAULT_FIBONACCI_SEQ_THRESHOLD);
+    luSequentialThreshold = parseValue(LU_SEQ_THRESHOLD, 
+        DEFAULT_LU_SEQ_THRESHOLD);
   }
 
   /**
@@ -150,4 +155,9 @@ public class FJavaConf {
   public static int getFibonacciSequentialThreshold() {
     return fibonacciSequentialThreshold;
   }
+  
+  public static int getLUSequentialThreshold() {
+    return luSequentialThreshold;
+  }
+  
 }
