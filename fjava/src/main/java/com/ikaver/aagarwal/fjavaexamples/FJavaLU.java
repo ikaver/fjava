@@ -1,5 +1,7 @@
 package com.ikaver.aagarwal.fjavaexamples;
 
+import com.ikaver.aagarwal.common.FJavaConf;
+import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
 
@@ -34,13 +36,44 @@ public class FJavaLU {
     }
   }
 
-  static class Schur extends FJavaTask {
+  static class LUBase extends FJavaTask {
+
+  	private final FastStopwatch watch;
+
+  	public LUBase() {
+  		if (FJavaConf.shouldTrackStats()) {
+  			watch = new FastStopwatch();
+  		} else {
+  			watch = null;
+  		}
+		}
+
+		@Override
+		public void compute() {
+			if (FJavaConf.shouldTrackStats()) {
+				watch.start();
+			}
+		}
+		
+		/**
+		 * Signified end of computation.
+		 */
+		public void endCompute() {
+			if (FJavaConf.shouldTrackStats()) {
+				addComputeTime(watch.end());
+			}
+		}
+  	
+  }
+
+  static class Schur extends LUBase {
     final int size;
     final Block V;
     final Block W;
     final Block M;
 
     Schur(int size, Block V, Block W, Block M) {
+    	super();
       this.size = size; this.V = V; this.W = W; this.M = M;
     }
 
@@ -59,8 +92,10 @@ public class FJavaLU {
 
     @Override
     public void compute() {
+    	super.compute();
       if (size == BLOCK_SIZE) {
         schur();
+        endCompute();
       }
       else {
         int h = size / 2;
@@ -80,6 +115,7 @@ public class FJavaLU {
         Block W10 = new Block(W.m, W.loRow+h, W.loCol);
         Block W11 = new Block(W.m, W.loRow+h, W.loCol+h);
 
+        endCompute();
         new FJavaSeq(
             new Schur(h, V00, W00, M00),
             new Schur(h, V01, W10, M00)
@@ -107,13 +143,15 @@ public class FJavaLU {
     }
   }
 
-  static class Lower extends FJavaTask {
+
+  static class Lower extends LUBase {
 
     final int size;
     final Block L;
     final Block M;
 
     Lower(int size, Block L, Block M) {
+    	super();
       this.size = size; this.L = L; this.M = M;
     }
 
@@ -135,8 +173,10 @@ public class FJavaLU {
 
     @Override
     public void compute() {
+    	super.compute();
       if (size == BLOCK_SIZE) {
         lower();
+        endCompute();
       }
       else {
         int h = size / 2;
@@ -150,7 +190,8 @@ public class FJavaLU {
         Block L01 = new Block(L.m, L.loRow,   L.loCol+h);
         Block L10 = new Block(L.m, L.loRow+h, L.loCol);
         Block L11 = new Block(L.m, L.loRow+h, L.loCol+h);
-
+        
+        endCompute();
         new FJavaSeq(
             new Lower(h, L00, M00),
             new Schur(h, L10, M00, M10),
@@ -169,13 +210,14 @@ public class FJavaLU {
   }
 
 
-  static class Upper extends FJavaTask {
+  static class Upper extends LUBase {
 
     final int size;
     final Block U;
     final Block M;
 
     Upper(int size, Block U, Block M) {
+    	super();
       this.size = size; this.U = U; this.M = M;
     }
 
@@ -197,8 +239,10 @@ public class FJavaLU {
 
     @Override
     public void compute() {
+    	super.compute();
       if (size == BLOCK_SIZE) {
         upper();
+        endCompute();
       }
       else {
         int h = size / 2;
@@ -213,6 +257,7 @@ public class FJavaLU {
         Block U10 = new Block(U.m, U.loRow+h, U.loCol);
         Block U11 = new Block(U.m, U.loRow+h, U.loCol+h);
 
+        endCompute();
         new FJavaSeq(
             new Upper(h, U00, M00),
             new Schur(h, M00, U01, M01),
@@ -230,12 +275,13 @@ public class FJavaLU {
   }
 
 
-  static class LowerUpper extends FJavaTask {
+  static class LowerUpper extends LUBase {
 
     final int size;
     final Block M;
 
     LowerUpper(int size, Block M) {
+    	super();
       this.size = size; this.M = M;
     }
 
@@ -259,8 +305,10 @@ public class FJavaLU {
 
     @Override
     public void compute() {
+    	super.compute();
       if (size == BLOCK_SIZE) {
         lu();
+        endCompute();
       }
       else {
         int h = size / 2;
@@ -270,6 +318,7 @@ public class FJavaLU {
         Block M10 = new Block(M.m, M.loRow+h, M.loCol);
         Block M11 = new Block(M.m, M.loRow+h, M.loCol+h);
 
+        endCompute();
         new FJavaSeq(
             /* 
              * A is given a input.
