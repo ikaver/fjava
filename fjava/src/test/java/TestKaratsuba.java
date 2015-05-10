@@ -31,7 +31,8 @@ public class TestKaratsuba extends AbstractBenchmark {
 		System.out.println("Debug " + debug);
 		x = new BigInteger(generateRandomBinaryStringOfLength(NUM_DIGITS), BASE);
 		y = new BigInteger(generateRandomBinaryStringOfLength(NUM_DIGITS), BASE);
-		expected = x.multiply(y);
+		if(debug)
+		  expected = x.multiply(y);
 	}
 
 	private static String generateRandomBinaryStringOfLength(int length) {
@@ -50,7 +51,8 @@ public class TestKaratsuba extends AbstractBenchmark {
   	FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
   	FJavaKaratasubaMultiply fJavaMultiply = new FJavaKaratasubaMultiply(pool);
   	BigInteger result = fJavaMultiply.multiply(x, y);
-  	Assert.assertTrue("Result should match the expected value", expected.equals(result));
+  	if(debug)
+  	  Assert.assertTrue("Result should match the expected value", expected.equals(result));
   }
   
   @BenchmarkOptions(benchmarkRounds = Definitions.BENCHMARK_ROUNDS, warmupRounds = Definitions.WARMUP_ROUNDS)
@@ -61,7 +63,8 @@ public class TestKaratsuba extends AbstractBenchmark {
 				new KaratsubaMultiplyJavaForkJoin(pool);
 		
 		BigInteger result = karatsubaMultiplyJavaForkJoin.multiply(x, y);
-		Assert.assertTrue("Result value should match expected value",
+		if(debug)
+		  Assert.assertTrue("Result value should match expected value",
 				expected.equals(result));
 	}
   
@@ -70,7 +73,8 @@ public class TestKaratsuba extends AbstractBenchmark {
 	@Test
 	public void testSequential() {
   	BigInteger result = SeqKaratsuba.multiply(x, y);
-  	Assert.assertTrue("Result should match the expected value",
+  	if(debug)
+  	  Assert.assertTrue("Result should match the expected value",
   			expected.equals(result));
   }
 }
