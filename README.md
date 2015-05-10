@@ -14,6 +14,8 @@ public class FJavaQuickSort extends FJavaTask {
   private long [] array;
   private int left;
   private int right;
+  
+  private static final SEQUENTIAL_THRESHOLD = 100;
 
   public FJavaQuickSort(long [] array, int left, int right) {
     this.array = array;
@@ -25,7 +27,7 @@ public class FJavaQuickSort extends FJavaTask {
   public void compute() {
     if(right <= left) return;
 
-    if(right - left <= Definitions.QUICKSORT_SEQ_THRESHOLD) {
+    if(right - left <= SEQUENTIAL_THRESHOLD) {
       Arrays.sort(array, left, right+1);
       return;
     }
