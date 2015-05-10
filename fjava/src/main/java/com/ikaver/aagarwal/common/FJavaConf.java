@@ -15,7 +15,7 @@ public class FJavaConf {
   private static final String KARATSUBA_SEQ_THRESHOLD = "TestKaratsuba_THRESHOLD";
   private static final String FIBONACCI_SEQ_THRESHOLD = "TestFibonacci_THRESHOLD";
 
-  private static final double DEFAULT_DELTA = 0.001;
+  private static final double DEFAULT_DELTA = 10000;
   public static final int DEFAULT_QUICKSORT_SEQ_THRESHOLD = 4000;
   public static final int DEFAULT_FILTER_SEQ_THRESHOLD = 64;
   public static final int DEFAULT_MATRIX_MULT_SEQ_THRESHOLD = 64;

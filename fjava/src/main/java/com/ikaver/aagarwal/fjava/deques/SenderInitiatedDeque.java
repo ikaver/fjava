@@ -193,11 +193,12 @@ public class SenderInitiatedDeque implements TaskRunnerDeque {
   }
 
   protected void communicate() {
-    long now = System.currentTimeMillis();
+    long now = System.nanoTime();
     if (now > nextDealTime) {
       attemptDeal();
       nextDealTime = now - FJavaConf.getDelta() * Math.log(
           MathHelper.randomBetween(0.2, 0.9));
+      
     }
   }
 
