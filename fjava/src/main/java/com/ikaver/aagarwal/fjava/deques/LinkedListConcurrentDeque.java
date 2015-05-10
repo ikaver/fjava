@@ -3,8 +3,10 @@ package com.ikaver.aagarwal.fjava.deques;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import com.ikaver.aagarwal.common.FJavaConf;
 import com.ikaver.aagarwal.fjava.FJavaPool;
 import com.ikaver.aagarwal.fjava.FJavaTask;
+import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
 /**
   * Implementation of concurrent deque. Each {@code TaskRunner} 
@@ -48,7 +50,13 @@ public class LinkedListConcurrentDeque implements TaskRunnerDeque {
         int victimIdx = random.nextInt(this.deques.length);
         if(victimIdx == dequeID) continue;
         FJavaTask victimTask = this.deques[victimIdx].pollFirst();
-        if(victimTask != null) return victimTask;
+        if(victimTask != null) {
+        	if (FJavaConf.shouldTrackStats()) {
+        		// A task was stolen! Increment the counter.
+        		StatsTracker.getInstance().onDequeSteal(this.dequeID);
+        	}
+        	return victimTask;
+        }
       }
     } 
     return null;
