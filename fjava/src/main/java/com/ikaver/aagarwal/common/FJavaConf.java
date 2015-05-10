@@ -19,7 +19,7 @@ public class FJavaConf {
   public static final int DEFAULT_QUICKSORT_SEQ_THRESHOLD = 4000;
   public static final int DEFAULT_FILTER_SEQ_THRESHOLD = 64;
   public static final int DEFAULT_MATRIX_MULT_SEQ_THRESHOLD = 64;
-  public static final int DEFAULT_KARATSUBA_SEQ_THRESHOLD = 100;
+  public static final int DEFAULT_KARATSUBA_SEQ_THRESHOLD = 10000;
   public static final int DEFAULT_FIBONACCI_SEQ_THRESHOLD = 13;
 
   private static boolean trackStats;
