@@ -1,19 +1,18 @@
 package com.ikaver.aagarwal.fjavaexamples;
 
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Stopwatch;
-import com.ikaver.aagarwal.common.FJavaConf;
-import com.ikaver.aagarwal.common.StealingAlgorithm;
 import com.ikaver.aagarwal.fjava.FJavaPool;
-import com.ikaver.aagarwal.fjava.FJavaPoolFactory;
 import com.ikaver.aagarwal.fjava.FJavaTask;
 
 /**
- * LU matrix decomposition demo
- * Based on those in Cilk and Hood
+ * LU matrix decomposition.
+ * 
+ * Code of recursive decomposition taken from  
+ * @see <a href="http://gee.cs.oswego.edu/dl/papers/fj.pdf">this paper</a>
+ * 
+ * See  
+ * @see <a href="http://www.cs.cornell.edu/~bindel/class/cs6210-f09/lec10.pdf">this explanation</a> 
+ * to understand the math</a>
  **/
-
 public class FJavaLU {
 
   // granularity is hard-wired as compile-time constant here
@@ -242,7 +241,8 @@ public class FJavaLU {
 
     void lu() {  // base case
       for (int k = 0; k < BLOCK_SIZE; ++k) {
-        if(k % 4 == 0) this.tryLoadBalance();
+        //if(k % 4 == 0) this.tryLoadBalance();
+        tryLoadBalance();
         for (int i = k+1; i < BLOCK_SIZE; ++i) {
           double b = M.m[k+M.loRow][k+M.loCol];
           double a = M.m[i+M.loRow][k+M.loCol] / b;
@@ -271,12 +271,35 @@ public class FJavaLU {
         Block M11 = new Block(M.m, M.loRow+h, M.loCol+h);
 
         new FJavaSeq(
-            new LowerUpper(h, M00),
+            /* 
+             * A is given a input.
+             * 
+             * Compute A00 = L00 * U00 (we get L00 and U00 from this step)
+             * After this step, M00 will be LU decomposed.
+             * (Top right half of M00 is U00, bottom left is L00)
+            */
+            new LowerUpper(h, M00), 
+            /**
+             * Now, compute in parallel:
+             * L10 = A10 * U00^(-1) and U01 = L00^(-1) * A01
+             * Store L10 in M01, and U01 in M10.
+             * After this step, M01 and M10 will be LU decomposed.
+             */
             new FJavaConcurrent(
                 new Lower(h, M00, M01),
                 new Upper(h, M00, M10)
             ),
+            /**
+             * Now, calculate Schur's complement 
+             * S = A11 - L10 * U01, store in M11
+             */
             new Schur(h, M10, M01, M11),
+            /**
+             * Now, LU decompose S = A11 - L10 * U01
+             * M11 = L11 * U11
+             * Store in M11.
+             * After this step, M11 will be LU decomposed.
+             */
             new LowerUpper(h, M11)
         ).runSync(this);
       }

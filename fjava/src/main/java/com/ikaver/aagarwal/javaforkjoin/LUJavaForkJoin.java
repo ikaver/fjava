@@ -5,10 +5,15 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 /**
- * LU matrix decomposition demo
- * Based on those in Cilk and Hood
+ * LU matrix decomposition.
+ * 
+ * Code of recursive decomposition taken from  
+ * @see <a href="http://gee.cs.oswego.edu/dl/papers/fj.pdf">this paper</a>
+ * 
+ * See  
+ * @see <a href="http://www.cs.cornell.edu/~bindel/class/cs6210-f09/lec10.pdf">this explanation</a> 
+ * to understand the math</a>
  **/
-
 public class LUJavaForkJoin {
 
   // granularity is hard-wired as compile-time constant here
