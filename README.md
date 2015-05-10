@@ -51,6 +51,7 @@ the sequential version of the code for several problems.
 - **Matrix Multiplication**: Multiply two 2048x2048 matrices recursively
 - **Fibonacci**: Solve **fibonacci(50)** recursively
 - **QuickSort**: Sort 10,000,000 longs using QuickSort
+- **LU Decomposition**: Decompose a 4096x4096 matrix
 
 ![Preliminary results](http://www.andrew.cmu.edu/user/ikaveror/15618/images/speedup-github.png?1)
 
