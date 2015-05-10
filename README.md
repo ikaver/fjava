@@ -35,6 +35,29 @@ public class FJavaQuickSort extends FJavaTask {
     sync();
   }
 
+  private int partition() {
+    int i = left, j = right+1;
+    long tmp;
+    long pivot = array[left];
+   
+    while (true) {
+      while(array[++i] <= pivot) 
+        if(i == right) break;
+      while(array[--j] >= pivot) 
+        if(j == left) break;
+      if(i >= j) break;
+      tmp = array[i];
+      array[i] = array[j];
+      array[j] = tmp;
+    }
+
+    tmp = array[j];
+    array[j] = pivot;
+    array[left] = tmp;
+     
+    return j;
+  }
+
   public static void sort(long[] array, int left, int right) {
     FJavaPool pool = FJavaPoolFactory.getInstance().createPool();
     FJavaQuickSort task = new FJavaQuickSort(array, left, right);
