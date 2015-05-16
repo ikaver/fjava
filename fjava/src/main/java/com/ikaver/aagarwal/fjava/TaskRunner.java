@@ -5,29 +5,48 @@ import com.ikaver.aagarwal.common.FastStopwatch;
 import com.ikaver.aagarwal.fjava.deques.TaskRunnerDeque;
 import com.ikaver.aagarwal.fjava.stats.StatsTracker;
 
-
-
+/**
+ * A Task Runner is an entity that runs tasks. 
+ * Each Task Runner owns a work stealing deque. The Task Runner simply gets 
+ * work from the deque, and inserts new work back into the deque. 
+ */
 public class TaskRunner implements Runnable {
 
+  /**
+   * The deque of this task runner.
+   */
   private TaskRunnerDeque deque;
+  /**
+   * The id of this task runner.
+   */
   private int taskRunnerID;
+  /**
+   * The root task, we should keep executing tasks from our deque until 
+   * the rootTask is done.
+   */
   private FJavaTask rootTask;
-    
+  /**
+   * Stopwatch for statistics.
+   */
   private FastStopwatch getTaskStopwatch;
   
-  /* Statistics */
   
-  public TaskRunner(TaskRunnerDeque deque, int taskRunnerID) {
+  /**
+   * Creates a task runner, with the given deque and ID
+   * @param deque The deque of this task runner
+   * @param taskRunnerID The id of this task runner
+   */
+  TaskRunner(TaskRunnerDeque deque, int taskRunnerID) {
     this.deque = deque;
     this.taskRunnerID = taskRunnerID;
     this.getTaskStopwatch = new FastStopwatch();
   }
   
-  public void setRootTask(FJavaTask task) {
+  void setRootTask(FJavaTask task) {
     this.rootTask = task;
   }
   
-  public void addTask(FJavaTask task) {
+  void addTask(FJavaTask task) {
     if(FJavaConf.shouldTrackStats()) { 
       StatsTracker.getInstance().onTaskCreated(this.taskRunnerID);
     }
@@ -42,7 +61,7 @@ public class TaskRunner implements Runnable {
    * 
    * @param parentTask is the task which we want to sync on. 
    */
-  public void syncTask(FJavaTask parentTask) {
+  void syncTask(FJavaTask parentTask) {
     int triesBeforeSteal = 0;
     while(true) {
       if(parentTask.areAllChildsDone()) {
@@ -99,7 +118,7 @@ public class TaskRunner implements Runnable {
     }
   }
   
-  public void tryLoadBalance() {
+  void tryLoadBalance() {
     this.deque.tryLoadBalance();
   } 
   
