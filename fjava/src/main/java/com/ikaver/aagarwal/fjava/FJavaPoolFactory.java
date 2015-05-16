@@ -12,6 +12,9 @@ import com.ikaver.aagarwal.fjava.deques.SenderInitiatedDeque;
 import com.ikaver.aagarwal.fjava.deques.SharedConcurrentQueue;
 import com.ikaver.aagarwal.fjava.deques.TaskRunnerDeque;
 
+/**
+ * Simple factory class that provides convenience methods to create pools.
+ */
 public class FJavaPoolFactory {
 
   private static FJavaPoolFactory instance;
@@ -23,6 +26,10 @@ public class FJavaPoolFactory {
 
   public FJavaPool createPool() {
     return createPool(FJavaConf.getPoolSize(), FJavaConf.getStealingAlgorithm());
+  }
+  
+  public FJavaPool createPool(int size) {
+    return createPool(size, FJavaConf.getStealingAlgorithm());
   }
 
   public FJavaPool createPool(StealingAlgorithm algorithm) {
