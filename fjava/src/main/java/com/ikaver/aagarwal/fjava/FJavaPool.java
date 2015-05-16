@@ -33,6 +33,10 @@ public class FJavaPool {
    */
   private boolean isRunning;
 
+  /**
+   * The root task of this FJavaPool. Will continue running until this 
+   * task is done.
+   */
   private FJavaTask rootTask;
 
 
