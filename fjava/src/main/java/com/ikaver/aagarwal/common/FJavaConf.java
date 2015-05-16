@@ -17,7 +17,7 @@ public class FJavaConf {
   private static final String LU_SEQ_THRESHOLD = "TestLU_THRESHOLD";
 
   private static final double DEFAULT_DELTA = 10000;
-  public static final int DEFAULT_QUICKSORT_SEQ_THRESHOLD = 4000;
+  public static final int DEFAULT_QUICKSORT_SEQ_THRESHOLD = 100;
   public static final int DEFAULT_FILTER_SEQ_THRESHOLD = 64;
   public static final int DEFAULT_MATRIX_MULT_SEQ_THRESHOLD = 32;
   public static final int DEFAULT_KARATSUBA_SEQ_THRESHOLD = 10000;
