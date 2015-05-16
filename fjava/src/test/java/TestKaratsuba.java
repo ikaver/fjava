@@ -18,7 +18,7 @@ import com.ikaver.aagarwal.seq.SeqKaratsuba;
 public class TestKaratsuba extends AbstractBenchmark {
 	
 	private static final int BASE = 2;
-	private static final int NUM_DIGITS = 5000000;
+	private static final int NUM_DIGITS = 2500000;
 
 	static boolean debug;
 	static BigInteger x;
@@ -36,7 +36,7 @@ public class TestKaratsuba extends AbstractBenchmark {
 	}
 
 	private static String generateRandomBinaryStringOfLength(int length) {
-		Random random = new Random();
+		Random random = new Random(133333331);
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < length; i++) {
 			char ch = (char) ((char)random.nextInt(2) + '0');
