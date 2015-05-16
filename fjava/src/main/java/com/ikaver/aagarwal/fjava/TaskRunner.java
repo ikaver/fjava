@@ -29,8 +29,8 @@ public class TaskRunner implements Runnable {
    * Stopwatch for statistics.
    */
   private FastStopwatch getTaskStopwatch;
-  
-  
+
+
   /**
    * Creates a task runner, with the given deque and ID
    * @param deque The deque of this task runner
@@ -41,18 +41,18 @@ public class TaskRunner implements Runnable {
     this.taskRunnerID = taskRunnerID;
     this.getTaskStopwatch = new FastStopwatch();
   }
-  
+
   void setRootTask(FJavaTask task) {
     this.rootTask = task;
   }
-  
+
   void addTask(FJavaTask task) {
     if(FJavaConf.shouldTrackStats()) { 
       StatsTracker.getInstance().onTaskCreated(this.taskRunnerID);
     }
     this.deque.addTask(task);
   }
-  
+
   /**
    * This method can be invoked only by {@code FJavaTask#sync()}. We continue to 
    * fetch a new piece of work to execute until all the children of the task 
@@ -73,7 +73,7 @@ public class TaskRunner implements Runnable {
         FJavaTask task = deque.getTask(parentTask);
         if(FJavaConf.shouldTrackStats()) {
           StatsTracker.getInstance().onGetTaskTime(
-          		this.taskRunnerID, this.getTaskStopwatch.end());
+              this.taskRunnerID, this.getTaskStopwatch.end());
         }
         if(task == null) {
           ++triesBeforeSteal;
@@ -81,7 +81,7 @@ public class TaskRunner implements Runnable {
         }
         if(FJavaConf.shouldTrackStats()) {
           StatsTracker.getInstance().onTaskAcquired(
-          		this.taskRunnerID, triesBeforeSteal);
+              this.taskRunnerID, triesBeforeSteal);
           triesBeforeSteal = 0;
         }
         task.execute(this);
@@ -89,7 +89,7 @@ public class TaskRunner implements Runnable {
       }
     }
   }
-  
+
   @Override
   public void run() {
     int triesBeforeSteal = 1;
@@ -99,7 +99,7 @@ public class TaskRunner implements Runnable {
 
       if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onGetTaskTime(
-        		this.taskRunnerID, this.getTaskStopwatch.end());
+            this.taskRunnerID, this.getTaskStopwatch.end());
       }
 
       if(task == null) {
@@ -109,7 +109,7 @@ public class TaskRunner implements Runnable {
 
       if(FJavaConf.shouldTrackStats()) {
         StatsTracker.getInstance().onTaskAcquired(
-        		this.taskRunnerID, triesBeforeSteal);
+            this.taskRunnerID, triesBeforeSteal);
       }
 
       triesBeforeSteal = 1;
@@ -117,18 +117,19 @@ public class TaskRunner implements Runnable {
       this.notifyTaskDone(task);
     }
   }
-  
+
+  int getTaskRunnerID() {
+    return this.taskRunnerID;
+  }
+
   void tryLoadBalance() {
     this.deque.tryLoadBalance();
   } 
-  
+
   private void notifyTaskDone(FJavaTask task) {
     if(FJavaConf.shouldTrackStats()) {
       StatsTracker.getInstance().onTaskCompleted(this.taskRunnerID);
     }
-   }
-  
-   public int getTaskRunnerID() {
-  	 return this.taskRunnerID;
-   }
+  }
+
 }
